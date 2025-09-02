@@ -4,13 +4,12 @@
 
 class InputManager {
 public:
-	enum class PAD_INPUT {
-		DINPUT,
-		XINPUT,
-	};
-
 	enum class BUTTONS {
-		LSTICK_UP = 0,
+		DPAD_UP,
+		DPAD_DOWN,
+		DPAD_LEFT,
+		DPAD_RIGHT,
+		LSTICK_UP,
 		LSTICK_DOWN,
 		LSTICK_LEFT,
 		LSTICK_RIGHT,
@@ -18,10 +17,6 @@ public:
 		RSTICK_DOWN,
 		RSTICK_LEFT,
 		RSTICK_RIGHT,
-		DPAD_UP,
-		DPAD_DOWN,
-		DPAD_LEFT,
-		DPAD_RIGHT,
 		A,
 		B,
 		X,
@@ -35,27 +30,12 @@ public:
 		L3,
 		R3,
 
-		// LSTICK_UP + DPAD_UP
-		LEFT_UP,
-		// LSTICK_DOWN + DPAD_DOWN
-		LEFT_DOWN,
-		// LSTICK_LEFT + DPAD_LEFT
-		LEFT_LEFT,
-		// LSTICK_RIGHT + DPAD_RIGHT
-		LEFT_RIGHT,
-
-		// L1 + L2
-		L,
-		// R1 + R2
-		R,
-
 		END
 	};
 
 	struct BUTTON_LOG {
-		BUTTONS botton;
-		bool isDown;
-		bool isUp;
+		unsigned int now;
+		unsigned int prev;
 	};
 
 	static void CreateInstance();
@@ -65,7 +45,12 @@ public:
 	void Update();
 	bool Release();
 
-	void SetInputGroup();
+	void SetKeyMap(BUTTONS out, int in);
+	void SetPadMap(BUTTONS out, int in);
+
+	bool IsPressButton(BUTTONS) const;
+	bool IsDownButton(BUTTONS) const;
+	bool IsUpButton(BUTTONS) const;
 
 private:
 	static InputManager* instance_;
@@ -73,7 +58,13 @@ private:
 	std::map<BUTTONS, int> keyMap_;
 	std::map<BUTTONS, int> padMap_;
 
+	BUTTON_LOG keyInput_[static_cast<int>(BUTTONS::END)];
+	BUTTON_LOG padInput_[static_cast<int>(BUTTONS::END)];
+
 	InputManager() {}
 	~InputManager() {}
+
+	void GetKeyInput();
+	void GetPadInput(int pad_num);
 
 };
