@@ -47,6 +47,14 @@ void InputManager::SetPadMap(BUTTONS out, int in) {
 	padMap_.emplace(out, in);
 }
 
+unsigned int InputManager::GetNowButtonState(BUTTONS) const {
+	return 0;
+}
+
+unsigned int InputManager::GetPrevButtonState(BUTTONS) const {
+	return 0;
+}
+
 bool InputManager::IsPressButton(BUTTONS b) const {
 	bool now = keyInput_[static_cast<int>(b)].now || padInput_[static_cast<int>(b)].now;
 	return now;
@@ -70,11 +78,8 @@ void InputManager::GetKeyInput() {
 	GetHitKeyStateAll(k);
 
 	for (auto& map : keyMap_) {
-		auto kIn = 0U;
-		if (k[map.second]) kIn = 1U;
-
 		keyInput_[static_cast<int>(map.first)].prev = keyInput_[static_cast<int>(map.first)].now;
-		keyInput_[static_cast<int>(map.first)].now = kIn;
+		keyInput_[static_cast<int>(map.first)].now = k[map.second];
 	}
 }
 
@@ -85,11 +90,49 @@ void InputManager::GetPadInput(int pad_num) {
 	GetJoypadDirectInputState(pad_num, &d);
 	GetJoypadXInputState(pad_num, &x);
 
-	for (auto& map : padMap_) {
-		auto dIn = 0U;
-		if (d.Buttons[map.second]) dIn = 1U;
+	for (auto idx = static_cast<int>(BUTTONS::DPAD_UP); idx <= static_cast<int>(BUTTONS::DPAD_RIGHT); idx++) {
+		padInput_[idx].prev = padInput_[idx].now;
+	}
 
+	padInput_[static_cast<int>(BUTTONS::DPAD_UP)].now = 0U;
+	padInput_[static_cast<int>(BUTTONS::DPAD_DOWN)].now = 0U;
+	padInput_[static_cast<int>(BUTTONS::DPAD_LEFT)].now = 0U;
+	padInput_[static_cast<int>(BUTTONS::DPAD_RIGHT)].now = 0U;
+
+	switch (d.POV[0]) {
+	case 4500U * 0U:
+		padInput_[static_cast<int>(BUTTONS::DPAD_UP)].now = 1U;
+		break;
+	case 4500U * 1U:
+		padInput_[static_cast<int>(BUTTONS::DPAD_UP)].now = 1U;
+		padInput_[static_cast<int>(BUTTONS::DPAD_RIGHT)].now = 1U;
+		break;
+	case 4500U * 2U:
+		padInput_[static_cast<int>(BUTTONS::DPAD_RIGHT)].now = 1U;
+		break;
+	case 4500U * 3U:
+		padInput_[static_cast<int>(BUTTONS::DPAD_DOWN)].now = 1U;
+		padInput_[static_cast<int>(BUTTONS::DPAD_RIGHT)].now = 1U;
+		break;
+	case 4500U * 4U:
+		padInput_[static_cast<int>(BUTTONS::DPAD_DOWN)].now = 1U;
+		break;
+	case 4500U * 5U:
+		padInput_[static_cast<int>(BUTTONS::DPAD_DOWN)].now = 1U;
+		padInput_[static_cast<int>(BUTTONS::DPAD_LEFT)].now = 1U;
+		break;
+	case 4500U * 6U:
+		padInput_[static_cast<int>(BUTTONS::DPAD_LEFT)].now = 1U;
+		break;
+	case 4500U * 7U:
+		padInput_[static_cast<int>(BUTTONS::DPAD_UP)].now = 1U;
+		padInput_[static_cast<int>(BUTTONS::DPAD_LEFT)].now = 1U;
+		break;
+	default:
+	}
+
+	for (auto& map : padMap_) {
 		padInput_[static_cast<int>(map.first)].prev = padInput_[static_cast<int>(map.first)].now;
-		padInput_[static_cast<int>(map.first)].now = dIn;
+		padInput_[static_cast<int>(map.first)].now = d.Buttons[map.second];
 	}
 }

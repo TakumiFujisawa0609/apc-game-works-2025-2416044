@@ -48,6 +48,9 @@ public:
 	void SetKeyMap(BUTTONS out, int in);
 	void SetPadMap(BUTTONS out, int in);
 
+	unsigned int GetNowButtonState(BUTTONS) const;
+	unsigned int GetPrevButtonState(BUTTONS) const;
+
 	bool IsPressButton(BUTTONS) const;
 	bool IsDownButton(BUTTONS) const;
 	bool IsUpButton(BUTTONS) const;
