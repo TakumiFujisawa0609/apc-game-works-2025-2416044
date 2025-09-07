@@ -7,6 +7,8 @@
     <ClCompile Include="src\Manager\InputManager.cpp" />
     <ClCompile Include="src\Manager\SceneManager.cpp" />
     <ClCompile Include="src\Scene\SceneBase.cpp" />
+    <ClCompile Include="src\Scene\Game\Cube.cpp" />
+    <ClCompile Include="src\Common\Geometry.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\App.h" />
@@ -14,5 +16,7 @@
     <ClInclude Include="src\Manager\FPSManager.h" />
     <ClInclude Include="src\Manager\InputManager.h" />
     <ClInclude Include="src\Manager\SceneManager.h" />
+    <ClInclude Include="src\Scene\Game\Cube.h" />
+    <ClInclude Include="src\Common\Geometry.h" />
   </ItemGroup>
 </Project>
