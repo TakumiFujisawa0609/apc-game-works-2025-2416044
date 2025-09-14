@@ -109,6 +109,14 @@ void Cube::Draw() const {
 	//);
 }
 
+Vector3 Cube::GetPosition() const {
+	return pos;
+}
+
+void Cube::SetPosition(Vector3 pos) {
+	this->pos = pos;
+}
+
 BoundingBox Cube::GetBoundingBox() const {
 	BoundingBox bb = { { FLT_MAX, FLT_MAX, FLT_MAX },{ -FLT_MAX, -FLT_MAX, -FLT_MAX } };
 	for (const auto& v : vertices_) {

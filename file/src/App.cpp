@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "Manager/FPSManager.h"
 #include "App.h"
+#include "Stage.h"
 
 App* App::instance_ = nullptr;
 

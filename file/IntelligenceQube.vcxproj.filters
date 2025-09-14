@@ -9,6 +9,7 @@
     <ClCompile Include="src\Scene\SceneBase.cpp" />
     <ClCompile Include="src\Scene\Game\Cube.cpp" />
     <ClCompile Include="src\Common\Geometry.cpp" />
+    <ClCompile Include="src\Scene\Game\Stage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\App.h" />
@@ -18,5 +19,6 @@
     <ClInclude Include="src\Manager\SceneManager.h" />
     <ClInclude Include="src\Scene\Game\Cube.h" />
     <ClInclude Include="src\Common\Geometry.h" />
+    <ClInclude Include="src\Scene\Game\Stage.h" />
   </ItemGroup>
 </Project>

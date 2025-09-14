@@ -27,6 +27,7 @@
     <ClCompile Include="src\Manager\InputManager.cpp" />
     <ClCompile Include="src\Manager\SceneManager.cpp" />
     <ClCompile Include="src\Scene\SceneBase.cpp" />
+    <ClCompile Include="src\Scene\Game\Stage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Common\Geometry.h" />
@@ -36,6 +37,7 @@
     <ClInclude Include="src\Manager\InputManager.h" />
     <ClInclude Include="src\Manager\SceneManager.h" />
     <ClInclude Include="src\Scene\SceneBase.h" />
+    <ClInclude Include="src\Scene\Game\Stage.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

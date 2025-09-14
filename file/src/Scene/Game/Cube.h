@@ -11,6 +11,8 @@ struct BoundingBox { //ダイスの最小最大の座標
 class Cube {
 private:
 	int imgHandle_;
+	Vector3 pos;
+
 	std::array<VERTEX3D, 24> vertices_;
 	std::array<uint16_t, 36> indices_;
 
