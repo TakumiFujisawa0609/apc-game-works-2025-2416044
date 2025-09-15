@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Common\Geometry2D.cpp" />
+    <ClCompile Include="src\Common\Geometry3D.cpp" />
     <ClCompile Include="src\Common\Geometry.cpp" />
     <ClCompile Include="src\Scene\Game\Cube.cpp" />
     <ClCompile Include="src\App.cpp" />
@@ -30,6 +32,8 @@
     <ClCompile Include="src\Scene\Game\Stage.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Common\Geometry2D.h" />
+    <ClInclude Include="src\Common\Geometry3D.h" />
     <ClInclude Include="src\Common\Geometry.h" />
     <ClInclude Include="src\Scene\Game\Cube.h" />
     <ClInclude Include="src\App.h" />
