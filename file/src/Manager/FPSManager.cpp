@@ -109,7 +109,6 @@ bool FPSManager::CheckWait(int& time) {
         return true;
     }
     else { // フレーム欠け
-
         // 待ち時間の絶対値で分岐
         if (static_cast<int>(abs(waitTime)) < timePerFrame_) { // 1フレーム以内のズレ
             return false;

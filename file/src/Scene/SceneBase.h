@@ -3,17 +3,19 @@
 class SceneBase {
 public:
 	enum class SCENE {
-		TITLE = 0,
+		PAUSE = 0,
+
+		TITLE,
 		GAME,
 		SETTING,
 
-		PAUSE = 10,
 	};
 
-	virtual bool Init();
-	virtual void Update();
-	virtual void Draw();
-	virtual bool Release();
+	virtual bool SystemInit() { return false; }
+	virtual bool GameInit() { return false; }
+	virtual void Update() {}
+	virtual void Draw() {}
+	virtual bool Release() { return false; }
 
 	SCENE GetMyScene() const;
 	SCENE GetNextScene() const;

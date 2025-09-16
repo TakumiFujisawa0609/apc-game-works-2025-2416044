@@ -175,25 +175,25 @@ Matrix4x4 TransposeMatrix(const Matrix4x4& m) {
 Matrix4x4 RotationMatrixX(float angle) {
 	return {
 		1.F, 0.F, 0.F, 0.F,
-		0.F, cos(angle), -sin(angle), 0.F,
-		0.F, sin(angle), cos(angle), 0.F,
+		0.F, cosf(angle), -sinf(angle), 0.F,
+		0.F, sinf(angle), cosf(angle), 0.F,
 		0.F, 0.F, 0.F, 1.F
 	};
 }
 
 Matrix4x4 RotationMatrixY(float angle) {
 	return {
-		cos(angle), 0.F, sin(angle), 0.F,
+		cosf(angle), 0.F, sinf(angle), 0.F,
 		0.F, 1.F, 0.F, 0.F,
-		-sin(angle), 0.F, cos(angle), 0.F,
+		-sinf(angle), 0.F, cosf(angle), 0.F,
 		0.F, 0.F, 0.F, 1.F
 	};
 }
 
 Matrix4x4 RotationMatrixZ(float angle) {
 	return {
-		cos(angle), -sin(angle), 0.F, 0.F,
-		sin(angle), cos(angle), 0.F, 0.F,
+		cosf(angle), -sinf(angle), 0.F, 0.F,
+		sinf(angle), cosf(angle), 0.F, 0.F,
 		0.F, 0.F, 1.F, 0.F,
 		0.F, 0.F, 0.F, 1.F
 	};

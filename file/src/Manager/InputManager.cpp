@@ -129,6 +129,7 @@ void InputManager::GetPadInput(int pad_num) {
 		padInput_[static_cast<int>(BUTTONS::DPAD_LEFT)].now = 1U;
 		break;
 	default:
+		break;
 	}
 
 	for (auto& map : padMap_) {

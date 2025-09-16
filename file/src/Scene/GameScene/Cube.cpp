@@ -10,7 +10,7 @@ namespace {
 	}
 } // namespace
 
-Cube::Cube() {
+Cube::Cube(float dice_size) {
 	//VECTOR	pos ;							// 座標
 	//VECTOR	norm ;							// 法線
 	//COLOR_U8	dif ;							// ディフューズカラー
@@ -18,7 +18,7 @@ Cube::Cube() {
 	//float		u, v ;							// テクスチャ座標
 	//float		su, sv ;						// 補助テクスチャ座標
 
-	constexpr float dice_size = 10.0f; // ダイスのサイズ
+	//constexpr float dice_size = 10.0f; // ダイスのサイズ
 
 	// 頂点の定義
 	COLOR_U8 difCol = { 200, 200, 200, 255 }; // ディフューズカラー
@@ -77,7 +77,7 @@ Cube::Cube() {
 		20,23,21,23,22,21
 	};
 
-	imgHandle_ = LoadGraph("data/image/dice.png");
+	//imgHandle_ = LoadGraph("data/image/dice.png");
 }
 
 void Cube::Update(const Matrix4x4& mat) {
@@ -109,14 +109,6 @@ void Cube::Draw() const {
 	//);
 }
 
-Vector3 Cube::GetPosition() const {
-	return pos;
-}
-
-void Cube::SetPosition(Vector3 pos) {
-	this->pos = pos;
-}
-
 BoundingBox Cube::GetBoundingBox() const {
 	BoundingBox bb = { { FLT_MAX, FLT_MAX, FLT_MAX },{ -FLT_MAX, -FLT_MAX, -FLT_MAX } };
 	for (const auto& v : vertices_) {
@@ -128,4 +120,8 @@ BoundingBox Cube::GetBoundingBox() const {
 		bb.max.z = (std::max)(bb.max.z, v.pos.z);
 	}
 	return bb;
+}
+
+void Cube::SetTexture(int handle_id) {
+	imgHandle_ = handle_id;
 }

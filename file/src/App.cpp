@@ -1,8 +1,8 @@
 #include <DxLib.h>
 #include <stdio.h>
 #include "Manager/FPSManager.h"
+#include "Manager/SceneManager.h"
 #include "App.h"
-#include "Stage.h"
 
 App* App::instance_ = nullptr;
 
@@ -45,6 +45,8 @@ void App::GameLoop() {
 bool App::Release() {
 	FPSManager::GetInstance().Release();
 
+	SceneManager::GetInstance().Release();
+
 	// DxLib ‚Ì‰ğ•ú
 	if (DxLib_End() == -1) return false;
 
@@ -73,6 +75,20 @@ bool App::SystemInit() {
 	// DxLib ‚Ì‰Šú‰»
 	if (DxLib_Init() == -1) return false;
 
+	// 3D •`‰æ‹@”\‚Ì—LŒø‰»
+	SetLightEnable(true);
+	SetUseLighting(true);
+	SetUseBackCulling(true);
+	SetUseZBuffer3D(true);
+	SetBackgroundColor(0x10, 0x00, 0x20);
+
+	SetLightAmbColor(GetColorF(0.5F, 0.5F, 0.5F, 1.F));
+	SetGlobalAmbientLight(GetColorF(0.5F, 0.5F, 0.5F, 1.F));
+
+	MATERIALPARAM material = {};
+	material.Ambient = { 0.2F, 0.2F, 0.2F, 1.F };
+	DxLib::SetMaterialParam(material);
+
 	exit_ = false;
 
 	return true;
@@ -81,26 +97,32 @@ bool App::SystemInit() {
 bool App::ClassInit() {
 	FPSManager::CreateInstance();
 
+	SceneManager::CreateInstance();
+	SceneManager::GetInstance().Init();
+
 	return true;
 }
 
 void App::Update() {
-
+	SceneManager::GetInstance().Update();
 }
 
 void App::Draw() {
-	// •`‰ææ‚Ì‰æ–Ê
-	SetDrawScreen(DX_SCREEN_BACK);
-
-	// •`‰ææ‚Ì‰æ–Ê‚ğƒNƒŠƒA
-	ClearDrawScreen();
-
-	FPSManager::GetInstance().Draw();
-
 	if (!FPSManager::GetInstance().IsSkipDraw()) {
+		// •`‰ææ‚Ì‰æ–Ê‚ğƒNƒŠƒA
+		ClearDrawScreen();
 
+		// •`‰ææ‚Ì‰æ–Ê
+		SetDrawScreen(DX_SCREEN_BACK);
+
+		SetCameraNearFar(1.F, 500.F);
+		SetCameraPositionAndAngle({ 20.F, 50.F, -160.F }, DX_PI_F / 90.F * 15.F, 0.F, 0.F);
+
+		FPSManager::GetInstance().Draw();
+		SceneManager::GetInstance().Draw();
+		DrawSphere3D({ 0.F, 0.F, 0.F }, 10.F, 16, 0xFFFFFF, 0xFFFFFF, true);
+
+		// — ‰æ–Ê‚ğ•\‰æ–Ê‚É“]Ê
+		ScreenFlip();
 	}
-
-	// — ‰æ–Ê‚ğ•\‰æ–Ê‚É“]Ê
-	ScreenFlip();
 }

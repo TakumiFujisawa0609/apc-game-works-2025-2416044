@@ -1,3 +1,4 @@
+#include "../Scene/GameScene/GameScene.h"
 #include "SceneManager.h"
 
 SceneManager* SceneManager::instance_ = nullptr;
@@ -18,35 +19,47 @@ bool SceneManager::Init() {
 }
 
 void SceneManager::Update() {
-	// 逆イテレータで for ループ
-	for (auto rit = scenes_.rbegin(); rit != scenes_.rend(); rit++) {
+	if (sceneList_.size() <= 0) return;
 
-		// 逆イテレータの指すポインタ変数が空ポインタと異なるか
-		if (*rit != nullptr) {
+	// 配列末尾のポインタを取る
+	auto back = sceneList_.back();
 
-			// 更新処理
-			(*rit)->Update();
+	// アクティブなシーンだけ更新する
+	back->Update();
 
-			// 最も手前側のシーンだけ処理する
-			break;
-		}
+	// 次のシーン != 現在のシーン
+	if (back->GetNextScene() != back->GetMyScene()) {
+		// シーン遷移
+		ChangeScene(back->GetNextScene());
 	}
 }
 
 void SceneManager::Draw() {
-	// 拡張 for 文で for ループ
-	for (auto& scene : scenes_)
-
-		// 描画処理
-		scene->Draw();
+	// 非アクティブのシーンも描画する
+	for (auto scene : sceneList_) scene->Draw();
 }
 
 bool SceneManager::Release() {
+	// シーンが無くなるまで解放する
+	while (sceneList_.size() > 0) ReleaseScene();
+
+	// リストの後始末
+	sceneList_.clear();
+
 	return true;
 }
 
-int SceneManager::IntScene(SceneBase::SCENE scene) {
-	return static_cast<int>(scene);
+void SceneManager::ReleaseScene() {
+	// 現在アクティブなシーンを解放して削除
+	sceneList_.back()->Release();
+	delete sceneList_.back();
+
+	// リストからも削除
+	sceneList_.pop_back();
+}
+
+std::list<SceneBase*> SceneManager::GetSceneList() {
+	return sceneList_;
 }
 
 bool SceneManager::ClassInit() {
@@ -54,50 +67,42 @@ bool SceneManager::ClassInit() {
 }
 
 void SceneManager::ParamInit() {
-	// リザーブ領域をあらかじめ指定
-	scenes_.reserve(2);
+	ChangeScene(SceneBase::SCENE::GAME);
 }
 
-void SceneManager::ChooseScene() {
-	auto next = scenes_.back()->GetNextScene();
-
-	if (scenes_.size() == 2) {
-		scenes_.pop_back();
-
-		if (scenes_[0]->GetMyScene() == next) return;
-	}
-	else if (scenes_.back()->GetNextScene() == SceneBase::SCENE::PAUSE) {
-		//scene = new PauseScene();
-	}
-
-	SceneBase* scene = ChangeScene(next);
-}
-
-SceneBase* SceneManager::ChangeScene(SceneBase::SCENE scene) {
-	// 現在のシーンを解放
-	ReleaseScene();
-
-	// シーンを切り替える（PAUSE 以外）
-	switch (scene) {
-	case SceneBase::SCENE::TITLE:
-		//scene = new TitleScene();
-		break;
-	case SceneBase::SCENE::GAME:
-		//scene = new GameScene();
-		break;
-	case SceneBase::SCENE::SETTING:
-		//scene = new SettingScene();
-		break;
-	}
-
+void SceneManager::ChangeScene(SceneBase::SCENE scene) {
 	SceneBase* ret = nullptr;
 
-	return ret;
-}
+	if (scene != SceneBase::SCENE::PAUSE) {
+		while (sceneList_.size() > 0) {
+			// 現在アクティブなシーンが目標のシーンなら、関数から抜ける
+			if (sceneList_.back()->GetMyScene() == scene) return;
 
-void SceneManager::ReleaseScene() {
-	// リスト上の末尾のシーンを削除・解放
-	scenes_.back()->Release();
-	delete scenes_.back();
-	scenes_.pop_back();
+			// 現在のシーンを解放
+			else ReleaseScene();
+		}
+
+		// シーンを切り替える
+		switch (scene) {
+		case SceneBase::SCENE::TITLE:
+			//ret = new TitleScene();
+			break;
+		case SceneBase::SCENE::GAME:
+			ret = new GameScene();
+			break;
+		case SceneBase::SCENE::SETTING:
+			//ret = new SettingScene();
+			break;
+		}
+	}
+	else {
+		// ポーズシーン
+		//ret = new PauseScene();
+	}
+
+	if (ret != nullptr) {
+		ret->SystemInit();
+		ret->GameInit();
+		sceneList_.push_back(ret);
+	}
 }
