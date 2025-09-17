@@ -23,4 +23,6 @@ public:
 private:
 	Stage* stage_;
 
+
+
 };

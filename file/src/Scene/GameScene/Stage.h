@@ -25,7 +25,7 @@ private:
 
 	static constexpr int CUBE_WIDTH = 4;
 	static constexpr int CUBE_DEPTH = 3;
-	static constexpr float CUBE_FALL_RANGE_MAX = -2000;
+	static constexpr float CUBE_FALL_RANGE_MAX = -1200;
 
 	static constexpr int PLATFORM_WIDTH = CUBE_WIDTH;
 	static constexpr int PLATFORM_HEIGHT = 3;
@@ -34,6 +34,9 @@ private:
 	std::vector<std::vector<Block*>> platformList_;
 	std::vector<std::vector<Block*>> cubeList_;
 	int platformDepth_;
+	int cubeDepth_;
+	int wave_;
+
 	int spinTimer_;
 	int delayTimer_;
 	float totalRotate_;

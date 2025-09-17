@@ -12,7 +12,7 @@ bool Stage::SystemInit() {
 
 bool Stage::GameInit() {
 	// 足場
-	platformDepth_ = 18;
+	platformDepth_ = 15;
 
 	for (int pd = 0; pd < platformDepth_; ++pd) {
 		platformList_.emplace_back();
@@ -27,8 +27,11 @@ bool Stage::GameInit() {
 		}
 	}
 
+	cubeDepth_ = 2;
+	wave_ = 3;
+
 	// キューブ
-	for (int cd = 0; cd < CUBE_DEPTH; ++cd) {
+	for (int cd = 0; cd < cubeDepth_ * wave_; ++cd) {
 		cubeList_.emplace_back();
 		for (int cw = 0; cw < CUBE_WIDTH; ++cw) {
 			cubeList_[cd].emplace_back();
@@ -81,24 +84,28 @@ void Stage::Update() {
 		// 反時計回りに回転させる
 		totalRotate_ += DX_PI_F / 180.F * -SPIN_DEGREE;
 
-		for (auto& i : cubeList_) for (auto& cube : i) {
-			// 既に消えている場合、処理の必要が無いのでスキップ
-			if (!cube->IsAlive()) continue;
+		int nowCubeDepth = 0;
+		for (auto i = cubeList_.rbegin(); i != cubeList_.rend(); ++i) {
+			if (++nowCubeDepth > cubeDepth_) break;
+			for (auto& cube : (*i)) {
+				// 既に消えている場合、処理の必要が無いのでスキップ
+				if (!cube->IsAlive()) continue;
 
-			// キューブの座標
-			Vector3 pos = cube->GetPosition();
+				// キューブの座標
+				Vector3 pos = cube->GetPosition();
 
-			// キューブの行列用座標（Y軸座標とZ軸座標がマイナス方向の端）
-			Vector3 matPos = cube->GetMatrixPosition();
+				// キューブの行列用座標（Y軸座標とZ軸座標がマイナス方向の端）
+				Vector3 matPos = cube->GetMatrixPosition();
 
-			// 行列計算（原点への平行移動＋回転＋座標への平行移動）
-			Matrix4x4 mat = TranslationMatrix(matPos) * RotationMatrixX(DX_PI_F / 180.F * -SPIN_DEGREE) * TranslationMatrix(-matPos);
+				// 行列計算（原点への平行移動＋回転＋座標への平行移動）
+				Matrix4x4 mat = TranslationMatrix(matPos) * RotationMatrixX(DX_PI_F / 180.F * -SPIN_DEGREE) * TranslationMatrix(-matPos);
 
-			// キューブの座標を更新
-			cube->SetPosition(mat * pos);
+				// キューブの座標を更新
+				cube->SetPosition(mat * pos);
 
-			// キューブの回転を更新
-			cube->SetRotation({ totalRotate_, 0.F, 0.F });
+				// キューブの回転を更新
+				cube->SetRotation({ totalRotate_, 0.F, 0.F });
+			}
 		}
 	}
 }
