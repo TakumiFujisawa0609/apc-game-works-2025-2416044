@@ -21,7 +21,7 @@
   <ItemGroup>
     <ClCompile Include="src\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="src\Common\Geometry.cpp" />
-    <ClCompile Include="src\Scene\GameScene\Cube.cpp" />
+    <ClCompile Include="src\Scene\GameScene\Block.cpp" />
     <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Manager\FPSManager.cpp" />
@@ -33,7 +33,7 @@
   <ItemGroup>
     <ClInclude Include="src\Scene\GameScene\GameScene.h" />
     <ClInclude Include="src\Common\Geometry.h" />
-    <ClInclude Include="src\Scene\GameScene\Cube.h" />
+    <ClInclude Include="src\Scene\GameScene\Block.h" />
     <ClInclude Include="src\App.h" />
     <ClInclude Include="src\Manager\FPSManager.h" />
     <ClInclude Include="src\Manager\InputManager.h" />

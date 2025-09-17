@@ -1,3 +1,4 @@
+#include <DxLib.h>
 #include "../Scene/GameScene/GameScene.h"
 #include "SceneManager.h"
 
@@ -67,6 +68,22 @@ bool SceneManager::ClassInit() {
 }
 
 void SceneManager::ParamInit() {
+	// 3D 描画機能の有効化
+	// Zバッファを有効にする
+	SetUseZBuffer3D(true);
+
+	// Zバッファへの書き込みを有効にする
+	SetWriteZBuffer3D(true);
+
+	// バックカリングを有効にする
+	SetUseBackCulling(true);
+
+	// ライトの設定
+	SetUseLighting(true);
+
+	// 正面から斜め下に向かったライト
+	ChangeLightTypeDir({ 0.00f, -1.00f, 1.00f });
+
 	ChangeScene(SceneBase::SCENE::GAME);
 }
 

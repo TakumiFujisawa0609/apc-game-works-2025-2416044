@@ -1,7 +1,9 @@
 #pragma once
 #include <list>
+#include <vector>
+#include "../../Common/Geometry.h"
 
-class Cube;
+class Block;
 
 class Stage {
 public:
@@ -19,24 +21,29 @@ private:
 	static constexpr float SPIN_DEGREE = 90.F / SPIN_FRAME;
 
 	static constexpr int DELAY_FRAME = 30;
-	static constexpr int EXTRA_DELAY_FRAME = 60;
+	static constexpr int EXTRA_DELAY_FRAME = DELAY_FRAME * 2;
 
-	static constexpr int CUBE_DEPTH = 3;
 	static constexpr int CUBE_WIDTH = 4;
-	static constexpr float CUBE_SIZE = 10.F;
-	static constexpr float HALF_CUBE_SIZE = CUBE_SIZE / 2.F;
+	static constexpr int CUBE_DEPTH = 3;
+	static constexpr float CUBE_FALL_RANGE_MAX = -2000;
+
+	static constexpr int PLATFORM_WIDTH = CUBE_WIDTH;
+	static constexpr int PLATFORM_HEIGHT = 3;
 	static constexpr int PLATFORM_DEPTH = CUBE_DEPTH * 4;
 
-	std::list<std::list<Cube*>> platformList_;
-	std::list<std::list<Cube*>> cubeList_;
+	std::vector<std::vector<Block*>> platformList_;
+	std::vector<std::vector<Block*>> cubeList_;
+	int platformDepth_;
 	int spinTimer_;
 	int delayTimer_;
-
-	// キューブ山の最前列のキューブの現在位置（奥から数える）
-	int cubeDepth_;
+	float totalRotate_;
 
 	int normalImg_;
-	int advantageImg_;
-	int forbiddenImg_;
+
+	int normalModel_;
+	int advantageModel_;
+	int forbiddenModel_;
+
+	void FallCube();
 
 };

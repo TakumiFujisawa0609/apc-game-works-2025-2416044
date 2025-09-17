@@ -38,7 +38,7 @@ void App::GameLoop() {
 		Draw();
 		
 		//
-		FPSManager::GetInstance().Wait();
+		FPSManager::GetInstance().CheckWait();
 	}
 }
 
@@ -75,20 +75,6 @@ bool App::SystemInit() {
 	// DxLib ‚Ì‰Šú‰»
 	if (DxLib_Init() == -1) return false;
 
-	// 3D •`‰æ‹@”\‚Ì—LŒø‰»
-	SetLightEnable(true);
-	SetUseLighting(true);
-	SetUseBackCulling(true);
-	SetUseZBuffer3D(true);
-	SetBackgroundColor(0x10, 0x00, 0x20);
-
-	SetLightAmbColor(GetColorF(0.5F, 0.5F, 0.5F, 1.F));
-	SetGlobalAmbientLight(GetColorF(0.5F, 0.5F, 0.5F, 1.F));
-
-	MATERIALPARAM material = {};
-	material.Ambient = { 0.2F, 0.2F, 0.2F, 1.F };
-	DxLib::SetMaterialParam(material);
-
 	exit_ = false;
 
 	return true;
@@ -108,21 +94,18 @@ void App::Update() {
 }
 
 void App::Draw() {
-	if (!FPSManager::GetInstance().IsSkipDraw()) {
-		// •`‰ææ‚Ì‰æ–Ê‚ğƒNƒŠƒA
-		ClearDrawScreen();
+	// •`‰ææ‚Ì‰æ–Ê‚ğƒNƒŠƒA
+	ClearDrawScreen();
 
-		// •`‰ææ‚Ì‰æ–Ê
-		SetDrawScreen(DX_SCREEN_BACK);
+	// •`‰ææ‚Ì‰æ–Ê
+	SetDrawScreen(DX_SCREEN_BACK);
 
-		SetCameraNearFar(1.F, 500.F);
-		SetCameraPositionAndAngle({ 20.F, 50.F, -160.F }, DX_PI_F / 90.F * 15.F, 0.F, 0.F);
+	SetCameraNearFar(1.F, 20000.F);
+	SetCameraPositionAndAngle({ 400.F, 1200.F, -4800.F }, DX_PI_F / 90.F * 15.F, 0.F, 0.F);
 
-		FPSManager::GetInstance().Draw();
-		SceneManager::GetInstance().Draw();
-		DrawSphere3D({ 0.F, 0.F, 0.F }, 10.F, 16, 0xFFFFFF, 0xFFFFFF, true);
+	FPSManager::GetInstance().Draw();
+	SceneManager::GetInstance().Draw();
 
-		// — ‰æ–Ê‚ğ•\‰æ–Ê‚É“]Ê
-		ScreenFlip();
-	}
+	// — ‰æ–Ê‚ğ•\‰æ–Ê‚É“]Ê
+	ScreenFlip();
 }
