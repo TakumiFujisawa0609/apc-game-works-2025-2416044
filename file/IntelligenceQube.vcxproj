@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Common\GeometryDxLib.cpp" />
     <ClCompile Include="src\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="src\Common\Geometry.cpp" />
     <ClCompile Include="src\Scene\GameScene\Block.cpp" />
@@ -31,6 +32,7 @@
     <ClCompile Include="src\Scene\GameScene\Stage.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Common\GeometryDxLib.h" />
     <ClInclude Include="src\Scene\GameScene\GameScene.h" />
     <ClInclude Include="src\Common\Geometry.h" />
     <ClInclude Include="src\Scene\GameScene\Block.h" />

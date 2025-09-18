@@ -36,6 +36,9 @@ void SceneManager::Update() {
 }
 
 void SceneManager::Draw() {
+	SetCameraNearFar(1.F, 20000.F);
+	SetCameraPositionAndAngle({ 400.F, 1200.F, -4800.F }, DX_PI_F / 90.F * 20.F, 0.F, 0.F);
+
 	// 非アクティブのシーンも描画する
 	for (auto scene : sceneList_) scene->Draw();
 }
@@ -82,7 +85,7 @@ void SceneManager::ParamInit() {
 	SetUseLighting(true);
 
 	// 正面から斜め下に向かったライト
-	ChangeLightTypeDir({ 0.00f, -1.00f, 1.00f });
+	ChangeLightTypeDir({ 0.F, -1.F, 0.8F });
 
 	ChangeScene(SceneBase::SCENE::GAME);
 }

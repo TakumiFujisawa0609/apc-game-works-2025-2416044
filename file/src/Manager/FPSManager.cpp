@@ -63,7 +63,7 @@ void FPSManager::CheckWait() {
         // 実際にかかった時間が、本来の経過時間より少ない場合
         if (tookTime < TIME_PER_FRAME) {
             // ウェイト
-            WaitTimer(static_cast<int>((tookTime - TIME_PER_FRAME) * 1000.F));
+            WaitTimer(static_cast<int>((tookTime - TIME_PER_FRAME) / 1000.F));
         }
     }
 

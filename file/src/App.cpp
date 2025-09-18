@@ -64,7 +64,7 @@ bool App::SystemInit() {
 	SetWindowText("知性の立方体");
 
 	// 画面設定
-	SetGraphMode(640, 480, 32);
+	SetGraphMode(1280, 960, 32);
 
 	// ウィンドウモード
 	ChangeWindowMode(true);
@@ -99,9 +99,6 @@ void App::Draw() {
 
 	// 描画先の画面
 	SetDrawScreen(DX_SCREEN_BACK);
-
-	SetCameraNearFar(1.F, 20000.F);
-	SetCameraPositionAndAngle({ 400.F, 1200.F, -4800.F }, DX_PI_F / 90.F * 15.F, 0.F, 0.F);
 
 	FPSManager::GetInstance().Draw();
 	SceneManager::GetInstance().Draw();

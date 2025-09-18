@@ -7,16 +7,6 @@ class Block;
 
 class Stage {
 public:
-	Stage() {}
-	~Stage() {}
-
-	bool SystemInit();
-	bool GameInit();
-	void Update();
-	void Draw();
-	bool Release();
-
-private:
 	static constexpr int SPIN_FRAME = 30;
 	static constexpr float SPIN_DEGREE = 90.F / SPIN_FRAME;
 
@@ -31,6 +21,16 @@ private:
 	static constexpr int PLATFORM_HEIGHT = 3;
 	static constexpr int PLATFORM_DEPTH = CUBE_DEPTH * 4;
 
+	Stage() {}
+	~Stage() {}
+
+	bool SystemInit();
+	bool GameInit();
+	void Update();
+	void Draw();
+	bool Release();
+
+private:
 	std::vector<std::vector<Block*>> platformList_;
 	std::vector<std::vector<Block*>> cubeList_;
 	int platformDepth_;

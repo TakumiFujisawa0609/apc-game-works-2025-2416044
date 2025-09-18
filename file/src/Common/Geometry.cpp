@@ -1,9 +1,6 @@
 #include <cmath>
 #include "Geometry.h"
 
-// -------------
-// -- Vector2 --
-// -------------
 const float Vector2::Magnitude() const {
 	return hypot(x, y);
 }
@@ -66,9 +63,6 @@ float operator%(const Vector2& va, const Vector2& vb) {
 	return Cross(va, vb);
 }
 
-// -------------
-// -- Vector3 --
-// -------------
 float Vector3::Magnitude() const {
 	return sqrt(SQMagnitude());
 }
@@ -131,9 +125,6 @@ Vector3 operator%(const Vector3& va, const Vector3& vb) {
 	return Cross(va, vb);
 }
 
-// ---------------
-// -- Matrix4x4 --
-// ---------------
 Matrix4x4 Matrix4x4::operator*(const Matrix4x4& rhs) const {
 	Matrix4x4 result = {};
 	for (int i = 0; i < 4; i++) {
