@@ -33,3 +33,21 @@ Matrix4x4 GeometryDxLib::MATRIXToMatrix4x4(const MATRIX& m) {
 		m.m[3][0], m.m[3][1], m.m[3][2], m.m[3][3]
 	);
 }
+
+MATRIX GeometryDxLib::GetMatrixRotateXYZ(const VECTOR& euler) {
+	MATRIX ret = MGetIdent();
+	ret = MMult(ret, MGetRotX(euler.x));
+	ret = MMult(ret, MGetRotY(euler.y));
+	ret = MMult(ret, MGetRotZ(euler.z));
+	return ret;
+}
+
+MATRIX GeometryDxLib::Multiplication(const MATRIX& child, const MATRIX& parent)
+{
+	return MMult(child, parent);
+}
+
+MATRIX GeometryDxLib::Multiplication(const VECTOR& childEuler, const VECTOR& parentEuler)
+{
+	return MMult(GetMatrixRotateXYZ(childEuler), GetMatrixRotateXYZ(parentEuler));
+}
