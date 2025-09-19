@@ -24,6 +24,9 @@ private:
 	// マイクロ秒タイマーの時間単位
 	static constexpr double MICRO_TIMER = 1000.0 * 1000.0;
 
+	// 表示FPS用秒間サンプリング回数
+	const unsigned int SHOW_FPS_SAMPLING_NUM_PER_SECOND = 5U;
+
 	// 目標FPS
 	const unsigned int TARGET_FPS;
 
@@ -39,6 +42,9 @@ private:
 
 	// 表示FPS
 	float showFPS_;
+
+	// 記録回数カウンタ
+	unsigned int registerCount_;
 
 	/* 関数 */
 	// コンストラクタ

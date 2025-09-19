@@ -22,26 +22,26 @@
     <ClCompile Include="src\Common\GeometryDxLib.cpp" />
     <ClCompile Include="src\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="src\Common\Geometry.cpp" />
-    <ClCompile Include="src\Scene\GameScene\Block.cpp" />
+    <ClCompile Include="src\Object\Stage\Block.cpp" />
     <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Manager\FPSManager.cpp" />
     <ClCompile Include="src\Manager\InputManager.cpp" />
     <ClCompile Include="src\Manager\SceneManager.cpp" />
     <ClCompile Include="src\Scene\SceneBase.cpp" />
-    <ClCompile Include="src\Scene\GameScene\Stage.cpp" />
+    <ClCompile Include="src\Object\Stage\Stage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Common\GeometryDxLib.h" />
     <ClInclude Include="src\Scene\GameScene\GameScene.h" />
     <ClInclude Include="src\Common\Geometry.h" />
-    <ClInclude Include="src\Scene\GameScene\Block.h" />
+    <ClInclude Include="src\Object\Stage\Block.h" />
     <ClInclude Include="src\App.h" />
     <ClInclude Include="src\Manager\FPSManager.h" />
     <ClInclude Include="src\Manager\InputManager.h" />
     <ClInclude Include="src\Manager\SceneManager.h" />
     <ClInclude Include="src\Scene\SceneBase.h" />
-    <ClInclude Include="src\Scene\GameScene\Stage.h" />
+    <ClInclude Include="src\Object\Stage\Stage.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

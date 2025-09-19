@@ -3,7 +3,7 @@
 #include "Geometry.h"
 
 class GeometryDxLib {
-
+public:
 	static FLOAT2 Vector2ToFLOAT2(const Vector2& v);
 	static Vector2 FLOAT2ToVector2(const FLOAT2& f);
 

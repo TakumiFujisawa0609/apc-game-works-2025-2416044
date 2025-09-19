@@ -26,8 +26,7 @@ FPSManager::~FPSManager() {
 }
 
 void FPSManager::Draw() {
-    if (timeList_.size() >= 2) { // リストの長さが2以上必要
-
+    if (registerCount_ >= TARGET_FPS / SHOW_FPS_SAMPLING_NUM_PER_SECOND) { // 記録カウンターがサンプリング間隔に達する
         // リストの逆イテレータを取得
         auto rit = timeList_.rbegin();
 
@@ -42,6 +41,9 @@ void FPSManager::Draw() {
 
         // FPSを算出
         showFPS_ = TIME_PER_FRAME * TARGET_FPS / static_cast<float>(nowFps - prevFps);
+
+        // カウンタをリセット
+        registerCount_ -= TARGET_FPS / SHOW_FPS_SAMPLING_NUM_PER_SECOND;
     }
 
     // FPSを表示
@@ -79,6 +81,8 @@ bool FPSManager::Release() {
 void FPSManager::RegisterTime(const long long now_time) {
     // 現在のタイマー内時間をリスト上に記録
     timeList_.push_back(now_time);
+
+    registerCount_++;
 
     // リスト長が最大値を超えたら、その分だけ古い記録を弾く
     while (timeList_.size() > static_cast<int>(TARGET_FPS)) timeList_.pop_front();

@@ -1,4 +1,4 @@
-#include "Stage.h"
+#include "../../Object/Stage/Stage.h"
 #include "GameScene.h"
 
 bool GameScene::SystemInit() {

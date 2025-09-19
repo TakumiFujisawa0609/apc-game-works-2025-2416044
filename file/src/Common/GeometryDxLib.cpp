@@ -17,21 +17,21 @@ Vector3 GeometryDxLib::VECTORToVector3(const VECTOR& v) {
 }
 
 MATRIX GeometryDxLib::Matrix4x4ToMATRIX(const Matrix4x4& m) {
-	return MATRIX(
+	return {
 		m.m[0][0], m.m[0][1], m.m[0][2], m.m[0][3],
 		m.m[1][0], m.m[1][1], m.m[1][2], m.m[1][3],
 		m.m[2][0], m.m[2][1], m.m[2][2], m.m[2][3],
 		m.m[3][0], m.m[3][1], m.m[3][2], m.m[3][3]
-	);
+	};
 }
 
 Matrix4x4 GeometryDxLib::MATRIXToMatrix4x4(const MATRIX& m) {
-	return Matrix4x4(
+	return {
 		m.m[0][0], m.m[0][1], m.m[0][2], m.m[0][3],
 		m.m[1][0], m.m[1][1], m.m[1][2], m.m[1][3],
 		m.m[2][0], m.m[2][1], m.m[2][2], m.m[2][3],
 		m.m[3][0], m.m[3][1], m.m[3][2], m.m[3][3]
-	);
+	};
 }
 
 MATRIX GeometryDxLib::GetMatrixRotateXYZ(const VECTOR& euler) {
