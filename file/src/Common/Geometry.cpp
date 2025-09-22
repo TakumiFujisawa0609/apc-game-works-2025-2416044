@@ -1,6 +1,13 @@
 #include <cmath>
 #include "Geometry.h"
 
+#if !_HAS_CXX20
+#include <math.h>
+#define _USE_MATH_DEFINES
+#else
+#include <numbers>
+#endif
+
 const float Vector2::Magnitude() const {
 	return hypot(x, y);
 }
@@ -14,6 +21,18 @@ void Vector2::Normalize() {
 Vector2 Vector2::Normalized() const {
 	float mag = Magnitude();
 	return Vector2(x / mag, y / mag);
+}
+
+float Vector2::Angle() const {
+	return atan2f(y, x);
+}
+
+float Vector2::AngleDegree() const {
+#if !_HAS_CXX20
+	return Angle() / (float)M_PI * 180.f;
+#else
+	return Angle() / (float)std::numbers::pi * 180.f;
+#endif
 }
 
 void Vector2::operator+=(const Vector2& v) {
@@ -39,11 +58,11 @@ Vector2 Vector2::operator-() const {
 	return Vector2(-x, -y);
 }
 
-Vector2 operator+(const Vector2& va, const Vector2 vb) {
+Vector2 operator+(const Vector2& va, const Vector2& vb) {
 	return Vector2(va.x + vb.x, va.y + vb.y);
 }
 
-Vector2 operator-(const Vector2& va, const Vector2 vb) {
+Vector2 operator-(const Vector2& va, const Vector2& vb) {
 	return Vector2(va.x - vb.x, va.y - vb.y);
 }
 
@@ -63,11 +82,15 @@ float operator%(const Vector2& va, const Vector2& vb) {
 	return Cross(va, vb);
 }
 
-float Vector3::Magnitude() const {
-	return sqrt(SQMagnitude());
+Vector2 GetVector2FromAngle(float angle, float length) {
+	return Vector2(cosf(angle), sinf(angle)) * length;
 }
 
-float Vector3::SQMagnitude() const {
+float Vector3::Magnitude() const {
+	return sqrt(SquareMagnitude());
+}
+
+float Vector3::SquareMagnitude() const {
 	return x * x + y * y + z * z;
 }
 
@@ -107,6 +130,14 @@ Vector3 Vector3::operator*(float scale) const {
 
 Vector3 Vector3::operator-() const {
 	return Vector3(-x, -y, -z);
+}
+
+Vector3 operator+(const Vector3& va, const Vector3& vb) {
+	return Vector3(va.x + vb.x, va.y + vb.y, va.z + vb.z);
+}
+
+Vector3 operator-(const Vector3& va, const Vector3& vb) {
+	return Vector3(va.x - vb.x, va.y - vb.y, va.z - vb.z);
 }
 
 float Dot(const Vector3& va, const Vector3& vb) {

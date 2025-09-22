@@ -15,6 +15,11 @@ struct Vector2 {
 	// 正規化済みベクトル
 	Vector2 Normalized() const;
 
+	// 角度（ラジアン）
+	float Angle() const;
+	// 角度（弧度）
+	float AngleDegree() const;
+
 	// ベクトル加算
 	void operator+=(const Vector2& v);
 	// ベクトル減算
@@ -28,9 +33,9 @@ struct Vector2 {
 };
 
 // ベクトル同士の加算
-Vector2 operator+(const Vector2& va, const Vector2 vb);
+Vector2 operator+(const Vector2& va, const Vector2& vb);
 // ベクトル同士の減算
-Vector2 operator-(const Vector2& va, const Vector2 vb);
+Vector2 operator-(const Vector2& va, const Vector2& vb);
 
 // 内積（ドット積）
 float Dot(const Vector2& va, const Vector2& vb);
@@ -42,6 +47,9 @@ float operator*(const Vector2& va, const Vector2& vb);
 // 外積（クロス積）
 float operator%(const Vector2& va, const Vector2& vb);
 
+// 角度からベクトルを取得
+Vector2 GetVector2FromAngle(float angle, float length);
+
 // ３次元ベクトル
 struct Vector3 {
 	Vector3() : x(0), y(0), z(0) {}
@@ -52,7 +60,7 @@ struct Vector3 {
 	// 平方和（各要素の２乗の和）の平方根
 	float Magnitude() const;
 	// 平方和（各要素の２乗の和）
-	float SQMagnitude() const;
+	float SquareMagnitude() const;
 
 	// 正規化
 	void Normalize();
@@ -70,6 +78,11 @@ struct Vector3 {
 	// 正負反転
 	Vector3 operator-() const;
 };
+
+// ベクトル同士の加算
+Vector3 operator+(const Vector3& va, const Vector3& vb);
+// ベクトル同士の減算
+Vector3 operator-(const Vector3& va, const Vector3& vb);
 
 // 内積（ドット積）
 float Dot(const Vector3& va, const Vector3& vb);

@@ -1,41 +1,54 @@
 #pragma once
+#include <array>
+#include <list>
 #include <map>
 #include "DxLib.h"
 
 class InputManager {
 public:
 	enum class BUTTONS {
-		DPAD_UP,
-		DPAD_DOWN,
-		DPAD_LEFT,
-		DPAD_RIGHT,
-		LSTICK_UP,
-		LSTICK_DOWN,
-		LSTICK_LEFT,
-		LSTICK_RIGHT,
-		RSTICK_UP,
-		RSTICK_DOWN,
-		RSTICK_LEFT,
-		RSTICK_RIGHT,
-		A,
-		B,
-		X,
-		Y,
-		START,
-		SELECT,
-		L1,
-		R1,
-		L2,
-		R2,
-		L3,
-		R3,
+		NONE,
+
+		LSTICK_L,
+		LSTICK_R,
+		LSTICK_U,
+		LSTICK_D,
+
+		RSTICK_L,
+		RSTICK_R,
+		RSTICK_U,
+		RSTICK_D,
+
+		DPAD_L,
+		DPAD_R,
+		DPAD_U,
+		DPAD_D,
+
+		BUTTON_0,
+		BUTTON_1,
+		BUTTON_2,
+		BUTTON_3,
+		BUTTON_4,
+		BUTTON_5,
+		BUTTON_6,
+		BUTTON_7,
+		BUTTON_8,
+		BUTTON_9,
+		BUTTON_10,
+		BUTTON_11,
+		BUTTON_12,
+		BUTTON_13,
+		BUTTON_14,
+		BUTTON_15,
 
 		END
 	};
 
-	struct BUTTON_LOG {
-		unsigned int now;
-		unsigned int prev;
+	static constexpr size_t KEY_INDEX_MAX = 2Ui64;
+
+	struct BUTTON_MAP {
+		BUTTONS padMap;
+		std::array<int, KEY_INDEX_MAX> keyMap;
 	};
 
 	static void CreateInstance();
@@ -45,8 +58,10 @@ public:
 	void Update();
 	bool Release();
 
-	void SetKeyMap(BUTTONS out, int in);
-	void SetPadMap(BUTTONS out, int in);
+	void AddButtonMap(const char* name, BUTTONS padMap = BUTTONS::NONE, std::array<int, KEY_INDEX_MAX> keyMap = { 0x00, 0x00 });
+	void ReplacePadMap(const char* name, BUTTONS replace);
+	void ReplaceKeyMap(const char* name, std::array<int, KEY_INDEX_MAX> replace);
+	void ReplaceKeyMap(const char* name, int replace, size_t index);
 
 	unsigned int GetNowButtonState(BUTTONS) const;
 	unsigned int GetPrevButtonState(BUTTONS) const;
@@ -58,11 +73,9 @@ public:
 private:
 	static InputManager* instance_;
 
-	std::map<BUTTONS, int> keyMap_;
-	std::map<BUTTONS, int> padMap_;
-
-	BUTTON_LOG keyInput_[static_cast<int>(BUTTONS::END)];
-	BUTTON_LOG padInput_[static_cast<int>(BUTTONS::END)];
+	std::map<const char*, BUTTON_MAP> buttonMap_;
+	std::array<int, static_cast<size_t>(BUTTONS::END)> nowButton_;
+	std::array<int, static_cast<size_t>(BUTTONS::END)> prevButton_;
 
 	InputManager() {}
 	~InputManager() {}
