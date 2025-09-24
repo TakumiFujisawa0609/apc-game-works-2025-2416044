@@ -63,12 +63,8 @@ public:
 	void ReplaceKeyMap(const char* name, std::array<int, KEY_INDEX_MAX> replace);
 	void ReplaceKeyMap(const char* name, int replace, size_t index);
 
-	unsigned int GetNowButtonState(BUTTONS) const;
-	unsigned int GetPrevButtonState(BUTTONS) const;
-
-	bool IsPressButton(BUTTONS) const;
-	bool IsDownButton(BUTTONS) const;
-	bool IsUpButton(BUTTONS) const;
+	int GetNowButtonState(BUTTONS) const;
+	int GetPrevButtonState(BUTTONS) const;
 
 private:
 	static InputManager* instance_;

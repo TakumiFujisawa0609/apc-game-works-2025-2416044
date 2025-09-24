@@ -17,7 +17,11 @@ bool InputManager::Init() {
 
 void InputManager::Update() {
 	GetKeyInput();
-	GetPadInput(DX_INPUT_PAD1);
+
+	int num = GetJoypadNum();
+	for (int i = DX_INPUT_PAD1; i <= num || i <= DX_INPUT_PAD4; i++) {
+		GetPadInput(i);
+	}
 }
 
 bool InputManager::Release() {
@@ -51,87 +55,74 @@ void InputManager::ReplaceKeyMap(const char* name, int replace, size_t index) {
 	}
 }
 
-unsigned int InputManager::GetNowButtonState(BUTTONS) const {
+int InputManager::GetNowButtonState(BUTTONS) const {
 	return 0;
 }
 
-unsigned int InputManager::GetPrevButtonState(BUTTONS) const {
+int InputManager::GetPrevButtonState(BUTTONS) const {
 	return 0;
-}
-
-bool InputManager::IsPressButton(BUTTONS b) const {
-	bool now = keyInput_[static_cast<int>(b)].now || padInput_[static_cast<int>(b)].now;
-	return now;
-}
-
-bool InputManager::IsDownButton(BUTTONS b) const {
-	bool prev = keyInput_[static_cast<int>(b)].prev || padInput_[static_cast<int>(b)].prev;
-	bool now = keyInput_[static_cast<int>(b)].now || padInput_[static_cast<int>(b)].now;
-	return !prev && now;
-}
-
-bool InputManager::IsUpButton(BUTTONS b) const {
-	bool prev = keyInput_[static_cast<int>(b)].prev || padInput_[static_cast<int>(b)].prev;
-	bool now = keyInput_[static_cast<int>(b)].now || padInput_[static_cast<int>(b)].now;
-	return prev && !now;
 }
 
 void InputManager::GetKeyInput() {
 	char k[256] = {};
 
 	GetHitKeyStateAll(k);
-
-	for (auto& map : keyMap_) {
-		keyInput_[static_cast<int>(map.first)].prev = keyInput_[static_cast<int>(map.first)].now;
-		keyInput_[static_cast<int>(map.first)].now = k[map.second];
-	}
 }
 
 void InputManager::GetPadInput(int pad_num) {
-	DINPUT_JOYSTATE d = {};
-	GetJoypadDirectInputState(pad_num, &d);
+	int n = GetJoypadButtonNum(pad_num);
 
-	XINPUT_STATE x = {};
-	GetJoypadXInputState(pad_num, &x);
+	int t = GetJoypadType(pad_num);
 
-	int i = GetJoypadType(pad_num);
+	DINPUT_JOYSTATE dIn = {};
+	GetJoypadDirectInputState(pad_num, &dIn);
+
+	bool xFlg = CheckJoypadXInput(pad_num) ? true : false;
+	XINPUT_STATE xIn = {};
+	if (xFlg) GetJoypadXInputState(pad_num, &xIn);
 
 	prevButton_ = nowButton_;
 
-	nowButton_[static_cast<size_t>(BUTTONS::LSTICK_L)] = d.X < 0 ? std::abs(d.X) : 0;
-	nowButton_[static_cast<size_t>(BUTTONS::LSTICK_R)] = d.X > 0 ? std::abs(d.X) : 0;
-	nowButton_[static_cast<size_t>(BUTTONS::LSTICK_U)] = d.Y < 0 ? std::abs(d.Y) : 0;
-	nowButton_[static_cast<size_t>(BUTTONS::LSTICK_D)] = d.Y > 0 ? std::abs(d.Y) : 0;
+	nowButton_[static_cast<size_t>(BUTTONS::LSTICK_L)] = dIn.X < 0 ? std::abs(dIn.X) : 0;
+	nowButton_[static_cast<size_t>(BUTTONS::LSTICK_R)] = dIn.X > 0 ? std::abs(dIn.X) : 0;
+	nowButton_[static_cast<size_t>(BUTTONS::LSTICK_U)] = dIn.Y < 0 ? std::abs(dIn.Y) : 0;
+	nowButton_[static_cast<size_t>(BUTTONS::LSTICK_D)] = dIn.Y > 0 ? std::abs(dIn.Y) : 0;
 
-	switch (i) {
+	switch (t) {
+	case 0:
+		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_L)] = dIn.Z < 0 ? std::abs(dIn.Z) : 0;
+		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_R)] = dIn.Z > 0 ? std::abs(dIn.Z) : 0;
+		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_U)] = dIn.Rz < 0 ? std::abs(dIn.Rz) : 0;
+		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_D)] = dIn.Rz > 0 ? std::abs(dIn.Rz) : 0;
+		break;
 	case 1:
 	case 2:
-		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_L)] = d.Rx < 0 ? std::abs(d.Rx) : 0;
-		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_R)] = d.Rx > 0 ? std::abs(d.Rx) : 0;
-		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_U)] = d.Ry < 0 ? std::abs(d.Ry) : 0;
-		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_D)] = d.Ry > 0 ? std::abs(d.Ry) : 0;
+		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_L)] = dIn.Rx < 0 ? std::abs(dIn.Rx) : 0;
+		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_R)] = dIn.Rx > 0 ? std::abs(dIn.Rx) : 0;
+		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_U)] = dIn.Ry < 0 ? std::abs(dIn.Ry) : 0;
+		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_D)] = dIn.Ry > 0 ? std::abs(dIn.Ry) : 0;
 		break;
 	}
 
-	nowButton_[static_cast<size_t>(BUTTONS::DPAD_L)] = d.POV[0] == 4500 * 1 || d.POV[0] == 4500 * 2 || d.POV[0] == 4500 * 3 ? 1 : 0;
-	nowButton_[static_cast<size_t>(BUTTONS::DPAD_R)] = d.POV[0] == 4500 * 5 || d.POV[0] == 4500 * 6 || d.POV[0] == 4500 * 7 ? 1 : 0;
-	nowButton_[static_cast<size_t>(BUTTONS::DPAD_U)] = d.POV[0] == 4500 * 7 || d.POV[0] == 4500 * 0 || d.POV[0] == 4500 * 1 ? 1 : 0;
-	nowButton_[static_cast<size_t>(BUTTONS::DPAD_D)] = d.POV[0] == 4500 * 3 || d.POV[0] == 4500 * 4 || d.POV[0] == 4500 * 5 ? 1 : 0;
+	nowButton_[static_cast<size_t>(BUTTONS::DPAD_L)] = dIn.POV[0] == 4500 * 1 || dIn.POV[0] == 4500 * 2 || dIn.POV[0] == 4500 * 3 ? 1 : 0;
+	nowButton_[static_cast<size_t>(BUTTONS::DPAD_R)] = dIn.POV[0] == 4500 * 5 || dIn.POV[0] == 4500 * 6 || dIn.POV[0] == 4500 * 7 ? 1 : 0;
+	nowButton_[static_cast<size_t>(BUTTONS::DPAD_U)] = dIn.POV[0] == 4500 * 7 || dIn.POV[0] == 4500 * 0 || dIn.POV[0] == 4500 * 1 ? 1 : 0;
+	nowButton_[static_cast<size_t>(BUTTONS::DPAD_D)] = dIn.POV[0] == 4500 * 3 || dIn.POV[0] == 4500 * 4 || dIn.POV[0] == 4500 * 5 ? 1 : 0;
 
 	size_t buttonIdx = 0;
-	for (; buttonIdx < 6; buttonIdx++) nowButton_[static_cast<size_t>(BUTTONS::BUTTON_0) + buttonIdx] = d.Buttons[buttonIdx];
+	for (; buttonIdx < 6; buttonIdx++) nowButton_[static_cast<size_t>(BUTTONS::BUTTON_0) + buttonIdx] = dIn.Buttons[buttonIdx];
 
-	switch (i) {
+	switch (t) {
 	default:
-		for (; buttonIdx < 16; buttonIdx++) nowButton_[static_cast<size_t>(BUTTONS::BUTTON_0) + buttonIdx] = d.Buttons[buttonIdx];
+		for (; buttonIdx < 16; buttonIdx++) nowButton_[static_cast<size_t>(BUTTONS::BUTTON_0) + buttonIdx] = dIn.Buttons[buttonIdx];
 
 		break;
 	case 1:
 	case 2:
-		nowButton_[static_cast<size_t>(BUTTONS::BUTTON_0) + buttonIdx++] = x.LeftTrigger;
-		nowButton_[static_cast<size_t>(BUTTONS::BUTTON_0) + buttonIdx++] = x.RightTrigger;
+		nowButton_[static_cast<size_t>(BUTTONS::BUTTON_0) + buttonIdx++] = xIn.LeftTrigger;
+		nowButton_[static_cast<size_t>(BUTTONS::BUTTON_0) + buttonIdx++] = xIn.RightTrigger;
 
-		for (; buttonIdx < 16; buttonIdx++) nowButton_[static_cast<size_t>(BUTTONS::BUTTON_0) + buttonIdx] = d.Buttons[buttonIdx - 2];
+		for (; buttonIdx < 16; buttonIdx++) nowButton_[static_cast<size_t>(BUTTONS::BUTTON_0) + buttonIdx] = dIn.Buttons[buttonIdx - 2];
 
 		break;
 	}

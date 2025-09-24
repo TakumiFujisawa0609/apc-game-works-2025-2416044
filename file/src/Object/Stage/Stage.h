@@ -31,13 +31,15 @@ public:
 	bool Release();
 	bool ReleaseWave();
 
+	void GetPlatformSize(int& x, int& z) const;
+
 private:
 	std::list<Block*> platformList_;
 	std::list<std::list<std::list<Block*>>> cubeList_;
 
-	int platformDepth_;
+	int cubeWidth_;
 	int cubeDepth_;
-	int totalWave_;
+	int platformDepth_;
 	int wave_;
 	unsigned __int8 fallCount_;
 

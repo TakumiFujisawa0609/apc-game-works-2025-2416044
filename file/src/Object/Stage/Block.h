@@ -5,14 +5,14 @@
 class Block {
 public:
 	enum class TYPE {
-		// 足場
-		PLATFORM,
 		// ノーマルキューブ
 		NORMAL,
 		// アドバンテージキューブ
 		ADVANTAGE,
 		// フォービドゥンキューブ
 		FORBIDDEN,
+		// 足場
+		PLATFORM,
 	};
 
 	enum class STATE {
@@ -53,6 +53,7 @@ public:
 
 	bool IsAlive() const;
 	void SetAlive(bool);
+
 	bool IsPlatform() const;
 
 	void SetModelHandle(int);
@@ -62,6 +63,8 @@ public:
 	Vector3 GetMatrixPosition() const;
 	void SetMatrixPosition(Vector3);
 	void SetRotation(Vector3);
+
+	void GetSquareCollisionXZ(Vector2& start, Vector2& end);
 
 private:
 	static constexpr COLOR_F MODEL_COLOR_DEFAULT = { 0.2F, 0.2F, 0.2F, 1.F };

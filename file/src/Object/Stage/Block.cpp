@@ -7,7 +7,7 @@ Block::Block(int width) : WIDTH(width) {
 	type_ = TYPE::PLATFORM;
 	state_ = STATE::STOP;
 	stateLock_ = false;
-	stateFrame_ = static_cast<unsigned __int8>(0U);
+	stateFrame_ = 0Ui8;
 }
 
 void Block::Update() {
@@ -168,6 +168,11 @@ void Block::SetMatrixPosition(Vector3 v) {
 void Block::SetRotation(Vector3 v) {
 	rotation_ = v;
 	MV1SetRotationXYZ(modelHandle_, GeometryDxLib::Vector3ToVECTOR(rotation_));
+}
+
+void Block::GetSquareCollisionXZ(Vector2& start, Vector2& end) {
+	start = { position_.x - HALF_BLOCK_SIZE, position_.z - HALF_BLOCK_SIZE };
+	end = { position_.x + HALF_BLOCK_SIZE, position_.z + HALF_BLOCK_SIZE };
 }
 
 void Block::OutLine(Vector3 position) {

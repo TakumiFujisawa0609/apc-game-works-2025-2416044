@@ -11,12 +11,14 @@ bool Stage::SystemInit() {
 }
 
 bool Stage::GameInit() {
+	cubeWidth_ = 4;
+
 	// 足場
-	platformDepth_ = 15;
+	platformDepth_ = 16;
 
 	for (int pd = 0; pd < platformDepth_; ++pd) {
 		auto& ptr = platformList_.emplace_back();
-		ptr = new Block(PLATFORM_WIDTH);
+		ptr = new Block(cubeWidth_);
 		ptr->SetType(Block::TYPE::PLATFORM);
 		ptr->SetModelHandle(normalModel_);
 		ptr->SetPosition(
@@ -32,7 +34,7 @@ bool Stage::GameInit() {
 		auto& waveList = cubeList_.emplace_back();
 		for (int cd = 0; cd < cubeDepth_; ++cd) {
 			auto& subList = waveList.emplace_back();
-			for (int cw = 0; cw < CUBE_WIDTH; ++cw) {
+			for (int cw = 0; cw < cubeWidth_; ++cw) {
 				auto& ptr = subList.emplace_back();
 				ptr = new Block();
 				ptr->SetType(Block::TYPE::NORMAL);
@@ -98,6 +100,15 @@ void Stage::Update() {
 				if (!cube->IsAlive()) continue;
 
 				cube->ChangeState(Block::STATE::SPIN);
+
+				// 行列計算（原点への平行移動＋回転＋座標への平行移動）
+				Matrix4x4 mat = TranslationMatrix(cube->GetMatrixPosition()) * RotationMatrixX(DX_PI_F / 180.F * -Stage::SPIN_DEGREE) * TranslationMatrix(-cube->GetMatrixPosition());
+
+				// キューブの座標を更新
+				cube->SetPosition(mat * cube->GetPosition());
+
+				// キューブの回転を更新
+				rotation_.x += DX_PI_F / 180.F * -Stage::SPIN_DEGREE; // ブロック内の回転処理をステージ側に完全に移植しよう　ここから再開！
 			}
 		}
 	}
@@ -176,4 +187,9 @@ bool Stage::ReleaseWave() {
 	cubeList_.pop_back();
 
 	return true;
+}
+
+void Stage::GetPlatformSize(int& x, int& z) const {
+	x = cubeWidth_;
+	z = platformDepth_;
 }

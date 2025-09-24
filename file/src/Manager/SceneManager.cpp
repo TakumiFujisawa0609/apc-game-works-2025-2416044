@@ -22,6 +22,12 @@ bool SceneManager::Init() {
 void SceneManager::Update() {
 	if (sceneList_.size() <= 0) return;
 
+	// デルタタイム
+	auto nowTime = std::chrono::system_clock::now();
+	deltaTime_ = static_cast<float>(
+		std::chrono::duration_cast<std::chrono::nanoseconds>(nowTime - preTime_).count() / 1000000000.0);
+	preTime_ = nowTime;
+
 	// 配列末尾のポインタを取る
 	auto back = sceneList_.back();
 
@@ -66,6 +72,10 @@ std::list<SceneBase*> SceneManager::GetSceneList() {
 	return sceneList_;
 }
 
+float SceneManager::GetDeltaTime() const {
+	return deltaTime_;
+}
+
 bool SceneManager::ClassInit() {
 	return true;
 }
@@ -86,6 +96,9 @@ void SceneManager::ParamInit() {
 
 	// 正面から斜め下に向かったライト
 	ChangeLightTypeDir({ 0.F, -1.F, 0.8F });
+
+	// デルタタイム
+	preTime_ = std::chrono::system_clock::now();
 
 	ChangeScene(SceneBase::SCENE::GAME);
 }

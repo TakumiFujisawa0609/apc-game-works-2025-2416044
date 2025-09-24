@@ -1,6 +1,7 @@
 #pragma once
 #include "../SceneBase.h"
 
+class Player;
 class Stage;
 
 class GameScene : public SceneBase {
@@ -21,8 +22,7 @@ public:
 	bool Release() override;
 
 private:
+	Player* player_;
 	Stage* stage_;
-
-
 
 };

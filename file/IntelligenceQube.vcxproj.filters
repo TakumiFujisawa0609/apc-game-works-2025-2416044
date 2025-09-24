@@ -12,6 +12,8 @@
     <ClCompile Include="src\Object\Stage\Stage.cpp" />
     <ClCompile Include="src\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="src\Common\GeometryDxLib.cpp" />
+    <ClCompile Include="src\Object\Player\Player.cpp" />
+    <ClCompile Include="src\Object\Common\AnimationController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\App.h" />
@@ -24,5 +26,7 @@
     <ClInclude Include="src\Object\Stage\Stage.h" />
     <ClInclude Include="src\Scene\GameScene\GameScene.h" />
     <ClInclude Include="src\Common\GeometryDxLib.h" />
+    <ClInclude Include="src\Object\Player\Player.h" />
+    <ClInclude Include="src\Object\Common\AnimationController.h" />
   </ItemGroup>
 </Project>
