@@ -47,13 +47,13 @@ bool Stage::GameInit() {
 	}
 
 	spinTimer_ = 0;
-	delayTimer_ = 0;
+	isSpinning_ = false;
 
 	return true;
 }
 
 void Stage::Update() {
-	if (spinTimer_ <= 0) { // 回転終了後の処理
+	if (!isSpinning_) { // 回転終了後の処理
 		for (auto& waveList : cubeList_) for (auto& subList : waveList) for (auto& cube : subList) {
 			// 既に消えている場合、処理の必要が無いのでスキップ
 			if (!cube->IsAlive() || cube->GetState() == Block::STATE::FALL) continue;
@@ -70,45 +70,70 @@ void Stage::Update() {
 			}
 		}
 
-		auto flag = true;
+		auto delFlag = true;
 		if (cubeList_.size() > 0) {
 			auto& waveList = cubeList_.back();
 			for (auto& subList : waveList) {
 				for (auto& cube : subList) {
 					if (!cube->IsAlive()) continue;
-					else flag = false; break;
+					else delFlag = false;
 				}
-				if (!flag) break;
+				if (!delFlag) break;
 			}
 		}
-		else flag = false;
+		else delFlag = false;
 
-		if (flag) ReleaseWave();
-		
-		if (--delayTimer_ <= 0) {
+		if (delFlag) {
+			ReleaseWave();
+			spinTimer_ += SPIN_DELAY_FRAME;
+		}
+
+		auto actFlag = false;
+		if (cubeList_.size() > 0) {
+			auto& waveList = cubeList_.back();
+			for (auto& subList : waveList) {
+				for (auto& cube : subList) {
+					if (!cube->IsActiveCube()) continue;
+					else actFlag = true;
+				}
+				if (actFlag) break;
+			}
+		}
+
+		if (actFlag) if (--spinTimer_ <= 0) {
 			// 次の回転を開始
-			spinTimer_ = SPIN_FRAME;
-			delayTimer_ = DELAY_FRAME;
+			isSpinning_ = true;
 		}
 	}
 	else { // 回転中の処理
-		--spinTimer_;
+		++spinTimer_;
 		if (cubeList_.size() > 0) {
 			auto& waveList = cubeList_.back();
 			for (auto& subList : waveList) for (auto& cube : subList) {
 				// 既に消えている場合、処理の必要が無いのでスキップ
 				if (!cube->IsAlive()) continue;
 
-				cube->ChangeState(Block::STATE::SPIN);
+				// キューブの回転量
+				auto cubeRot = cube->GetRotation();
+
+				// 追加される回転量
+				float nextRot = DX_PI_F / 180.F * -Stage::SPIN_DEGREE;
+
+				// 合計回転量が-90度をオーバーしないように調整
+				if (cubeRot.x + nextRot < -DX_PI_F / 2.F) nextRot = -DX_PI_F / 2.F - cubeRot.x;
 
 				// 行列計算（原点への平行移動＋回転＋座標への平行移動）
-				Matrix4x4 mat = TranslationMatrix(cube->GetMatrixPosition()) * RotationMatrixX(DX_PI_F / 180.F * -Stage::SPIN_DEGREE) * TranslationMatrix(-cube->GetMatrixPosition());
+				Matrix4x4 mat = TranslationMatrix(cube->GetMatrixPosition()) * RotationMatrixX(nextRot) * TranslationMatrix(-cube->GetMatrixPosition());
 
 				// キューブの座標を更新
 				cube->SetPosition(mat * cube->GetPosition());
 
 				// キューブの回転を更新
-				rotation_.x += DX_PI_F / 180.F * -Stage::SPIN_DEGREE; // ブロック内の回転処理をステージ側に完全に移植しよう　ここから再開！
+				cubeRot.x += nextRot;
+				cube->SetRotation(cubeRot);
+
+				// キューブの回転量が-90度になったら回転処理を停止
+				if (cubeRot.x <= -DX_PI_F / 2.F) isSpinning_ = false;
 			}
 		}
 	}

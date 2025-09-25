@@ -7,11 +7,10 @@ class Block;
 
 class Stage {
 public:
-	static constexpr int SPIN_FRAME = 60;
+	static constexpr int SPIN_FRAME = 40;
 	static constexpr float SPIN_DEGREE = 90.F / SPIN_FRAME;
 
-	static constexpr int DELAY_FRAME = 30;
-	static constexpr int EXTRA_DELAY_FRAME = DELAY_FRAME * 2;
+	static constexpr int SPIN_DELAY_FRAME = 40;
 
 	static constexpr int CUBE_WIDTH = 4;
 	static constexpr int CUBE_DEPTH = 3;
@@ -44,8 +43,7 @@ private:
 	unsigned __int8 fallCount_;
 
 	int spinTimer_;
-	int delayTimer_;
-	float totalRotate_;
+	bool isSpinning_;
 
 	int normalModel_;
 	int advantageModel_;

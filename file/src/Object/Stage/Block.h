@@ -31,9 +31,9 @@ public:
 	static constexpr float BLOCK_SIZE = 200.F;
 	static constexpr float HALF_BLOCK_SIZE = BLOCK_SIZE / 2.F;
 
-	static constexpr unsigned __int8 VANISH_FRAME = 30;
-	static constexpr unsigned __int8 FALL_FRAME = 30;
-	static constexpr unsigned __int8 ALERT_FRAME = 20;
+	static constexpr unsigned int VANISH_FRAME = 30;
+	static constexpr unsigned int FALL_FRAME = 30;
+	static constexpr unsigned int ALERT_FRAME = 20;
 
 	static constexpr float VANISH_SPEED_Y = BLOCK_SIZE / VANISH_FRAME;
 	static constexpr float FALL_SPEED_Y = 50.F;
@@ -54,7 +54,8 @@ public:
 	bool IsAlive() const;
 	void SetAlive(bool);
 
-	bool IsPlatform() const;
+	bool IsActiveCube() const;
+	bool IsSteppable() const;
 
 	void SetModelHandle(int);
 
@@ -62,6 +63,7 @@ public:
 	void SetPosition(Vector3);
 	Vector3 GetMatrixPosition() const;
 	void SetMatrixPosition(Vector3);
+	Vector3 GetRotation() const;
 	void SetRotation(Vector3);
 
 	void GetSquareCollisionXZ(Vector2& start, Vector2& end);
@@ -73,7 +75,7 @@ private:
 
 	static constexpr unsigned int OUTLINE_COLOR = 0x303030U;
 
-	const unsigned __int8 WIDTH;
+	const unsigned int WIDTH;
 
 	TYPE type_;
 	STATE state_;
@@ -81,7 +83,7 @@ private:
 
 	bool isAlive_;
 	bool stateLock_;
-	unsigned __int8 stateFrame_;
+	unsigned int stateFrame_;
 
 	Vector3 position_;
 	Vector3 matrixPosition_;

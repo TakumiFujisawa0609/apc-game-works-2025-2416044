@@ -7,7 +7,7 @@ Block::Block(int width) : WIDTH(width) {
 	type_ = TYPE::PLATFORM;
 	state_ = STATE::STOP;
 	stateLock_ = false;
-	stateFrame_ = 0Ui8;
+	stateFrame_ = 0U;
 }
 
 void Block::Update() {
@@ -64,10 +64,10 @@ void Block::Draw() {
 	MV1SetPosition(modelHandle_, GeometryDxLib::Vector3ToVECTOR(position_));
 
 	if (type_ == TYPE::PLATFORM) {
-		for (int i = 0; i < WIDTH; ++i) {
+		for (unsigned int i = 0; i < WIDTH; ++i) {
 			Vector3 temp = position_;
 			temp.x += BLOCK_SIZE * i;
-			for (int i = 0; i < 3; ++i) {
+			for (unsigned int i = 0; i < 3; ++i) {
 				MV1SetPosition(modelHandle_, GeometryDxLib::Vector3ToVECTOR(temp));
 
 				OutLine(temp);
@@ -138,7 +138,11 @@ void Block::SetAlive(bool flag) {
 	isAlive_ = flag;
 }
 
-bool Block::IsPlatform() const {
+bool Block::IsActiveCube() const {
+	return type_ != TYPE::PLATFORM && (state_ == STATE::STOP || state_ == STATE::SPIN);
+}
+
+bool Block::IsSteppable() const {
 	return type_ == TYPE::PLATFORM && (state_ == STATE::STOP || state_ == STATE::ALERT);
 }
 
@@ -163,6 +167,10 @@ Vector3 Block::GetMatrixPosition() const {
 
 void Block::SetMatrixPosition(Vector3 v) {
 	matrixPosition_ = v;
+}
+
+Vector3 Block::GetRotation() const {
+	return rotation_;
 }
 
 void Block::SetRotation(Vector3 v) {
