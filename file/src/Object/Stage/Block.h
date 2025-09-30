@@ -57,12 +57,18 @@ public:
 	bool IsActiveCube() const;
 	bool IsSteppable() const;
 
+	int GetModelHandle() const;
 	void SetModelHandle(int);
 
 	Vector3 GetPosition() const;
 	void SetPosition(Vector3);
+
+	VECTOR GetMinPos() const;
+	VECTOR GetMaxPos() const;
+
 	Vector3 GetMatrixPosition() const;
 	void SetMatrixPosition(Vector3);
+	
 	Vector3 GetRotation() const;
 	void SetRotation(Vector3);
 

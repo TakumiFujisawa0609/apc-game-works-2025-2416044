@@ -21,8 +21,14 @@ public:
 	void Draw() override;
 	bool Release() override;
 
+	void Collision();
+
 private:
 	Player* player_;
 	Stage* stage_;
+
+	void CollisionCube();
+	void CollisionStomp();
+	void CollisionPlatform();
 
 };

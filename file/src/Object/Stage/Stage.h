@@ -7,8 +7,10 @@ class Block;
 
 class Stage {
 public:
-	static constexpr int SPIN_FRAME = 40;
+	static constexpr int SPIN_FRAME = 30;
 	static constexpr float SPIN_DEGREE = 90.F / SPIN_FRAME;
+
+	static constexpr float FAST_SPIN_DEGREE = 9.F;
 
 	static constexpr int SPIN_DELAY_FRAME = 40;
 
@@ -31,6 +33,9 @@ public:
 	bool ReleaseWave();
 
 	void GetPlatformSize(int& x, int& z) const;
+	std::list<std::list<std::list<Block*>>> GetCubeList() const;
+
+	void SetFastForward(bool);
 
 private:
 	std::list<Block*> platformList_;
@@ -44,6 +49,7 @@ private:
 
 	int spinTimer_;
 	bool isSpinning_;
+	bool fastForward_;
 
 	int normalModel_;
 	int advantageModel_;

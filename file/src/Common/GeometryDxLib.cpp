@@ -34,6 +34,30 @@ Matrix4x4 GeometryDxLib::MATRIXToMatrix4x4(const MATRIX& m) {
 	};
 }
 
+bool GeometryDxLib::VEquals(const VECTOR& in1, const VECTOR& in2) {
+	return in1.x == in2.x && in1.y == in2.y && in1.z == in2.z;
+}
+
+bool GeometryDxLib::DrawShadow3D(VECTOR pos, float r, int div_num) {
+	if (div_num < 4) return false;
+
+	VECTOR rPos = VAdd(pos, { 0.f, 0.f, r });
+	VECTOR rPos2 = rPos;
+
+	MATRIX rot = {};
+	CreateRotationYMatrix(&rot, DX_TWO_PI_F / div_num);
+
+	VTransform(rPos2, rot);
+
+	DrawTriangle3D(pos, rPos, rPos2, 0x202020, true);
+
+	for (int d = 1; d < div_num; d++) {
+
+	}
+
+	return true;
+}
+
 MATRIX GeometryDxLib::GetMatrixRotateXYZ(const VECTOR& euler) {
 	MATRIX ret = MGetIdent();
 	ret = MMult(ret, MGetRotX(euler.x));

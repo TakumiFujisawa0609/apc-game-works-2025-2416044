@@ -48,6 +48,7 @@ bool Stage::GameInit() {
 
 	spinTimer_ = 0;
 	isSpinning_ = false;
+	fastForward_ = false;
 
 	return true;
 }
@@ -93,14 +94,17 @@ void Stage::Update() {
 			auto& waveList = cubeList_.back();
 			for (auto& subList : waveList) {
 				for (auto& cube : subList) {
-					if (!cube->IsActiveCube()) continue;
+					if (cube->GetState() != Block::STATE::STOP) continue;
 					else actFlag = true;
 				}
 				if (actFlag) break;
 			}
 		}
 
-		if (actFlag) if (--spinTimer_ <= 0) {
+		if (fastForward_) spinTimer_ = 0;
+		if (spinTimer_ > 0) spinTimer_--;
+
+		if (actFlag) if (spinTimer_ <= 0) {
 			// 次の回転を開始
 			isSpinning_ = true;
 		}
@@ -113,11 +117,16 @@ void Stage::Update() {
 				// 既に消えている場合、処理の必要が無いのでスキップ
 				if (!cube->IsAlive()) continue;
 
+				// 衝突判定用（回転中は、キューブ後方の下辺の衝突判定が消える）
+				cube->ChangeState(Block::STATE::SPIN);
+
 				// キューブの回転量
 				auto cubeRot = cube->GetRotation();
 
 				// 追加される回転量
-				float nextRot = DX_PI_F / 180.F * -Stage::SPIN_DEGREE;
+				float deg = -SPIN_DEGREE;
+				if (fastForward_) deg = -FAST_SPIN_DEGREE;
+				float nextRot = DX_PI_F / 180.F * deg;
 
 				// 合計回転量が-90度をオーバーしないように調整
 				if (cubeRot.x + nextRot < -DX_PI_F / 2.F) nextRot = -DX_PI_F / 2.F - cubeRot.x;
@@ -217,4 +226,12 @@ bool Stage::ReleaseWave() {
 void Stage::GetPlatformSize(int& x, int& z) const {
 	x = cubeWidth_;
 	z = platformDepth_;
+}
+
+std::list<std::list<std::list<Block*>>> Stage::GetCubeList() const {
+	return cubeList_;
+}
+
+void Stage::SetFastForward(bool b) {
+	fastForward_ = b;
 }

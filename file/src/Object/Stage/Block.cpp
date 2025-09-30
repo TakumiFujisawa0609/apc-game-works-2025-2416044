@@ -4,6 +4,7 @@
 #include "Block.h"
 
 Block::Block(int width) : WIDTH(width) {
+	modelHandle_ = -1;
 	type_ = TYPE::PLATFORM;
 	state_ = STATE::STOP;
 	stateLock_ = false;
@@ -15,17 +16,8 @@ void Block::Update() {
 
 	switch (state_) {
 	case STATE::STOP:
-		// 何もしない
-		break;
 	case STATE::SPIN:
-		// 行列計算（原点への平行移動＋回転＋座標への平行移動）
-		mat = TranslationMatrix(matrixPosition_) * RotationMatrixX(DX_PI_F / 180.F * -Stage::SPIN_DEGREE) * TranslationMatrix(-matrixPosition_);
-
-		// キューブの座標を更新
-		position_ = mat * position_;
-
-		// キューブの回転を更新
-		rotation_.x += DX_PI_F / 180.F * -Stage::SPIN_DEGREE;
+		// 何もしない
 		break;
 	case STATE::VANISH:
 		// 一定フレーム経過後に生存判定を消す
@@ -85,6 +77,7 @@ void Block::Draw() {
 
 bool Block::Release() {
 	MV1DeleteModel(modelHandle_);
+
 	return true;
 }
 
@@ -99,8 +92,6 @@ void Block::ChangeState(STATE st) {
 	case STATE::STOP:
 		// 行列用座標を更新
 		matrixPosition_ = { 0.F, position_.y - HALF_BLOCK_SIZE, position_.z - HALF_BLOCK_SIZE };
-
-		// 回転をリセット
 		rotation_.x = 0.F;
 		break;
 	case STATE::SPIN:
@@ -146,8 +137,13 @@ bool Block::IsSteppable() const {
 	return type_ == TYPE::PLATFORM && (state_ == STATE::STOP || state_ == STATE::ALERT);
 }
 
+int Block::GetModelHandle() const {
+	return modelHandle_;
+}
+
 void Block::SetModelHandle(int id) {
-	MV1DeleteModel(modelHandle_);
+	Release();
+
 	modelHandle_ = MV1DuplicateModel(id);
 	MV1SetMaterialEmiColor(modelHandle_, 0, MODEL_COLOR_DEFAULT);
 }
@@ -159,6 +155,14 @@ Vector3 Block::GetPosition() const {
 void Block::SetPosition(Vector3 v) {
 	position_ = v;
 	MV1SetPosition(modelHandle_, GeometryDxLib::Vector3ToVECTOR(position_));
+}
+
+VECTOR Block::GetMinPos() const {
+	return VECTOR(position_.x - HALF_BLOCK_SIZE, position_.y - HALF_BLOCK_SIZE, position_.z - HALF_BLOCK_SIZE);
+}
+
+VECTOR Block::GetMaxPos() const {
+	return VECTOR(position_.x + HALF_BLOCK_SIZE, position_.y + HALF_BLOCK_SIZE, position_.z + HALF_BLOCK_SIZE);
 }
 
 Vector3 Block::GetMatrixPosition() const {
