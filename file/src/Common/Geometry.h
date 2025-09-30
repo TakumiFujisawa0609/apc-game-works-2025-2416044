@@ -3,7 +3,7 @@
 // ２次元ベクトル
 struct Vector2 {
 	Vector2() : x(0), y(0) {}
-	Vector2(float nx, float ny) : x(nx), y(ny) {}
+	Vector2(float x, float y) : x(x), y(y) {}
 
 	float x, y;
 
@@ -53,7 +53,7 @@ Vector2 GetVector2FromAngle(float angle, float length);
 // ３次元ベクトル
 struct Vector3 {
 	Vector3() : x(0), y(0), z(0) {}
-	Vector3(float nx, float ny, float nz) : x(nx), y(ny), z(nz) {}
+	Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 
 	float x, y, z;
 

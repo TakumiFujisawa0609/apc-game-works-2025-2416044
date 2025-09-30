@@ -91,8 +91,8 @@ void Block::ChangeState(STATE st) {
 	switch (state_) {
 	case STATE::STOP:
 		// 行列用座標を更新
-		matrixPosition_ = { 0.F, position_.y - HALF_BLOCK_SIZE, position_.z - HALF_BLOCK_SIZE };
-		rotation_.x = 0.F;
+		matrixPosition_ = { 0.f, position_.y - HALF_BLOCK_SIZE, position_.z - HALF_BLOCK_SIZE };
+		rotation_.x = 0.f;
 		break;
 	case STATE::SPIN:
 		// 何もしない

@@ -30,13 +30,13 @@ public:
 	VECTOR GetMove() const;
 
 private:
-	static constexpr float ANIM_SPEED = 40.F;
+	static constexpr float ANIM_SPEED = 40.f;
 
 	static constexpr VECTOR SCALES = { 0.5F, 0.5F, 0.5F };
 
-	static constexpr float INIT_LOCAL_POS_Z = 600.F;
+	static constexpr float INIT_LOCAL_POS_Z = 600.f;
 
-	static constexpr float MOVE_SPEED = 8.F;
+	static constexpr float MOVE_SPEED = 8.f;
 
 	AnimationController* animControll_;
 

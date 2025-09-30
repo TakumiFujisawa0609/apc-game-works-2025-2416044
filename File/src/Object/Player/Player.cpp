@@ -16,9 +16,9 @@ bool Player::SystemInit() {
 }
 
 bool Player::GameInit(int stage_width, int stage_depth) {
-	pos_.x = Block::BLOCK_SIZE * stage_width / 2.F;
-	pos_.y = 0.F;
-	pos_.z = -(Block::BLOCK_SIZE * stage_depth - Block::BLOCK_SIZE * 3.F);
+	pos_.x = Block::BLOCK_SIZE * stage_width / 2.f;
+	pos_.y = 0.f;
+	pos_.z = -(Block::BLOCK_SIZE * stage_depth - Block::BLOCK_SIZE * 3.f);
 	MV1SetPosition(modelId_, pos_);
 
 	move_ = {};

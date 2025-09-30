@@ -178,10 +178,10 @@ Vector3 Matrix4x4::operator*(const Vector3& v) const {
 
 Matrix4x4 IdentityMatrix() {
 	return {
-		1.F, 0.F, 0.F, 0.F,
-		0.F, 1.F, 0.F, 0.F,
-		0.F, 0.F, 1.F, 0.F,
-		0.F, 0.F, 0.F, 1.F
+		1.f, 0.f, 0.f, 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.f, 0.f, 0.f, 1.f
 	};
 }
 
@@ -196,28 +196,28 @@ Matrix4x4 TransposeMatrix(const Matrix4x4& m) {
 
 Matrix4x4 RotationMatrixX(float angle) {
 	return {
-		1.F, 0.F, 0.F, 0.F,
-		0.F, cosf(angle), -sinf(angle), 0.F,
-		0.F, sinf(angle), cosf(angle), 0.F,
-		0.F, 0.F, 0.F, 1.F
+		1.f, 0.f, 0.f, 0.f,
+		0.f, cosf(angle), -sinf(angle), 0.f,
+		0.f, sinf(angle), cosf(angle), 0.f,
+		0.f, 0.f, 0.f, 1.f
 	};
 }
 
 Matrix4x4 RotationMatrixY(float angle) {
 	return {
-		cosf(angle), 0.F, sinf(angle), 0.F,
-		0.F, 1.F, 0.F, 0.F,
-		-sinf(angle), 0.F, cosf(angle), 0.F,
-		0.F, 0.F, 0.F, 1.F
+		cosf(angle), 0.f, sinf(angle), 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		-sinf(angle), 0.f, cosf(angle), 0.f,
+		0.f, 0.f, 0.f, 1.f
 	};
 }
 
 Matrix4x4 RotationMatrixZ(float angle) {
 	return {
-		cosf(angle), -sinf(angle), 0.F, 0.F,
-		sinf(angle), cosf(angle), 0.F, 0.F,
-		0.F, 0.F, 1.F, 0.F,
-		0.F, 0.F, 0.F, 1.F
+		cosf(angle), -sinf(angle), 0.f, 0.f,
+		sinf(angle), cosf(angle), 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.f, 0.f, 0.f, 1.f
 	};
 }
 

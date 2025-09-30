@@ -8,9 +8,9 @@ class Block;
 class Stage {
 public:
 	static constexpr int SPIN_FRAME = 30;
-	static constexpr float SPIN_DEGREE = 90.F / SPIN_FRAME;
+	static constexpr float SPIN_DEGREE = 90.f / SPIN_FRAME;
 
-	static constexpr float FAST_SPIN_DEGREE = 9.F;
+	static constexpr float FAST_SPIN_DEGREE = 9.f;
 
 	static constexpr int SPIN_DELAY_FRAME = 40;
 

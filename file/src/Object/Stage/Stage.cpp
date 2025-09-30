@@ -126,10 +126,10 @@ void Stage::Update() {
 				// 追加される回転量
 				float deg = -SPIN_DEGREE;
 				if (fastForward_) deg = -FAST_SPIN_DEGREE;
-				float nextRot = DX_PI_F / 180.F * deg;
+				float nextRot = DX_PI_F / 180.f * deg;
 
 				// 合計回転量が-90度をオーバーしないように調整
-				if (cubeRot.x + nextRot < -DX_PI_F / 2.F) nextRot = -DX_PI_F / 2.F - cubeRot.x;
+				if (cubeRot.x + nextRot < -DX_PI_F / 2.f) nextRot = -DX_PI_F / 2.f - cubeRot.x;
 
 				// 行列計算（原点への平行移動＋回転＋座標への平行移動）
 				Matrix4x4 mat = TranslationMatrix(cube->GetMatrixPosition()) * RotationMatrixX(nextRot) * TranslationMatrix(-cube->GetMatrixPosition());
@@ -142,7 +142,7 @@ void Stage::Update() {
 				cube->SetRotation(cubeRot);
 
 				// キューブの回転量が-90度になったら回転処理を停止
-				if (cubeRot.x <= -DX_PI_F / 2.F) isSpinning_ = false;
+				if (cubeRot.x <= -DX_PI_F / 2.f) isSpinning_ = false;
 			}
 		}
 	}
