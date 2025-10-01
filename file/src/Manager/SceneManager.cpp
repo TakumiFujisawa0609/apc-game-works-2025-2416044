@@ -42,9 +42,6 @@ void SceneManager::Update() {
 }
 
 void SceneManager::Draw() {
-	SetCameraNearFar(1.f, 20000.f);
-	SetCameraPositionAndAngle({ 0.f, 1200.f, -4000.f }, DX_PI_F / 90.f * 20.f, 0.f, 0.f);
-
 	// 非アクティブのシーンも描画する
 	for (auto scene : sceneList_) scene->Draw();
 }

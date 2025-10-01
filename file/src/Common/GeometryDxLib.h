@@ -13,7 +13,11 @@ public:
 	static MATRIX Matrix4x4ToMATRIX(const Matrix4x4& m);
 	static Matrix4x4 MATRIXToMatrix4x4(const MATRIX& m);
 
-	static bool VEquals(const VECTOR& in1, const VECTOR& in2);
+	// VECTOR 型の単項マイナス演算
+	static VECTOR VInverse(const VECTOR& In);
+
+	// VECTOR 型の等価演算
+	static bool VEquals(const VECTOR& In1, const VECTOR& In2);
 	
 	// 疑似的な影を描画する（div_num が4未満の場合は描画しない）
 	static bool DrawShadow3D(VECTOR pos, float r, int div_num = 4);

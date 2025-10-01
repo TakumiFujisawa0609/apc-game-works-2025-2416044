@@ -7,7 +7,8 @@ class Block;
 
 class Stage {
 public:
-	static constexpr int SPIN_FRAME = 30;
+	//static constexpr int SPIN_FRAME = 30;
+	static constexpr int SPIN_FRAME = 120;
 	static constexpr float SPIN_DEGREE = 90.f / SPIN_FRAME;
 
 	static constexpr float FAST_SPIN_DEGREE = 9.f;
@@ -54,5 +55,8 @@ private:
 	int normalModel_;
 	int advantageModel_;
 	int forbiddenModel_;
+
+	void UpdateStop();
+	void UpdateSpin();
 
 };

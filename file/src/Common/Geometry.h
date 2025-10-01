@@ -1,5 +1,13 @@
 #pragma once
 
+// 弧度からラジアンに変換
+float DegToRad(float n);
+double DegToRad(double n);
+
+// ラジアンから弧度に変換
+float RadToDeg(float n);
+double RadToDeg(double n);
+
 // ２次元ベクトル
 struct Vector2 {
 	Vector2() : x(0), y(0) {}

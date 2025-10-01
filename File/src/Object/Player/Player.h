@@ -32,9 +32,13 @@ public:
 private:
 	static constexpr float ANIM_SPEED = 40.f;
 
-	static constexpr VECTOR SCALES = { 0.5F, 0.5F, 0.5F };
+	static constexpr VECTOR SCALES = { 0.5f, 0.5f, 0.5f };
+
+	static constexpr COLOR_F MODEL_EMI_COLOR = { 0.2F, 0.2F, 0.2F, 1.f };
 
 	static constexpr float INIT_LOCAL_POS_Z = 600.f;
+
+	static constexpr VECTOR LOCAL_ANGLES = { 0.f, DX_PI_F, 0.f };
 
 	static constexpr float MOVE_SPEED = 8.f;
 
@@ -43,6 +47,7 @@ private:
 	int modelId_;
 	ANIM_TYPE animType_;
 	VECTOR pos_;
+	VECTOR worldAngles_;
 	VECTOR move_;
 
 	STATE state_;

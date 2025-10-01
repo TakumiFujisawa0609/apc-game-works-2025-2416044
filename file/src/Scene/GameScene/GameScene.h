@@ -1,6 +1,7 @@
 #pragma once
 #include "../SceneBase.h"
 
+class Camera;
 class Player;
 class Stage;
 
@@ -24,11 +25,12 @@ public:
 	void Collision();
 
 private:
+	Camera* camera_;
 	Player* player_;
 	Stage* stage_;
 
 	void CollisionCube();
-	void CollisionStomp();
 	void CollisionPlatform();
+	void CollisionStomp();
 
 };

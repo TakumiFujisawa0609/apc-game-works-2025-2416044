@@ -34,11 +34,11 @@ bool Stage::GameInit() {
 		auto& waveList = cubeList_.emplace_back();
 		for (int cd = 0; cd < cubeDepth_; ++cd) {
 			auto& subList = waveList.emplace_back();
-			for (int cw = 0; cw < cubeWidth_; ++cw) {
+			for (int cw = 0; cw < cubeWidth_ - 1; ++cw) {
 				auto& ptr = subList.emplace_back();
 				ptr = new Block();
 				ptr->SetType(Block::TYPE::NORMAL);
-				ptr->SetModelHandle(advantageModel_);
+				ptr->SetModelHandle(forbiddenModel_);
 				ptr->SetPosition(
 					{ cw * Block::BLOCK_SIZE + Block::HALF_BLOCK_SIZE, Block::HALF_BLOCK_SIZE, (cp * cubeDepth_ + cd) * (-Block::BLOCK_SIZE) - Block::HALF_BLOCK_SIZE }
 				);
@@ -55,96 +55,10 @@ bool Stage::GameInit() {
 
 void Stage::Update() {
 	if (!isSpinning_) { // 回転終了後の処理
-		for (auto& waveList : cubeList_) for (auto& subList : waveList) for (auto& cube : subList) {
-			// 既に消えている場合、処理の必要が無いのでスキップ
-			if (!cube->IsAlive() || cube->GetState() == Block::STATE::FALL) continue;
-
-			// 足場からはみ出している場合は落下させる
-			if (cube->GetPosition().z < platformDepth_ * (-Block::BLOCK_SIZE)) {
-				// 落下
-				cube->ChangeState(Block::STATE::FALL);
-				fallCount_++;
-			}
-			else {
-				// 回転を止める
-				cube->ChangeState(Block::STATE::STOP);
-			}
-		}
-
-		auto delFlag = true;
-		if (cubeList_.size() > 0) {
-			auto& waveList = cubeList_.back();
-			for (auto& subList : waveList) {
-				for (auto& cube : subList) {
-					if (!cube->IsAlive()) continue;
-					else delFlag = false;
-				}
-				if (!delFlag) break;
-			}
-		}
-		else delFlag = false;
-
-		if (delFlag) {
-			ReleaseWave();
-			spinTimer_ += SPIN_DELAY_FRAME;
-		}
-
-		auto actFlag = false;
-		if (cubeList_.size() > 0) {
-			auto& waveList = cubeList_.back();
-			for (auto& subList : waveList) {
-				for (auto& cube : subList) {
-					if (cube->GetState() != Block::STATE::STOP) continue;
-					else actFlag = true;
-				}
-				if (actFlag) break;
-			}
-		}
-
-		if (fastForward_) spinTimer_ = 0;
-		if (spinTimer_ > 0) spinTimer_--;
-
-		if (actFlag) if (spinTimer_ <= 0) {
-			// 次の回転を開始
-			isSpinning_ = true;
-		}
+		UpdateStop();
 	}
 	else { // 回転中の処理
-		++spinTimer_;
-		if (cubeList_.size() > 0) {
-			auto& waveList = cubeList_.back();
-			for (auto& subList : waveList) for (auto& cube : subList) {
-				// 既に消えている場合、処理の必要が無いのでスキップ
-				if (!cube->IsAlive()) continue;
-
-				// 衝突判定用（回転中は、キューブ後方の下辺の衝突判定が消える）
-				cube->ChangeState(Block::STATE::SPIN);
-
-				// キューブの回転量
-				auto cubeRot = cube->GetRotation();
-
-				// 追加される回転量
-				float deg = -SPIN_DEGREE;
-				if (fastForward_) deg = -FAST_SPIN_DEGREE;
-				float nextRot = DX_PI_F / 180.f * deg;
-
-				// 合計回転量が-90度をオーバーしないように調整
-				if (cubeRot.x + nextRot < -DX_PI_F / 2.f) nextRot = -DX_PI_F / 2.f - cubeRot.x;
-
-				// 行列計算（原点への平行移動＋回転＋座標への平行移動）
-				Matrix4x4 mat = TranslationMatrix(cube->GetMatrixPosition()) * RotationMatrixX(nextRot) * TranslationMatrix(-cube->GetMatrixPosition());
-
-				// キューブの座標を更新
-				cube->SetPosition(mat * cube->GetPosition());
-
-				// キューブの回転を更新
-				cubeRot.x += nextRot;
-				cube->SetRotation(cubeRot);
-
-				// キューブの回転量が-90度になったら回転処理を停止
-				if (cubeRot.x <= -DX_PI_F / 2.f) isSpinning_ = false;
-			}
-		}
+		UpdateSpin();
 	}
 
 	for (auto& waveList : cubeList_) for (auto& subList : waveList) for (auto& cube : subList) {
@@ -234,4 +148,100 @@ std::list<std::list<std::list<Block*>>> Stage::GetCubeList() const {
 
 void Stage::SetFastForward(bool b) {
 	fastForward_ = b;
+}
+
+void Stage::UpdateStop() {
+	for (auto& waveList : cubeList_) for (auto& subList : waveList) for (auto& cube : subList) {
+		// 既に消えている場合、処理の必要が無いのでスキップ
+		if (!cube->IsAlive() || cube->GetState() == Block::STATE::FALL) continue;
+
+		// 足場からはみ出している場合は落下させる
+		if (cube->GetPosition().z < platformDepth_ * (-Block::BLOCK_SIZE)) {
+			// 落下
+			cube->ChangeState(Block::STATE::FALL);
+			fallCount_++;
+		}
+		else {
+			// 回転を止める
+			cube->ChangeState(Block::STATE::STOP);
+		}
+	}
+
+	auto delFlag = true;
+	if (cubeList_.size() > 0) {
+		auto& waveList = cubeList_.back();
+		for (auto& subList : waveList) {
+			for (auto& cube : subList) {
+				if (!cube->IsAlive()) continue;
+				else delFlag = false;
+			}
+			if (!delFlag) break;
+		}
+	}
+	else delFlag = false;
+
+	if (delFlag) {
+		ReleaseWave();
+		spinTimer_ += SPIN_DELAY_FRAME;
+	}
+
+	auto actFlag = false;
+	if (cubeList_.size() > 0) {
+		auto& waveList = cubeList_.back();
+		for (auto& subList : waveList) {
+			for (auto& cube : subList) {
+				if (cube->GetState() != Block::STATE::STOP) continue;
+				else actFlag = true;
+			}
+			if (actFlag) break;
+		}
+	}
+
+	if (fastForward_) spinTimer_ = 0;
+	if (spinTimer_ > 0) spinTimer_--;
+
+	if (actFlag) if (spinTimer_ <= 0) {
+		// 次の回転を開始
+		isSpinning_ = true;
+	}
+}
+
+void Stage::UpdateSpin() {
+	++spinTimer_;
+	if (cubeList_.size() > 0) {
+		auto& waveList = cubeList_.back();
+		for (auto& subList : waveList) for (auto& cube : subList) {
+			// 既に消えているか消失中の場合、処理の必要が無いのでスキップ
+			if (!cube->IsAlive() || cube->GetState() == Block::STATE::VANISH || cube->GetState() == Block::STATE::FALL) continue;
+
+			// 衝突判定用（回転中は、キューブ後方の下辺の衝突判定が消える）
+			cube->ChangeState(Block::STATE::SPIN);
+
+			// キューブの回転量
+			auto cubeRot = cube->GetRotation();
+
+			// 追加される回転量
+			float deg = -SPIN_DEGREE;
+			if (fastForward_) deg = -FAST_SPIN_DEGREE;
+			float nextRot = DX_PI_F / 180.f * deg;
+
+			// 合計回転量が-90度をオーバーしないように調整
+			if (cubeRot.x + nextRot < -DX_PI_F / 2.f)
+				nextRot = -DX_PI_F / 2.f - cubeRot.x;
+
+			// 行列計算（原点への平行移動＋回転＋座標への平行移動）
+			Matrix4x4 mat = TranslationMatrix(cube->GetMatrixPosition()) * RotationMatrixX(nextRot) * TranslationMatrix(-cube->GetMatrixPosition());
+
+			// キューブの座標を更新
+			cube->SetPosition(mat * cube->GetPosition());
+
+			// キューブの回転を更新
+			cubeRot.x += nextRot;
+			cube->SetRotation(cubeRot);
+
+			// キューブの回転量が-90度になったら回転処理を停止
+			if (cubeRot.x <= -DX_PI_F / 2.f)
+				isSpinning_ = false;
+		}
+	}
 }

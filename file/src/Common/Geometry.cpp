@@ -1,12 +1,44 @@
 #include <cmath>
 #include "Geometry.h"
 
-#if !_HAS_CXX20
+#if _HAS_CXX20
+#include <numbers>
+#else
 #include <math.h>
 #define _USE_MATH_DEFINES
-#else
-#include <numbers>
 #endif
+
+float DegToRad(float n) {
+#if _HAS_CXX20
+	return n * (float)std::numbers::pi / 180.f;
+#else
+	return n * (float)M_PI / 180.f;
+#endif
+}
+
+double DegToRad(double n) {
+#if _HAS_CXX20
+	return n * std::numbers::pi / 180.f;
+#else
+	return n * M_PI / 180.f;
+#endif
+}
+
+float RadToDeg(float n) {
+#if _HAS_CXX20
+	return n / (float)std::numbers::pi * 180.f;
+#else
+	return n / (float)M_PI * 180.f;
+#endif
+}
+
+double RadToDeg(double n) {
+#if _HAS_CXX20
+	return n / std::numbers::pi * 180.f;
+#else
+	return n / M_PI * 180.f;
+#endif
+}
 
 const float Vector2::Magnitude() const {
 	return hypot(x, y);
@@ -28,10 +60,10 @@ float Vector2::Angle() const {
 }
 
 float Vector2::AngleDegree() const {
-#if !_HAS_CXX20
-	return Angle() / (float)M_PI * 180.f;
-#else
+#if _HAS_CXX20
 	return Angle() / (float)std::numbers::pi * 180.f;
+#else
+	return Angle() / (float)M_PI * 180.f;
 #endif
 }
 

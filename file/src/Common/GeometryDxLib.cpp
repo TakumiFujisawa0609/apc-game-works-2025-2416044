@@ -34,8 +34,12 @@ Matrix4x4 GeometryDxLib::MATRIXToMatrix4x4(const MATRIX& m) {
 	};
 }
 
-bool GeometryDxLib::VEquals(const VECTOR& in1, const VECTOR& in2) {
-	return in1.x == in2.x && in1.y == in2.y && in1.z == in2.z;
+VECTOR GeometryDxLib::VInverse(const VECTOR& In) {
+	return { -In.x, -In.y, -In.z };
+}
+
+bool GeometryDxLib::VEquals(const VECTOR& In1, const VECTOR& In2) {
+	return In1.x == In2.x && In1.y == In2.y && In1.z == In2.z;
 }
 
 bool GeometryDxLib::DrawShadow3D(VECTOR pos, float r, int div_num) {
