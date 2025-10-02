@@ -8,6 +8,30 @@
 #define _USE_MATH_DEFINES
 #endif
 
+int Round(float n) {
+	return n - (int)n >= 0.5f ? (int)n + 1 : (int)n;
+}
+
+int Round(double n) {
+	return n - (int)n >= 0.5 ? (int)n + 1 : (int)n;
+}
+
+int RoundDown(float n) {
+	return (int)n;
+}
+
+int RoundDown(double n) {
+	return (int)n;
+}
+
+int RoundUp(float n) {
+	return n - (int)n > 0.f ? (int)n + 1 : (int)n;
+}
+
+int RoundUp(double n) {
+	return n - (int)n > 0 ? (int)n + 1 : (int)n;
+}
+
 float DegToRad(float n) {
 #if _HAS_CXX20
 	return n * (float)std::numbers::pi / 180.f;

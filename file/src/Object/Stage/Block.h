@@ -1,5 +1,6 @@
 #pragma once
 #include <DxLib.h>
+#include <array>
 #include "../../Common/Geometry.h"
 
 class Block {
@@ -28,12 +29,17 @@ public:
 		ALERT,
 	};
 
+	struct STAGE_INDEX {
+		int x;
+		int z;
+	};
+
 	static constexpr float BLOCK_SIZE = 200.f;
 	static constexpr float HALF_BLOCK_SIZE = BLOCK_SIZE / 2.f;
 
 	static constexpr unsigned int VANISH_FRAME = 30;
 	static constexpr unsigned int FALL_FRAME = 30;
-	static constexpr unsigned int ALERT_FRAME = 20;
+	static constexpr unsigned int ALERT_FRAME = 30;
 
 	static constexpr float VANISH_SPEED_Y = BLOCK_SIZE / VANISH_FRAME;
 	static constexpr float FALL_SPEED_Y = 50.f;
@@ -46,10 +52,10 @@ public:
 
 	void ChangeState(STATE);
 
-	Block::STATE GetState() const;
+	STATE GetState() const;
 
-	Block::TYPE GetType() const;
-	void SetType(Block::TYPE);
+	TYPE GetType() const;
+	void SetType(TYPE);
 
 	bool IsAlive() const;
 	void SetAlive(bool);
@@ -59,6 +65,10 @@ public:
 
 	int GetModelHandle() const;
 	void SetModelHandle(int);
+
+	STAGE_INDEX GetStageIndex() const;
+	void SetStageIndex(int x, int z);
+	void SetStageIndex(STAGE_INDEX);
 
 	Vector3 GetPosition() const;
 	void SetPosition(Vector3);
@@ -72,12 +82,10 @@ public:
 	Vector3 GetRotation() const;
 	void SetRotation(Vector3);
 
-	void GetSquareCollisionXZ(Vector2& start, Vector2& end);
-
 private:
-	static constexpr COLOR_F MODEL_COLOR_DEFAULT = { 0.2F, 0.2F, 0.2F, 1.f };
-	static constexpr COLOR_F MODEL_COLOR_ALERT = { 0.5F, 0.2F, 0.2F, 1.f };
-	static constexpr COLOR_F MODEL_COLOR_VANISH = { 0.5F, 0.5F, 0.5F, 1.f };
+	static constexpr COLOR_F MODEL_COLOR_DEFAULT = { 0.3f, 0.3f, 0.3f, 1.f };
+	static constexpr COLOR_F MODEL_COLOR_ALERT = { 0.6f, 0.1f, 0.1f, 1.f };
+	static constexpr COLOR_F MODEL_COLOR_VANISH = { 0.8f, 0.8f, 0.8f, 1.f };
 
 	static constexpr unsigned int OUTLINE_COLOR = 0x303030U;
 
@@ -94,6 +102,8 @@ private:
 	Vector3 position_;
 	Vector3 matrixPosition_;
 	Vector3 rotation_;
+
+	STAGE_INDEX stageIndex_;
 
 	void OutLine(Vector3 position);
 	Vector3 LineMatrixProc(Vector3);

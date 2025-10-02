@@ -33,6 +33,7 @@
     <ClCompile Include="src\Manager\SceneManager.cpp" />
     <ClCompile Include="src\Scene\SceneBase.cpp" />
     <ClCompile Include="src\Object\Stage\Stage.cpp" />
+    <ClCompile Include="src\Object\Trap\Trap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Object\Camera\Camera.h" />
@@ -48,6 +49,7 @@
     <ClInclude Include="src\Manager\SceneManager.h" />
     <ClInclude Include="src\Scene\SceneBase.h" />
     <ClInclude Include="src\Object\Stage\Stage.h" />
+    <ClInclude Include="src\Object\Trap\Trap.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

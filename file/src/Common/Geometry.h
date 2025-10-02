@@ -1,11 +1,28 @@
 #pragma once
 
+// 四捨五入
+int Round(float n);
+// 四捨五入
+int Round(double n);
+
+// 端数切り捨て
+int RoundDown(float n);
+// 端数切り捨て
+int RoundDown(double n);
+
+// 端数切り上げ
+int RoundUp(float n);
+// 端数切り上げ
+int RoundUp(double n);
+
 // 弧度からラジアンに変換
 float DegToRad(float n);
+// 弧度からラジアンに変換
 double DegToRad(double n);
 
 // ラジアンから弧度に変換
 float RadToDeg(float n);
+// ラジアンから弧度に変換
 double RadToDeg(double n);
 
 // ２次元ベクトル

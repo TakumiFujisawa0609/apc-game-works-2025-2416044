@@ -13,6 +13,8 @@ public:
 	static MATRIX Matrix4x4ToMATRIX(const Matrix4x4& m);
 	static Matrix4x4 MATRIXToMatrix4x4(const MATRIX& m);
 
+	static VECTOR VLeap(const VECTOR& In1, const VECTOR& In2, float leap = 0.2f);
+
 	// VECTOR 型の単項マイナス演算
 	static VECTOR VInverse(const VECTOR& In);
 

@@ -3,6 +3,7 @@
 #include "../../Object/Player/Player.h"
 #include "../../Object/Stage/Block.h"
 #include "../../Object/Stage/Stage.h"
+#include "../../Object/Trap/Trap.h"
 #include "GameScene.h"
 
 bool GameScene::SystemInit() {
@@ -15,6 +16,8 @@ bool GameScene::SystemInit() {
 	player_ = new Player();
 	player_->SystemInit();
 
+	trap_ = new Trap(stage_);
+
 	return true;
 }
 
@@ -26,6 +29,8 @@ bool GameScene::GameInit() {
 
 	player_->GameInit(px, pz);
 
+	trap_->Init();
+
 	return true;
 }
 
@@ -34,6 +39,11 @@ void GameScene::Update() {
 	player_->Update();
 
 	Collision();
+
+	trap_->Update(player_->GetPos());
+	if (trap_->CheckTrapReady()) trap_->Reset();
+
+	stage_->SetFastForward(!(player_->IsAlive()));
 }
 
 void GameScene::Draw() {
@@ -42,6 +52,7 @@ void GameScene::Draw() {
 
 	camera_->BeforeDraw(player_->GetPos(), px, pz);
 	stage_->Draw();
+	trap_->Draw();
 	player_->Draw();
 }
 
@@ -51,6 +62,12 @@ bool GameScene::Release() {
 
 	player_->Release();
 	delete player_;
+
+	//camera_->Release();
+	delete camera_;
+
+	//trap_->Release();
+	delete trap_;
 
 	return true;
 }
@@ -85,20 +102,20 @@ void GameScene::CollisionCube() {
 			// 手前 → キューブ
 			if (plPos.z >= c4->GetMatrixPosition().z && c4->GetMatrixPosition().z >= plPrevPos.z &&
 				plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPos.x) {
-				retPos.z = c4->GetMatrixPosition().z;
+				retPos.z = c4->GetMatrixPosition().z - 1;
 			}
 
 			// 奥 → キューブ
 			if (c4->GetState() == Block::STATE::STOP) { // 停止中のみ判定
 				if (plPos.z <= c4->GetMatrixPosition().z + Block::BLOCK_SIZE && c4->GetMatrixPosition().z + Block::BLOCK_SIZE <= plPrevPos.z &&
 					plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPos.x) {
-					retPos.z = c4->GetMatrixPosition().z + Block::BLOCK_SIZE;
+					retPos.z = c4->GetMatrixPosition().z + Block::BLOCK_SIZE + 1;
 				}
 			}
 			else {
 				if (plPos.z <= c4->GetMatrixPosition().z && c4->GetMatrixPosition().z <= plPrevPos.z &&
 					plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPos.x) {
-					retPos.z = c4->GetMatrixPosition().z;
+					retPos.z = c4->GetMatrixPosition().z + 1;
 				}
 			}
 
@@ -106,14 +123,14 @@ void GameScene::CollisionCube() {
 			if (c4->GetState() == Block::STATE::STOP && // 停止中のみ判定
 				plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x - Block::HALF_BLOCK_SIZE >= plPrevPos.x &&
 				plPos.z >= c4->GetPosition().z - Block::HALF_BLOCK_SIZE && c4->GetPosition().z + Block::HALF_BLOCK_SIZE >= plPos.z) {
-				retPos.x = c4->GetPosition().x - Block::HALF_BLOCK_SIZE;
+				retPos.x = c4->GetPosition().x - Block::HALF_BLOCK_SIZE - 1;
 			}
 
 			// 右 → キューブ
 			if (c4->GetState() == Block::STATE::STOP && // 停止中のみ判定
 				plPos.x <= c4->GetPosition().x + Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE <= plPrevPos.x &&
 				plPos.z >= c4->GetPosition().z - Block::HALF_BLOCK_SIZE && c4->GetPosition().z + Block::HALF_BLOCK_SIZE >= plPos.z) {
-				retPos.x = c4->GetPosition().x + Block::HALF_BLOCK_SIZE ;
+				retPos.x = c4->GetPosition().x + Block::HALF_BLOCK_SIZE + 1;
 			}
 		}
 
@@ -141,20 +158,17 @@ void GameScene::CollisionPlatform() {
 
 void GameScene::CollisionStomp() {
 	VECTOR plPos = player_->GetPos();
-	VECTOR retPos = plPos;
 
 	auto c1 = stage_->GetCubeList();
 
 	for (auto& c2 : c1) for (auto& c3 : c2) for (auto& c4 : c3) {
-		if (c4->GetState() == Block::STATE::STOP &&
-			plPos.z < c4->GetPosition().z + Block::HALF_BLOCK_SIZE &&
-			plPos.z > c4->GetPosition().z - Block::HALF_BLOCK_SIZE &&
-			plPos.x < c4->GetPosition().x + Block::HALF_BLOCK_SIZE &&
-			plPos.x > c4->GetPosition().x - Block::HALF_BLOCK_SIZE
+		if (c4->GetRotation().x < DegToRad(-75.f) &&
+			plPos.z <= c4->GetMatrixPosition().z &&
+			plPos.z >= c4->GetMatrixPosition().z - Block::BLOCK_SIZE &&
+			plPos.x <= c4->GetPosition().x + Block::HALF_BLOCK_SIZE &&
+			plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE
 			) {
 			player_->Stomp();
 		}
 	}
-
-	player_->SetPos(retPos);
 }

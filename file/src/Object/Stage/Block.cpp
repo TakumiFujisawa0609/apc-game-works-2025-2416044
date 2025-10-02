@@ -12,8 +12,6 @@ Block::Block(int width) : WIDTH(width) {
 }
 
 void Block::Update() {
-	Matrix4x4 mat;
-
 	switch (state_) {
 	case STATE::STOP:
 	case STATE::SPIN:
@@ -29,6 +27,8 @@ void Block::Update() {
 		}
 		break;
 	case STATE::FALL:
+		MV1SetMaterialEmiColor(modelHandle_, 0, MODEL_COLOR_DEFAULT);
+
 		// 一定フレーム経過後に生存判定を消す
 		if (stateFrame_++ >= FALL_FRAME) {
 			isAlive_ = false;
@@ -38,9 +38,12 @@ void Block::Update() {
 		}
 		break;
 	case STATE::ALERT:
+		MV1SetMaterialEmiColor(modelHandle_, 0, MODEL_COLOR_ALERT);
+
 		// 一定フレーム経過後に落下状態へ移行
 		if (stateFrame_++ >= FALL_FRAME) {
 			state_ = STATE::FALL;
+			stateFrame_ = 0;
 		}
 		break;
 	default:
@@ -148,6 +151,18 @@ void Block::SetModelHandle(int id) {
 	MV1SetMaterialEmiColor(modelHandle_, 0, MODEL_COLOR_DEFAULT);
 }
 
+Block::STAGE_INDEX Block::GetStageIndex() const {
+	return stageIndex_;
+}
+
+void Block::SetStageIndex(int x, int z) {
+	stageIndex_ = { x, z };
+}
+
+void Block::SetStageIndex(STAGE_INDEX s) {
+	stageIndex_ = s;
+}
+
 Vector3 Block::GetPosition() const {
 	return position_;
 }
@@ -180,11 +195,6 @@ Vector3 Block::GetRotation() const {
 void Block::SetRotation(Vector3 v) {
 	rotation_ = v;
 	MV1SetRotationXYZ(modelHandle_, GeometryDxLib::Vector3ToVECTOR(rotation_));
-}
-
-void Block::GetSquareCollisionXZ(Vector2& start, Vector2& end) {
-	start = { position_.x - HALF_BLOCK_SIZE, position_.z - HALF_BLOCK_SIZE };
-	end = { position_.x + HALF_BLOCK_SIZE, position_.z + HALF_BLOCK_SIZE };
 }
 
 void Block::OutLine(Vector3 position) {

@@ -4,6 +4,7 @@
 class Camera;
 class Player;
 class Stage;
+class Trap;
 
 class GameScene : public SceneBase {
 public:
@@ -28,6 +29,7 @@ private:
 	Camera* camera_;
 	Player* player_;
 	Stage* stage_;
+	Trap* trap_;
 
 	void CollisionCube();
 	void CollisionPlatform();

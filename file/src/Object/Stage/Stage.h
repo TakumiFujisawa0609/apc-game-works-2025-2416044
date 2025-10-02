@@ -1,14 +1,14 @@
 #pragma once
 #include <list>
 #include <vector>
+#include <DxLib.h>
 #include "../../Common/Geometry.h"
 
 class Block;
 
 class Stage {
 public:
-	//static constexpr int SPIN_FRAME = 30;
-	static constexpr int SPIN_FRAME = 120;
+	static constexpr int SPIN_FRAME = 36;
 	static constexpr float SPIN_DEGREE = 90.f / SPIN_FRAME;
 
 	static constexpr float FAST_SPIN_DEGREE = 9.f;
@@ -33,6 +33,9 @@ public:
 	bool Release();
 	bool ReleaseWave();
 
+	void ConvertStagePos(const VECTOR& pos, int& x, int& z);
+	VECTOR ConvertWorldPos(int x, int z);
+
 	void GetPlatformSize(int& x, int& z) const;
 	std::list<std::list<std::list<Block*>>> GetCubeList() const;
 
@@ -42,11 +45,12 @@ private:
 	std::list<Block*> platformList_;
 	std::list<std::list<std::list<Block*>>> cubeList_;
 
-	int cubeWidth_;
-	int cubeDepth_;
+	int blockWidth_;
 	int platformDepth_;
+	int cubeDepth_;
+	int phase_;
 	int wave_;
-	unsigned __int8 fallCount_;
+	int fallCount_;
 
 	int spinTimer_;
 	bool isSpinning_;

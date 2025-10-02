@@ -1,4 +1,3 @@
-#include <DxLib.h>
 #include "Block.h"
 #include "Stage.h"
 
@@ -11,34 +10,37 @@ bool Stage::SystemInit() {
 }
 
 bool Stage::GameInit() {
-	cubeWidth_ = 4;
+	blockWidth_ = 4;
 
 	// 足場
-	platformDepth_ = 16;
+	platformDepth_ = 24;
 
 	for (int pd = 0; pd < platformDepth_; ++pd) {
 		auto& ptr = platformList_.emplace_back();
-		ptr = new Block(cubeWidth_);
+		ptr = new Block(blockWidth_);
 		ptr->SetType(Block::TYPE::PLATFORM);
 		ptr->SetModelHandle(normalModel_);
+		ptr->SetStageIndex(0, pd);
 		ptr->SetPosition(
 			{ Block::HALF_BLOCK_SIZE, -Block::HALF_BLOCK_SIZE, pd * (-Block::BLOCK_SIZE) - Block::HALF_BLOCK_SIZE }
 		);
 	}
 
 	cubeDepth_ = 2;
-	wave_ = 3;
+	phase_ = 3;
+	wave_ = 4;
 
 	// キューブ
-	for (int cp = 0; cp < wave_; ++cp) {
+	for (int cp = 0; cp < phase_; ++cp) {
 		auto& waveList = cubeList_.emplace_back();
 		for (int cd = 0; cd < cubeDepth_; ++cd) {
 			auto& subList = waveList.emplace_back();
-			for (int cw = 0; cw < cubeWidth_ - 1; ++cw) {
+			for (int cw = 0; cw < blockWidth_ - 1; ++cw) {
 				auto& ptr = subList.emplace_back();
 				ptr = new Block();
 				ptr->SetType(Block::TYPE::NORMAL);
-				ptr->SetModelHandle(forbiddenModel_);
+				ptr->SetModelHandle(normalModel_);
+				ptr->SetStageIndex(cw, cp * cubeDepth_ + cd);
 				ptr->SetPosition(
 					{ cw * Block::BLOCK_SIZE + Block::HALF_BLOCK_SIZE, Block::HALF_BLOCK_SIZE, (cp * cubeDepth_ + cd) * (-Block::BLOCK_SIZE) - Block::HALF_BLOCK_SIZE }
 				);
@@ -49,6 +51,8 @@ bool Stage::GameInit() {
 	spinTimer_ = 0;
 	isSpinning_ = false;
 	fastForward_ = false;
+
+	fallCount_ = 0;
 
 	return true;
 }
@@ -65,14 +69,30 @@ void Stage::Update() {
 		cube->Update();
 	}
 
+	if (fallCount_ >= blockWidth_) {
+		fallCount_ -= blockWidth_;
+		
+		for (auto rit = platformList_.rbegin(); rit != platformList_.rend(); rit++) {
+			if ((*rit)->GetState() == Block::STATE::STOP) {
+				(*rit)->ChangeState(Block::STATE::ALERT);
+				break;
+			}
+		}
+	}
+
+	int count = 0;
 	for (auto& platform : platformList_) {
 		platform->Update();
+
+		if (platform->GetState() != Block::STATE::FALL) count++;
+
 		if (!platform->IsAlive()) {
 			delete platform;
 			platformList_.remove(platform);
 			break;
 		}
 	}
+	platformDepth_ = count;
 }
 
 void Stage::Draw() {
@@ -137,8 +157,20 @@ bool Stage::ReleaseWave() {
 	return true;
 }
 
+void Stage::ConvertStagePos(const VECTOR& pos, int& x, int& z) {
+	x = (int)(pos.x / Block::BLOCK_SIZE);
+	z = (int)(pos.z / Block::BLOCK_SIZE);
+}
+
+VECTOR Stage::ConvertWorldPos(int x, int z) {
+	VECTOR ret = {};
+	ret.x = x * Block::BLOCK_SIZE;
+	ret.z = z * Block::BLOCK_SIZE;
+	return ret;
+}
+
 void Stage::GetPlatformSize(int& x, int& z) const {
-	x = cubeWidth_;
+	x = blockWidth_;
 	z = platformDepth_;
 }
 
@@ -240,8 +272,11 @@ void Stage::UpdateSpin() {
 			cube->SetRotation(cubeRot);
 
 			// キューブの回転量が-90度になったら回転処理を停止
-			if (cubeRot.x <= -DX_PI_F / 2.f)
-				isSpinning_ = false;
+			if (cubeRot.x <= -DX_PI_F / 2.f) {
+				auto idx = cube->GetStageIndex();
+				cube->SetStageIndex({ idx.x, idx.z + 1 });
+				if (isSpinning_) isSpinning_ = false;
+			}
 		}
 	}
 }

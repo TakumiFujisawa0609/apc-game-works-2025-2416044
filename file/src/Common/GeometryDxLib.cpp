@@ -34,6 +34,14 @@ Matrix4x4 GeometryDxLib::MATRIXToMatrix4x4(const MATRIX& m) {
 	};
 }
 
+VECTOR GeometryDxLib::VLeap(const VECTOR& In1, const VECTOR& In2, float leap) {
+	VECTOR v = {};
+	v.x = In1.x + (In2.x - In1.x) * leap;
+	v.y = In1.y + (In2.y - In1.y) * leap;
+	v.z = In1.z + (In2.z - In1.z) * leap;
+	return v;
+}
+
 VECTOR GeometryDxLib::VInverse(const VECTOR& In) {
 	return { -In.x, -In.y, -In.z };
 }

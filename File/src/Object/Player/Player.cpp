@@ -17,9 +17,9 @@ bool Player::SystemInit() {
 }
 
 bool Player::GameInit(int stage_width, int stage_depth) {
-	pos_.x = Block::BLOCK_SIZE * stage_width / 2.f;
+	pos_.x = Block::BLOCK_SIZE * stage_width / 2;
 	pos_.y = 0.f;
-	pos_.z = -(Block::BLOCK_SIZE * stage_depth - Block::BLOCK_SIZE * 3.f);
+	pos_.z = -Block::BLOCK_SIZE * stage_depth / 4 * 3;
 	MV1SetPosition(modelId_, pos_);
 
 	worldAngles_ = { 0.f, 0.f, 0.f };
@@ -33,9 +33,11 @@ bool Player::GameInit(int stage_width, int stage_depth) {
 
 	state_ = STATE::NORMAL;
 
-	animType_ = ANIM_TYPE::RUN;
+	animType_ = ANIM_TYPE::IDLE;
 
 	animControll_->Play(static_cast<int>(animType_));
+
+	stateTimer_ = 0;
 
 	return true;
 }
@@ -45,30 +47,21 @@ void Player::Update() {
 
 	switch (state_) {
 	case STATE::NORMAL:
+		Move();
+		stateTimer_ = 0;
+		break;
 	case STATE::INVINCIBLE:
-		// âºÇÃà⁄ìÆèàóù
-		if (CheckHitKey(KEY_INPUT_W)) dir.z += 1.f;
-		if (CheckHitKey(KEY_INPUT_S)) dir.z -= 1.f;
-		if (CheckHitKey(KEY_INPUT_A)) dir.x -= 1.f;
-		if (CheckHitKey(KEY_INPUT_D)) dir.x += 1.f;
-
-		if (dir.x != 0.f || dir.z != 0.f) {
-			dir = VNorm(dir);
-			worldAngles_.y = atan2f(dir.x, dir.z);
-
-			animType_ = ANIM_TYPE::RUN;
+		Move();
+		if (stateTimer_++ >= STATE_INVINCIBLE_TIME) {
+			state_ = STATE::NORMAL;
+			stateTimer_ = 0;
 		}
-		else {
-			animType_ = ANIM_TYPE::IDLE;
-		}
-
-		move_ = VScale(dir, MOVE_SPEED);
-		pos_ = VAdd(pos_, move_);
-
-		MV1SetPosition(modelId_, pos_);
-		MV1SetRotationMatrix(modelId_, GeometryDxLib::Multiplication(LOCAL_ANGLES, worldAngles_));
 		break;
 	case STATE::STOMP:
+		if (stateTimer_++ >= STATE_STOMP_TIME) {
+			state_ = STATE::INVINCIBLE;
+			stateTimer_ = 0;
+		}
 		break;
 	}
 
@@ -77,6 +70,9 @@ void Player::Update() {
 }
 
 void Player::Draw() {
+	if (state_ == STATE::INVINCIBLE && stateTimer_ % 2 == 0) {
+		return;
+	}
 	MV1DrawModel(modelId_);
 }
 
@@ -109,4 +105,34 @@ void Player::SetPos(VECTOR pos) {
 
 VECTOR Player::GetMove() const {
 	return move_;
+}
+
+bool Player::IsAlive() const {
+	return state_ != STATE::STOMP;
+}
+
+void Player::Move() {
+	VECTOR dir = {};
+
+	// âºÇÃà⁄ìÆèàóù
+	if (CheckHitKey(KEY_INPUT_W)) dir.z += 1.f;
+	if (CheckHitKey(KEY_INPUT_S)) dir.z -= 1.f;
+	if (CheckHitKey(KEY_INPUT_A)) dir.x -= 1.f;
+	if (CheckHitKey(KEY_INPUT_D)) dir.x += 1.f;
+
+	if (dir.x != 0.f || dir.z != 0.f) {
+		dir = VNorm(dir);
+		worldAngles_.y = atan2f(dir.x, dir.z);
+
+		animType_ = ANIM_TYPE::RUN;
+	}
+	else {
+		animType_ = ANIM_TYPE::IDLE;
+	}
+
+	move_ = VScale(dir, MOVE_SPEED);
+	pos_ = VAdd(pos_, move_);
+
+	MV1SetPosition(modelId_, pos_);
+	MV1SetRotationMatrix(modelId_, GeometryDxLib::Multiplication(LOCAL_ANGLES, worldAngles_));
 }
