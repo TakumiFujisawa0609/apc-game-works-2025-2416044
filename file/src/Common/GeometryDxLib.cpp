@@ -34,11 +34,31 @@ Matrix4x4 GeometryDxLib::MATRIXToMatrix4x4(const MATRIX& m) {
 	};
 }
 
-VECTOR GeometryDxLib::VLeap(const VECTOR& In1, const VECTOR& In2, float leap) {
+VECTOR GeometryDxLib::VZero() {
+	return { 0.f, 0.f, 0.f };
+}
+
+VECTOR GeometryDxLib::VLerp(const VECTOR& In1, const VECTOR& In2, float lerp) {
 	VECTOR v = {};
-	v.x = In1.x + (In2.x - In1.x) * leap;
-	v.y = In1.y + (In2.y - In1.y) * leap;
-	v.z = In1.z + (In2.z - In1.z) * leap;
+
+	if (lerp <= 1.f) {
+		v.x = In1.x + (In2.x - In1.x) * lerp;
+		v.y = In1.y + (In2.y - In1.y) * lerp;
+		v.z = In1.z + (In2.z - In1.z) * lerp;
+	}
+
+	return v;
+}
+
+VECTOR GeometryDxLib::VLerpRad(const VECTOR& In1, const VECTOR& In2, float lerp) {
+	VECTOR v = {};
+
+	if (lerp <= 1.f) {
+		v.x = LerpRad(In1.x, In2.x, lerp);
+		v.y = LerpRad(In1.y, In2.y, lerp);
+		v.z = LerpRad(In1.z, In2.z, lerp);
+	}
+
 	return v;
 }
 

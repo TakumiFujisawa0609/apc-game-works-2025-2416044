@@ -11,6 +11,7 @@ public:
 	bool Init();
 	void Update(const VECTOR& player_pos);
 	void Draw();
+	bool Execute();
 
 	void Reset();
 
@@ -22,9 +23,10 @@ private:
 
 	bool setTrap_;
 	bool readyTrap_;
+	int waitExecute_;
 	Vector2 stagePos_;
 
-	bool prevSpaceKey_;
+	bool prevKey_;
 
 };
 

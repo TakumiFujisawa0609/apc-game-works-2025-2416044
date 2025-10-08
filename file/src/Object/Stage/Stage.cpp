@@ -1,5 +1,6 @@
 #include "Block.h"
 #include "Stage.h"
+#include "../../Common/GeometryDxLib.h"
 
 bool Stage::SystemInit() {
 	normalModel_ = MV1LoadModel("Data/Model/Blocks/Block_Stone.mv1");
@@ -35,7 +36,7 @@ bool Stage::GameInit() {
 		auto& waveList = cubeList_.emplace_back();
 		for (int cd = 0; cd < cubeDepth_; ++cd) {
 			auto& subList = waveList.emplace_back();
-			for (int cw = 0; cw < blockWidth_ - 1; ++cw) {
+			for (int cw = 0; cw < blockWidth_; ++cw) {
 				auto& ptr = subList.emplace_back();
 				ptr = new Block();
 				ptr->SetType(Block::TYPE::NORMAL);
@@ -81,6 +82,7 @@ void Stage::Update() {
 	}
 
 	int count = 0;
+	prevPlatformDepth_ = platformDepth_;
 	for (auto& platform : platformList_) {
 		platform->Update();
 
@@ -96,18 +98,22 @@ void Stage::Update() {
 }
 
 void Stage::Draw() {
+	// 足場
 	for (auto& platform : platformList_) {
 		platform->Draw();
 	}
 
+	// キューブ
 	for (auto& waveList : cubeList_) for (auto& subList : waveList) for (auto& cube : subList) {
 		cube->Draw();
 	}
 
+	// GUI
+	// ウインドウサイズ取得処理
 	int x, y;
 	GetWindowSize(&x, &y);
-
-	DrawFormatString(x - 128, y - 32, 0xFFFFFFU, "落下数: %d", fallCount_);
+	// 落下数
+	DrawFormatString(x - 256, y - 32, 0xFFFFFFU, "足場崩壊まで: %d/%d", fallCount_, blockWidth_);
 }
 
 bool Stage::Release() {
@@ -157,15 +163,25 @@ bool Stage::ReleaseWave() {
 	return true;
 }
 
+void Stage::VanishBlock(const Vector2& trap_stage_pos) {
+	for (auto& waveList : cubeList_) for (auto& subList : waveList) for (auto& cube : subList) {
+		if (cube->GetStageIndex() == trap_stage_pos) {
+			cube->ChangeState(Block::STATE::VANISH);
+			spinTimer_ += SPIN_DELAY_FRAME;
+			return;
+		}
+	}
+}
+
 void Stage::ConvertStagePos(const VECTOR& pos, int& x, int& z) {
 	x = (int)(pos.x / Block::BLOCK_SIZE);
-	z = (int)(pos.z / Block::BLOCK_SIZE);
+	z = (int)(pos.z / -Block::BLOCK_SIZE);
 }
 
 VECTOR Stage::ConvertWorldPos(int x, int z) {
 	VECTOR ret = {};
 	ret.x = x * Block::BLOCK_SIZE;
-	ret.z = z * Block::BLOCK_SIZE;
+	ret.z = z * -Block::BLOCK_SIZE;
 	return ret;
 }
 
@@ -174,13 +190,13 @@ void Stage::GetPlatformSize(int& x, int& z) const {
 	z = platformDepth_;
 }
 
-std::list<std::list<std::list<Block*>>> Stage::GetCubeList() const {
-	return cubeList_;
-}
+int Stage::GetPrevPlatformSizeZ() const { return prevPlatformDepth_; }
 
-void Stage::SetFastForward(bool b) {
-	fastForward_ = b;
-}
+std::list<std::list<std::list<Block*>>> Stage::GetCubeList() const { return cubeList_; }
+
+void Stage::SetFastForward(bool b) { fastForward_ = b; }
+
+bool Stage::IsSpinning() const { return isSpinning_; }
 
 void Stage::UpdateStop() {
 	for (auto& waveList : cubeList_) for (auto& subList : waveList) for (auto& cube : subList) {
@@ -274,7 +290,7 @@ void Stage::UpdateSpin() {
 			// キューブの回転量が-90度になったら回転処理を停止
 			if (cubeRot.x <= -DX_PI_F / 2.f) {
 				auto idx = cube->GetStageIndex();
-				cube->SetStageIndex({ idx.x, idx.z + 1 });
+				cube->SetStageIndex({ idx.x, idx.y + 1 });
 				if (isSpinning_) isSpinning_ = false;
 			}
 		}

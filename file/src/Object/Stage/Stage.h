@@ -32,14 +32,18 @@ public:
 	void Draw();
 	bool Release();
 	bool ReleaseWave();
+	void VanishBlock(const Vector2& trap_stage_pos);
 
 	void ConvertStagePos(const VECTOR& pos, int& x, int& z);
 	VECTOR ConvertWorldPos(int x, int z);
 
 	void GetPlatformSize(int& x, int& z) const;
+	int GetPrevPlatformSizeZ() const;
 	std::list<std::list<std::list<Block*>>> GetCubeList() const;
 
 	void SetFastForward(bool);
+
+	bool IsSpinning() const;
 
 private:
 	std::list<Block*> platformList_;
@@ -47,6 +51,7 @@ private:
 
 	int blockWidth_;
 	int platformDepth_;
+	int prevPlatformDepth_;
 	int cubeDepth_;
 	int phase_;
 	int wave_;

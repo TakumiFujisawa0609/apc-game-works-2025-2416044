@@ -18,6 +18,8 @@ bool GameScene::SystemInit() {
 
 	trap_ = new Trap(stage_);
 
+	camera_->SetFollowTarget(player_);
+
 	return true;
 }
 
@@ -41,19 +43,37 @@ void GameScene::Update() {
 	Collision();
 
 	trap_->Update(player_->GetPos());
-	if (trap_->CheckTrapReady()) trap_->Reset();
+	if (trap_->Execute()) {
+		stage_->VanishBlock(trap_->GetStagePos());
+		trap_->Reset();
+	}
 
-	stage_->SetFastForward(!(player_->IsAlive()));
+	if (player_->GetState() == Player::STATE::STOMP || CheckHitKey(KEY_INPUT_L)) {
+		stage_->SetFastForward(true);
+		camera_->ChangeCameraMode(Camera::MODE::FIXED_FAST);
+	}
+	else {
+		stage_->SetFastForward(false);
+		camera_->ChangeCameraMode(Camera::MODE::FOLLOW);
+	}
 }
 
 void GameScene::Draw() {
 	int px, pz;
 	stage_->GetPlatformSize(px, pz);
 
-	camera_->BeforeDraw(player_->GetPos(), px, pz);
+	camera_->BeforeDraw(px, pz);
 	stage_->Draw();
 	trap_->Draw();
 	player_->Draw();
+
+	// ウインドウサイズ取得処理
+	int x, y;
+	GetWindowSize(&x, &y);
+
+	if (player_->GetState() == Player::STATE::OVER) {
+		DrawRotaFormatString(x / 2, y / 2, 1.0, 1.0, 0.0, 0.0, 0.0, 0xffffffu, 0x000000u, 0, "GAME OVER");
+	}
 }
 
 bool GameScene::Release() {
@@ -74,7 +94,7 @@ bool GameScene::Release() {
 
 void GameScene::Collision() {
 	// 足場判定
-	CollisionPlatform();
+	if (player_->GetState() != Player::STATE::OVER) CollisionPlatform();
 
 	// キューブ判定
 	CollisionCube();
@@ -101,20 +121,23 @@ void GameScene::CollisionCube() {
 
 			// 手前 → キューブ
 			if (plPos.z >= c4->GetMatrixPosition().z && c4->GetMatrixPosition().z >= plPrevPos.z &&
-				plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPos.x) {
+				((plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPos.x) ||
+					(plPrevPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPrevPos.x))) {
 				retPos.z = c4->GetMatrixPosition().z - 1;
 			}
 
 			// 奥 → キューブ
 			if (c4->GetState() == Block::STATE::STOP) { // 停止中のみ判定
 				if (plPos.z <= c4->GetMatrixPosition().z + Block::BLOCK_SIZE && c4->GetMatrixPosition().z + Block::BLOCK_SIZE <= plPrevPos.z &&
-					plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPos.x) {
+					((plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPos.x) ||
+						(plPrevPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPrevPos.x))) {
 					retPos.z = c4->GetMatrixPosition().z + Block::BLOCK_SIZE + 1;
 				}
 			}
 			else {
 				if (plPos.z <= c4->GetMatrixPosition().z && c4->GetMatrixPosition().z <= plPrevPos.z &&
-					plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPos.x) {
+					((plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPos.x) ||
+						(plPrevPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPrevPos.x))) {
 					retPos.z = c4->GetMatrixPosition().z + 1;
 				}
 			}
@@ -122,14 +145,16 @@ void GameScene::CollisionCube() {
 			// 左 → キューブ
 			if (c4->GetState() == Block::STATE::STOP && // 停止中のみ判定
 				plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x - Block::HALF_BLOCK_SIZE >= plPrevPos.x &&
-				plPos.z >= c4->GetPosition().z - Block::HALF_BLOCK_SIZE && c4->GetPosition().z + Block::HALF_BLOCK_SIZE >= plPos.z) {
+				((plPos.z >= c4->GetPosition().z - Block::HALF_BLOCK_SIZE && c4->GetPosition().z + Block::HALF_BLOCK_SIZE >= plPos.z) ||
+					(plPrevPos.z >= c4->GetPosition().z - Block::HALF_BLOCK_SIZE && c4->GetPosition().z + Block::HALF_BLOCK_SIZE >= plPrevPos.z))) {
 				retPos.x = c4->GetPosition().x - Block::HALF_BLOCK_SIZE - 1;
 			}
 
 			// 右 → キューブ
 			if (c4->GetState() == Block::STATE::STOP && // 停止中のみ判定
 				plPos.x <= c4->GetPosition().x + Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE <= plPrevPos.x &&
-				plPos.z >= c4->GetPosition().z - Block::HALF_BLOCK_SIZE && c4->GetPosition().z + Block::HALF_BLOCK_SIZE >= plPos.z) {
+				((plPos.z >= c4->GetPosition().z - Block::HALF_BLOCK_SIZE && c4->GetPosition().z + Block::HALF_BLOCK_SIZE >= plPos.z) ||
+					(plPrevPos.z >= c4->GetPosition().z - Block::HALF_BLOCK_SIZE && c4->GetPosition().z + Block::HALF_BLOCK_SIZE >= plPrevPos.z))) {
 				retPos.x = c4->GetPosition().x + Block::HALF_BLOCK_SIZE + 1;
 			}
 		}
@@ -138,20 +163,30 @@ void GameScene::CollisionCube() {
 }
 
 void GameScene::CollisionPlatform() {
-	VECTOR plPos = player_->GetPos();
-	VECTOR retPos = plPos;
+	VECTOR playerPos = player_->GetPos();
+	VECTOR retPos = playerPos;
 
-	int px = 0, pz = 0;
-	stage_->GetPlatformSize(px, pz);
+	int platformX, platformZ;
+	stage_->GetPlatformSize(platformX, platformZ);
+	VECTOR platform = { platformX * Block::BLOCK_SIZE, 0.f, platformZ * -Block::BLOCK_SIZE };
 
-	// 奥
-	if (plPos.z > 0.f) retPos.z = 0.f;
-	// 手前
-	if (plPos.z < pz * -Block::BLOCK_SIZE) retPos.z = pz * -Block::BLOCK_SIZE - 1;
 	// 左
-	if (plPos.x < 0.f) retPos.x = 0.f;
+	if (playerPos.x < 0.f) retPos.x = 0.f;
 	// 右
-	if (plPos.x > px * Block::BLOCK_SIZE) retPos.x = px * Block::BLOCK_SIZE - 1;
+	if (playerPos.x > platform.x) retPos.x = platform.x - 1;
+	// 奥
+	if (playerPos.z > 0.f) retPos.z = 0.f;
+	// 手前
+	if (playerPos.z < platform.z) {
+		int playerX, playerZ;
+		stage_->ConvertStagePos(playerPos, playerX, playerZ);
+		int prevPlatformZ = stage_->GetPrevPlatformSizeZ();
+
+		if (playerZ > platformZ - 1 && prevPlatformZ > platformZ)
+			player_->Over();
+		else
+			retPos.z = platform.z + 1;
+	}
 
 	player_->SetPos(retPos);
 }

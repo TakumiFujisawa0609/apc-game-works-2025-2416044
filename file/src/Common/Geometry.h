@@ -25,6 +25,11 @@ float RadToDeg(float n);
 // ラジアンから弧度に変換
 double RadToDeg(double n);
 
+// 線形補間
+float Lerp(float start, float end, float lerp = 0.2f);
+// 線形補間（ラジアン）
+float LerpRad(float start, float end, float lerp = 0.2f);
+
 // ２次元ベクトル
 struct Vector2 {
 	Vector2() : x(0), y(0) {}
@@ -61,6 +66,8 @@ struct Vector2 {
 Vector2 operator+(const Vector2& va, const Vector2& vb);
 // ベクトル同士の減算
 Vector2 operator-(const Vector2& va, const Vector2& vb);
+// ベクトル同士の比較
+bool operator==(const Vector2& va, const Vector2& vb);
 
 // 内積（ドット積）
 float Dot(const Vector2& va, const Vector2& vb);

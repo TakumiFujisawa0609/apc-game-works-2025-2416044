@@ -64,6 +64,51 @@ double RadToDeg(double n) {
 #endif
 }
 
+float Lerp(float start, float end, float lerp) {
+	if (lerp > 1.f) return 0.f;
+
+	return start + (end - start) * lerp;
+}
+
+float LerpRad(float start, float end, float lerp) {
+	if (lerp > 1.f) return 0.f;
+
+	float ret = 0.f;
+	float diff = end - start;
+
+#if _HAS_CXX20
+	if (diff < -(float)std::numbers::pi) {
+		end += (float)std::numbers::pi * 2.f;
+		ret = Lerp(start, end, lerp);
+		while (ret >= (float)std::numbers::pi * 2.f) ret -= (float)std::numbers::pi * 2.f;
+	}
+	else if (diff > (float)std::numbers::pi) {
+		end -= (float)std::numbers::pi * 2.f;
+		ret = Lerp(start, end, lerp);
+		while (ret < 0.f) ret += (float)std::numbers::pi * 2.f;
+	}
+	else {
+		ret = Lerp(start, end, lerp);
+	}
+#else
+	if (diff < -(float)M_PI) {
+		end += (float)M_PI * 2.f;
+		ret = Lerp(start, end, lerp);
+		while (ret >= (float)M_PI * 2.f) ret -= (float)M_PI * 2.f;
+	}
+	else if (diff > (float)M_PI) {
+		end -= (float)M_PI * 2.f;
+		ret = Lerp(start, end, lerp);
+		while (ret < 0.f) ret += (float)M_PI * 2.f;
+	}
+	else {
+		ret = Lerp(start, end, lerp);
+	}
+#endif
+
+	return ret;
+}
+
 const float Vector2::Magnitude() const {
 	return hypot(x, y);
 }
@@ -120,6 +165,10 @@ Vector2 operator+(const Vector2& va, const Vector2& vb) {
 
 Vector2 operator-(const Vector2& va, const Vector2& vb) {
 	return Vector2(va.x - vb.x, va.y - vb.y);
+}
+
+bool operator==(const Vector2& va, const Vector2& vb) {
+	return va.x == vb.x && va.y == vb.y;
 }
 
 float Dot(const Vector2& va, const Vector2& vb) {

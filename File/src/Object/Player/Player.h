@@ -9,6 +9,7 @@ public:
 		NORMAL,
 		INVINCIBLE,
 		STOMP,
+		OVER,
 	};
 
 	enum class ANIM_TYPE {
@@ -24,12 +25,13 @@ public:
 	bool Release();
 
 	void Stomp();
+	void Over();
 
 	VECTOR GetPos() const;
 	void SetPos(VECTOR pos);
 	VECTOR GetMove() const;
 
-	bool IsAlive() const;
+	STATE GetState() const;
 
 private:
 	// アニメーション速度
@@ -46,6 +48,8 @@ private:
 	static constexpr int STATE_STOMP_TIME = 120;
 	// 無敵状態の時間
 	static constexpr int STATE_INVINCIBLE_TIME = 120;
+	// 落下速度
+	static constexpr float FALL_SPEED = 50.f;
 
 	AnimationController* animControll_;
 

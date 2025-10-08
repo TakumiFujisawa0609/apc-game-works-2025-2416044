@@ -29,11 +29,6 @@ public:
 		ALERT,
 	};
 
-	struct STAGE_INDEX {
-		int x;
-		int z;
-	};
-
 	static constexpr float BLOCK_SIZE = 200.f;
 	static constexpr float HALF_BLOCK_SIZE = BLOCK_SIZE / 2.f;
 
@@ -66,9 +61,9 @@ public:
 	int GetModelHandle() const;
 	void SetModelHandle(int);
 
-	STAGE_INDEX GetStageIndex() const;
+	Vector2 GetStageIndex() const;
 	void SetStageIndex(int x, int z);
-	void SetStageIndex(STAGE_INDEX);
+	void SetStageIndex(Vector2);
 
 	Vector3 GetPosition() const;
 	void SetPosition(Vector3);
@@ -85,7 +80,7 @@ public:
 private:
 	static constexpr COLOR_F MODEL_COLOR_DEFAULT = { 0.3f, 0.3f, 0.3f, 1.f };
 	static constexpr COLOR_F MODEL_COLOR_ALERT = { 0.6f, 0.1f, 0.1f, 1.f };
-	static constexpr COLOR_F MODEL_COLOR_VANISH = { 0.8f, 0.8f, 0.8f, 1.f };
+	static constexpr COLOR_F MODEL_COLOR_VANISH = { 1.f, 1.f, 1.f, 1.f };
 
 	static constexpr unsigned int OUTLINE_COLOR = 0x303030U;
 
@@ -103,9 +98,8 @@ private:
 	Vector3 matrixPosition_;
 	Vector3 rotation_;
 
-	STAGE_INDEX stageIndex_;
+	Vector2 stageIndex_;
 
 	void OutLine(Vector3 position);
-	Vector3 LineMatrixProc(Vector3);
 
 };

@@ -63,6 +63,9 @@ void Player::Update() {
 			stateTimer_ = 0;
 		}
 		break;
+	case STATE::OVER:
+		if (pos_.y > -1500.f) pos_.y -= FALL_SPEED;
+		break;
 	}
 
 	animControll_->Play(static_cast<int>(animType_));
@@ -94,6 +97,13 @@ void Player::Stomp() {
 	animControll_->Play(static_cast<int>(animType_), false);
 }
 
+void Player::Over() {
+	state_ = STATE::OVER;
+
+	animType_ = ANIM_TYPE::DEATH;
+	animControll_->Play(static_cast<int>(animType_), false);
+}
+
 VECTOR Player::GetPos() const {
 	return pos_;
 }
@@ -107,8 +117,8 @@ VECTOR Player::GetMove() const {
 	return move_;
 }
 
-bool Player::IsAlive() const {
-	return state_ != STATE::STOMP;
+Player::STATE Player::GetState() const {
+	return state_;
 }
 
 void Player::Move() {

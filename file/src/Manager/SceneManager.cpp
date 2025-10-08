@@ -22,7 +22,7 @@ bool SceneManager::Init() {
 void SceneManager::Update() {
 	if (sceneList_.size() <= 0) return;
 
-	// デルタタイム
+	// AnimationManager用デルタタイム
 	auto nowTime = std::chrono::system_clock::now();
 	deltaTime_ = static_cast<float>(
 		std::chrono::duration_cast<std::chrono::nanoseconds>(nowTime - preTime_).count() / 1000000000.0);

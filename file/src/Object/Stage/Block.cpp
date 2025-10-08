@@ -18,6 +18,8 @@ void Block::Update() {
 		// 何もしない
 		break;
 	case STATE::VANISH:
+		MV1SetMaterialEmiColor(modelHandle_, 0, MODEL_COLOR_VANISH);
+
 		// 一定フレーム経過後に生存判定を消す
 		if (stateFrame_++ >= VANISH_FRAME) {
 			isAlive_ = false;
@@ -151,15 +153,15 @@ void Block::SetModelHandle(int id) {
 	MV1SetMaterialEmiColor(modelHandle_, 0, MODEL_COLOR_DEFAULT);
 }
 
-Block::STAGE_INDEX Block::GetStageIndex() const {
+Vector2 Block::GetStageIndex() const {
 	return stageIndex_;
 }
 
 void Block::SetStageIndex(int x, int z) {
-	stageIndex_ = { x, z };
+	stageIndex_ = { (float)x, (float)z };
 }
 
-void Block::SetStageIndex(STAGE_INDEX s) {
+void Block::SetStageIndex(Vector2 s) {
 	stageIndex_ = s;
 }
 
@@ -198,6 +200,7 @@ void Block::SetRotation(Vector3 v) {
 }
 
 void Block::OutLine(Vector3 position) {
+	// 回転行列
 	MATRIX m = GeometryDxLib::GetMatrixRotateXYZ(GeometryDxLib::Vector3ToVECTOR(rotation_));
 
 	// 前左上
@@ -217,6 +220,7 @@ void Block::OutLine(Vector3 position) {
 	// 奥左下
 	FLOAT3 pos8 = { -HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE, HALF_BLOCK_SIZE };
 
+	// ベクトルの回転
 	pos1 = VAdd(VTransform(pos1, m), GeometryDxLib::Vector3ToVECTOR(position));
 	pos2 = VAdd(VTransform(pos2, m), GeometryDxLib::Vector3ToVECTOR(position));
 	pos3 = VAdd(VTransform(pos3, m), GeometryDxLib::Vector3ToVECTOR(position));
@@ -243,8 +247,4 @@ void Block::OutLine(Vector3 position) {
 	DrawLine3D(pos2, pos6, OUTLINE_COLOR);
 	DrawLine3D(pos3, pos7, OUTLINE_COLOR);
 	DrawLine3D(pos4, pos8, OUTLINE_COLOR);
-}
-
-Vector3 Block::LineMatrixProc(Vector3 v) {
-	return (TranslationMatrix(position_) * RotationMatrixX(rotation_.x) * TranslationMatrix(-position_)) * v;
 }
