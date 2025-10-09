@@ -13,7 +13,8 @@ public:
 
 	static constexpr float FAST_SPIN_DEGREE = 9.f;
 
-	static constexpr int SPIN_DELAY_FRAME = 40;
+	static constexpr int SPIN_DELAY_FRAME = 60;
+	static constexpr int EXTRA_DELAY_FRAME = 120;
 
 	static constexpr int CUBE_WIDTH = 4;
 	static constexpr int CUBE_DEPTH = 3;
@@ -22,6 +23,8 @@ public:
 	static constexpr int PLATFORM_WIDTH = CUBE_WIDTH;
 	static constexpr int PLATFORM_HEIGHT = 3;
 	static constexpr int PLATFORM_DEPTH = CUBE_DEPTH * 4;
+
+	static constexpr float STOMP_DEGREE_THRESHOLD = -70.f;
 
 	Stage() {}
 	~Stage() {}
@@ -58,6 +61,7 @@ private:
 	int fallCount_;
 
 	int spinTimer_;
+	int extraTimer_;
 	bool isSpinning_;
 	bool fastForward_;
 

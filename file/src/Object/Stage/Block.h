@@ -79,7 +79,7 @@ public:
 
 private:
 	static constexpr COLOR_F MODEL_COLOR_DEFAULT = { 0.3f, 0.3f, 0.3f, 1.f };
-	static constexpr COLOR_F MODEL_COLOR_ALERT = { 0.6f, 0.1f, 0.1f, 1.f };
+	static constexpr COLOR_F MODEL_COLOR_ALERT = { 1.f, 0.2f, 0.2f, 1.f };
 	static constexpr COLOR_F MODEL_COLOR_VANISH = { 1.f, 1.f, 1.f, 1.f };
 
 	static constexpr unsigned int OUTLINE_COLOR = 0x303030U;

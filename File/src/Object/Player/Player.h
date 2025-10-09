@@ -45,7 +45,7 @@ private:
 	// ˆÚ“®‘¬“x
 	static constexpr float MOVE_SPEED = 8.f;
 	// “¥‚İ’×‚³‚êó‘Ô‚ÌŠÔ
-	static constexpr int STATE_STOMP_TIME = 120;
+	static constexpr int STATE_STOMP_TIME = 150;
 	// –³“Gó‘Ô‚ÌŠÔ
 	static constexpr int STATE_INVINCIBLE_TIME = 120;
 	// —‰º‘¬“x

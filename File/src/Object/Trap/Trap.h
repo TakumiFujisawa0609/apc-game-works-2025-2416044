@@ -9,7 +9,7 @@ public:
 	Trap(Stage*);
 
 	bool Init();
-	void Update(const VECTOR& player_pos);
+	void SetTrap(const VECTOR& player_pos);
 	void Draw();
 	bool Execute();
 

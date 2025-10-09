@@ -50,6 +50,7 @@ bool Stage::GameInit() {
 	}
 
 	spinTimer_ = 0;
+	extraTimer_ = 0;
 	isSpinning_ = false;
 	fastForward_ = false;
 
@@ -112,6 +113,8 @@ void Stage::Draw() {
 	// ウインドウサイズ取得処理
 	int x, y;
 	GetWindowSize(&x, &y);
+	// 回転
+	if (isSpinning_) DrawFormatString(32, y - 32, 0xFFFFFFU, "回転中");
 	// 落下数
 	DrawFormatString(x - 256, y - 32, 0xFFFFFFU, "足場崩壊まで: %d/%d", fallCount_, blockWidth_);
 }
@@ -167,7 +170,10 @@ void Stage::VanishBlock(const Vector2& trap_stage_pos) {
 	for (auto& waveList : cubeList_) for (auto& subList : waveList) for (auto& cube : subList) {
 		if (cube->GetStageIndex() == trap_stage_pos) {
 			cube->ChangeState(Block::STATE::VANISH);
-			spinTimer_ += SPIN_DELAY_FRAME;
+
+			if (cube->GetType() == Block::TYPE::FORBIDDEN) fallCount_ += blockWidth_;
+
+			spinTimer_ = SPIN_DELAY_FRAME;
 			return;
 		}
 	}
@@ -207,11 +213,27 @@ void Stage::UpdateStop() {
 		if (cube->GetPosition().z < platformDepth_ * (-Block::BLOCK_SIZE)) {
 			// 落下
 			cube->ChangeState(Block::STATE::FALL);
-			fallCount_++;
+			if (cube->GetType() != Block::TYPE::FORBIDDEN) fallCount_++;
 		}
 		else {
 			// 回転を止める
 			cube->ChangeState(Block::STATE::STOP);
+		}
+	}
+	
+	auto stopFlag = true;
+	if (cubeList_.size() > 0) {
+		auto& waveList = cubeList_.back();
+		for (auto& subList : waveList) {
+			for (auto& cube : subList) {
+				if (cube->IsAlive() &&
+					cube->GetState() != Block::STATE::FALL &&
+					cube->GetState() != Block::STATE::VANISH) {
+					stopFlag = false;
+					break;
+				}
+			}
+			if (!stopFlag) break;
 		}
 	}
 
@@ -220,8 +242,10 @@ void Stage::UpdateStop() {
 		auto& waveList = cubeList_.back();
 		for (auto& subList : waveList) {
 			for (auto& cube : subList) {
-				if (!cube->IsAlive()) continue;
-				else delFlag = false;
+				if (cube->IsAlive()) {
+					delFlag = false;
+					break;
+				}
 			}
 			if (!delFlag) break;
 		}
@@ -230,33 +254,24 @@ void Stage::UpdateStop() {
 
 	if (delFlag) {
 		ReleaseWave();
-		spinTimer_ += SPIN_DELAY_FRAME;
-	}
-
-	auto actFlag = false;
-	if (cubeList_.size() > 0) {
-		auto& waveList = cubeList_.back();
-		for (auto& subList : waveList) {
-			for (auto& cube : subList) {
-				if (cube->GetState() != Block::STATE::STOP) continue;
-				else actFlag = true;
-			}
-			if (actFlag) break;
-		}
+		extraTimer_ = EXTRA_DELAY_FRAME;
+		return;
 	}
 
 	if (fastForward_) spinTimer_ = 0;
-	if (spinTimer_ > 0) spinTimer_--;
 
-	if (actFlag) if (spinTimer_ <= 0) {
+	if (spinTimer_ > 0) spinTimer_--;
+	else if (extraTimer_ > 0) extraTimer_--;
+
+	if (!stopFlag && extraTimer_ <= 0 && spinTimer_ <= 0) {
 		// 次の回転を開始
 		isSpinning_ = true;
 	}
 }
 
 void Stage::UpdateSpin() {
-	++spinTimer_;
 	if (cubeList_.size() > 0) {
+		++spinTimer_;
 		auto& waveList = cubeList_.back();
 		for (auto& subList : waveList) for (auto& cube : subList) {
 			// 既に消えているか消失中の場合、処理の必要が無いのでスキップ
@@ -295,4 +310,5 @@ void Stage::UpdateSpin() {
 			}
 		}
 	}
+	else isSpinning_ = false;
 }

@@ -1,5 +1,7 @@
 #include <DxLib.h>
+#include "../Scene/TitleScene/TitleScene.h"
 #include "../Scene/GameScene/GameScene.h"
+#include "../Scene/Pause/Pause.h"
 #include "SceneManager.h"
 
 SceneManager* SceneManager::instance_ = nullptr;
@@ -31,14 +33,15 @@ void SceneManager::Update() {
 	// 配列末尾のポインタを取る
 	auto back = sceneList_.back();
 
+	// 次のシーン != 現在のシーン
+	auto next = back->GetNextScene();
+	if (back->GetMyScene() != next) {
+		// シーン遷移
+		back = ChangeScene(next);
+	}
+
 	// アクティブなシーンだけ更新する
 	back->Update();
-
-	// 次のシーン != 現在のシーン
-	if (back->GetNextScene() != back->GetMyScene()) {
-		// シーン遷移
-		ChangeScene(back->GetNextScene());
-	}
 }
 
 void SceneManager::Draw() {
@@ -97,16 +100,19 @@ void SceneManager::ParamInit() {
 	// デルタタイム
 	preTime_ = std::chrono::system_clock::now();
 
-	ChangeScene(SceneBase::SCENE::GAME);
+	ChangeScene(SceneBase::SCENE::TITLE);
 }
 
-void SceneManager::ChangeScene(SceneBase::SCENE scene) {
+SceneBase* SceneManager::ChangeScene(SceneBase::SCENE scene) {
 	SceneBase* ret = nullptr;
 
 	if (scene != SceneBase::SCENE::PAUSE) {
 		while (sceneList_.size() > 0) {
 			// 現在アクティブなシーンが目標のシーンなら、関数から抜ける
-			if (sceneList_.back()->GetMyScene() == scene) return;
+			if (sceneList_.back()->GetMyScene() == scene) {
+				sceneList_.back()->SetScene(scene);
+				return sceneList_.back();
+			}
 
 			// 現在のシーンを解放
 			else ReleaseScene();
@@ -115,7 +121,7 @@ void SceneManager::ChangeScene(SceneBase::SCENE scene) {
 		// シーンを切り替える
 		switch (scene) {
 		case SceneBase::SCENE::TITLE:
-			//ret = new TitleScene();
+			ret = new TitleScene();
 			break;
 		case SceneBase::SCENE::GAME:
 			ret = new GameScene();
@@ -127,12 +133,14 @@ void SceneManager::ChangeScene(SceneBase::SCENE scene) {
 	}
 	else {
 		// ポーズシーン
-		//ret = new PauseScene();
+		ret = new Pause();
 	}
 
 	if (ret != nullptr) {
+		ret->SetScene(scene);
 		ret->SystemInit();
 		ret->GameInit();
 		sceneList_.push_back(ret);
 	}
+	return sceneList_.back();
 }

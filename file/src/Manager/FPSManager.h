@@ -54,6 +54,6 @@ private:
 	~FPSManager();
 
 	// ŠÔ‹L˜^ˆ—
-	void RegisterTime(const long long now_time);
+	void RegisterTime(const LONGLONG now_time);
 
 };

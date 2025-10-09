@@ -16,6 +16,9 @@
     <ClCompile Include="src\Object\Common\AnimationController.cpp" />
     <ClCompile Include="src\Object\Camera\Camera.cpp" />
     <ClCompile Include="src\Object\Trap\Trap.cpp" />
+    <ClCompile Include="src\Utility\Utility.cpp" />
+    <ClCompile Include="src\Scene\TitleScene\TitleScene.cpp" />
+    <ClCompile Include="src\Scene\Pause\Pause.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\App.h" />
@@ -32,5 +35,8 @@
     <ClInclude Include="src\Object\Common\AnimationController.h" />
     <ClInclude Include="src\Object\Camera\Camera.h" />
     <ClInclude Include="src\Object\Trap\Trap.h" />
+    <ClInclude Include="src\Utility\Utility.h" />
+    <ClInclude Include="src\Scene\TitleScene\TitleScene.h" />
+    <ClInclude Include="src\Scene\Pause\Pause.h" />
   </ItemGroup>
 </Project>

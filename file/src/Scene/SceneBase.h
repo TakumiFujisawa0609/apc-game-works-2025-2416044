@@ -17,10 +17,11 @@ public:
 	virtual void Draw() {}
 	virtual bool Release() { return false; }
 
+	void SetScene(SCENE);
 	SCENE GetMyScene() const;
 	SCENE GetNextScene() const;
 
-private:
+protected:
 	SCENE myScene_;
 	SCENE nextScene_;
 

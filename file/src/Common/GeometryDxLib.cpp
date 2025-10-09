@@ -73,19 +73,21 @@ bool GeometryDxLib::VEquals(const VECTOR& In1, const VECTOR& In2) {
 bool GeometryDxLib::DrawShadow3D(VECTOR pos, float r, int div_num) {
 	if (div_num < 4) return false;
 
-	VECTOR rPos = VAdd(pos, { 0.f, 0.f, r });
-	VECTOR rPos2 = rPos;
+	VECTOR rPos = { 0.f, 0.f, r };
 
-	MATRIX rot = {};
+	MATRIX rot = MGetIdent();
 	CreateRotationYMatrix(&rot, DX_TWO_PI_F / div_num);
 
-	VTransform(rPos2, rot);
+	VECTOR rPos2 = VTransform(rPos, rot);
 
-	DrawTriangle3D(pos, rPos, rPos2, 0x202020, true);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 0x80);
+	for (int d = 0; d < div_num; d++) {
+		DrawTriangle3D(pos, VAdd(pos, rPos), VAdd(pos, rPos2), 0x202020, true);
 
-	for (int d = 1; d < div_num; d++) {
-
+		rPos = VTransform(rPos, rot);
+		rPos2 = VTransform(rPos2, rot);
 	}
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0x00);
 
 	return true;
 }

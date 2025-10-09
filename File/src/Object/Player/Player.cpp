@@ -1,4 +1,5 @@
 #include "../../Common/GeometryDxLib.h"
+#include "../../Manager/InputManager.h"
 #include "../Common/AnimationController.h"
 #include "../Stage/Block.h"
 #include "Player.h"
@@ -76,6 +77,11 @@ void Player::Draw() {
 	if (state_ == STATE::INVINCIBLE && stateTimer_ % 2 == 0) {
 		return;
 	}
+
+	VECTOR footPos = pos_;
+	footPos.y += 2.f;
+	GeometryDxLib::DrawShadow3D(footPos, 30.f, 24);
+
 	MV1DrawModel(modelId_);
 }
 
@@ -122,17 +128,22 @@ Player::STATE Player::GetState() const {
 }
 
 void Player::Move() {
+	auto& ins = InputManager::GetInstance();
+
 	VECTOR dir = {};
 
 	// âºÇÃà⁄ìÆèàóù
-	if (CheckHitKey(KEY_INPUT_W)) dir.z += 1.f;
-	if (CheckHitKey(KEY_INPUT_S)) dir.z -= 1.f;
-	if (CheckHitKey(KEY_INPUT_A)) dir.x -= 1.f;
-	if (CheckHitKey(KEY_INPUT_D)) dir.x += 1.f;
+	if (ins.NowKey(KEY_INPUT_W)) dir.z += 1.0F;
+	if (ins.NowKey(KEY_INPUT_S)) dir.z -= 1.0F;
+	if (ins.NowKey(KEY_INPUT_A)) dir.x -= 1.0F;
+	if (ins.NowKey(KEY_INPUT_D)) dir.x += 1.0F;
 
-	if (dir.x != 0.f || dir.z != 0.f) {
+	if (dir.x != 0.0F || dir.z != 0.0F) {
 		dir = VNorm(dir);
-		worldAngles_.y = atan2f(dir.x, dir.z);
+		VECTOR tempAngles = {};
+		tempAngles.y = atan2f(dir.x, dir.z);
+
+		worldAngles_.y = LerpRad(worldAngles_.y, tempAngles.y, 0.4F);
 
 		animType_ = ANIM_TYPE::RUN;
 	}

@@ -78,7 +78,7 @@ bool FPSManager::Release() {
 	return true;
 }
 
-void FPSManager::RegisterTime(const long long now_time) {
+void FPSManager::RegisterTime(const LONGLONG now_time) {
     // 現在のタイマー内時間をリスト上に記録
     timeList_.push_back(now_time);
 

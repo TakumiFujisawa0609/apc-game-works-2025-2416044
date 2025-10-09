@@ -33,6 +33,6 @@ private:
 	bool ClassInit();
 	void ParamInit();
 
-	void ChangeScene(SceneBase::SCENE);
+	SceneBase* ChangeScene(SceneBase::SCENE);
 
 };

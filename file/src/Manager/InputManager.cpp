@@ -1,3 +1,4 @@
+#include "../Common/Geometry.h"
 #include "InputManager.h"
 
 InputManager* InputManager::instance_ = nullptr;
@@ -55,18 +56,25 @@ void InputManager::ReplaceKeyMap(const char* name, int replace, size_t index) {
 	}
 }
 
-int InputManager::GetNowButtonState(BUTTONS) const {
-	return 0;
+int InputManager::NowButton(BUTTONS b) const {
+	return nowButton_[(int)b];
 }
 
-int InputManager::GetPrevButtonState(BUTTONS) const {
-	return 0;
+int InputManager::PrevButton(BUTTONS b) const {
+	return prevButton_[(int)b];
+}
+
+int InputManager::NowKey(int DxLib_KEYcode) {
+	return nowKey_[DxLib_KEYcode];
+}
+
+int InputManager::PrevKey(int DxLib_KEYcode) {
+	return prevKey_[DxLib_KEYcode];
 }
 
 void InputManager::GetKeyInput() {
-	char k[256] = {};
-
-	GetHitKeyStateAll(k);
+	prevKey_ = nowKey_;
+	GetHitKeyStateAll(nowKey_.data());
 }
 
 void InputManager::GetPadInput(int pad_num) {
@@ -82,49 +90,35 @@ void InputManager::GetPadInput(int pad_num) {
 	if (xFlg) GetJoypadXInputState(pad_num, &xIn);
 
 	prevButton_ = nowButton_;
+	nowButton_ = {};
 
-	nowButton_[static_cast<size_t>(BUTTONS::LSTICK_L)] = dIn.X < 0 ? std::abs(dIn.X) : 0;
-	nowButton_[static_cast<size_t>(BUTTONS::LSTICK_R)] = dIn.X > 0 ? std::abs(dIn.X) : 0;
-	nowButton_[static_cast<size_t>(BUTTONS::LSTICK_U)] = dIn.Y < 0 ? std::abs(dIn.Y) : 0;
-	nowButton_[static_cast<size_t>(BUTTONS::LSTICK_D)] = dIn.Y > 0 ? std::abs(dIn.Y) : 0;
+	// X/Y（左スティック）
+	if (dIn.X < 0.0F)
+		nowButton_[(int)BUTTONS::LSTICK_L] = abs(dIn.X);
+	else if (dIn.X > 0.0F)
+		nowButton_[(int)BUTTONS::LSTICK_R] = abs(dIn.X);
 
-	switch (t) {
-	case 0:
-		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_L)] = dIn.Z < 0 ? std::abs(dIn.Z) : 0;
-		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_R)] = dIn.Z > 0 ? std::abs(dIn.Z) : 0;
-		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_U)] = dIn.Rz < 0 ? std::abs(dIn.Rz) : 0;
-		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_D)] = dIn.Rz > 0 ? std::abs(dIn.Rz) : 0;
-		break;
-	case 1:
-	case 2:
-		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_L)] = dIn.Rx < 0 ? std::abs(dIn.Rx) : 0;
-		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_R)] = dIn.Rx > 0 ? std::abs(dIn.Rx) : 0;
-		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_U)] = dIn.Ry < 0 ? std::abs(dIn.Ry) : 0;
-		nowButton_[static_cast<size_t>(BUTTONS::RSTICK_D)] = dIn.Ry > 0 ? std::abs(dIn.Ry) : 0;
-		break;
-	}
+	if (dIn.Y > 0.0F)
+		nowButton_[(int)BUTTONS::LSTICK_U] = abs(dIn.Y);
+	else if (dIn.Y < 0.0F)
+		nowButton_[(int)BUTTONS::LSTICK_D] = abs(dIn.Y);
 
-	nowButton_[static_cast<size_t>(BUTTONS::DPAD_L)] = dIn.POV[0] == 4500 * 1 || dIn.POV[0] == 4500 * 2 || dIn.POV[0] == 4500 * 3 ? 1 : 0;
-	nowButton_[static_cast<size_t>(BUTTONS::DPAD_R)] = dIn.POV[0] == 4500 * 5 || dIn.POV[0] == 4500 * 6 || dIn.POV[0] == 4500 * 7 ? 1 : 0;
-	nowButton_[static_cast<size_t>(BUTTONS::DPAD_U)] = dIn.POV[0] == 4500 * 7 || dIn.POV[0] == 4500 * 0 || dIn.POV[0] == 4500 * 1 ? 1 : 0;
-	nowButton_[static_cast<size_t>(BUTTONS::DPAD_D)] = dIn.POV[0] == 4500 * 3 || dIn.POV[0] == 4500 * 4 || dIn.POV[0] == 4500 * 5 ? 1 : 0;
+	// POV（ハットスイッチ／十字キー）
+	// 本来はx = cos、y = sinだが、0が上から始まるので
+	// cosとsinを入れ替えた方が良い
+	float rad = DegToRad(dIn.POV[0] / 100.0F);
 
-	size_t buttonIdx = 0;
-	for (; buttonIdx < 6; buttonIdx++) nowButton_[static_cast<size_t>(BUTTONS::BUTTON_0) + buttonIdx] = dIn.Buttons[buttonIdx];
+	if (sinf(rad) < 0.0F)
+		nowButton_[(int)BUTTONS::DPAD_L] = 1;
+	else if (sinf(rad) > 0.0F)
+		nowButton_[(int)BUTTONS::DPAD_R] = 1;
 
-	switch (t) {
-	default:
-		for (; buttonIdx < 16; buttonIdx++) nowButton_[static_cast<size_t>(BUTTONS::BUTTON_0) + buttonIdx] = dIn.Buttons[buttonIdx];
+	if (cosf(rad) > 0.0F)
+		nowButton_[(int)BUTTONS::DPAD_U] = 1;
+	else if (cosf(rad) < 0.0F)
+		nowButton_[(int)BUTTONS::DPAD_D] = 1;
 
-		break;
-	case 1:
-	case 2:
-		nowButton_[static_cast<size_t>(BUTTONS::BUTTON_0) + buttonIdx++] = xIn.LeftTrigger;
-		nowButton_[static_cast<size_t>(BUTTONS::BUTTON_0) + buttonIdx++] = xIn.RightTrigger;
-
-		for (; buttonIdx < 16; buttonIdx++) nowButton_[static_cast<size_t>(BUTTONS::BUTTON_0) + buttonIdx] = dIn.Buttons[buttonIdx - 2];
-
-		break;
-	}
-
+	// Buttons（ボタン）
+	for (int index = 0; index < (int)BUTTONS::END - (int)BUTTONS::BUTTON_0; index++)
+		nowButton_[(int)BUTTONS::BUTTON_0 + index] = dIn.Buttons[index];
 }

@@ -12,21 +12,16 @@ bool Trap::Init() {
 	return true;
 }
 
-void Trap::Update(const VECTOR& player_pos) {
-	bool nowKey = CheckHitKey(KEY_INPUT_J);
-
-	if (nowKey && !prevKey_)
-		if (!setTrap_) {
-			setTrap_ = true;
-			int x, z;
-			stage_->ConvertStagePos(player_pos, x, z);
-			stagePos_ = { (float)x, (float)z };
-		}
-		else {
-			readyTrap_ = true;
-		}
-
-	prevKey_ = nowKey;
+void Trap::SetTrap(const VECTOR& player_pos) {
+	if (!setTrap_) {
+		setTrap_ = true;
+		int x, z;
+		stage_->ConvertStagePos(player_pos, x, z);
+		stagePos_ = { (float)x, (float)z };
+	}
+	else {
+		readyTrap_ = true;
+	}
 }
 
 void Trap::Draw() {

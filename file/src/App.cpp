@@ -1,6 +1,7 @@
 #include <DxLib.h>
 #include <stdio.h>
 #include "Manager/FPSManager.h"
+#include "Manager/InputManager.h"
 #include "Manager/SceneManager.h"
 #include "App.h"
 
@@ -45,6 +46,8 @@ void App::GameLoop() {
 bool App::Release() {
 	FPSManager::GetInstance().Release();
 
+	InputManager::GetInstance().Release();
+
 	SceneManager::GetInstance().Release();
 
 	// DxLib ‚Ì‰ð•ú
@@ -83,6 +86,9 @@ bool App::SystemInit() {
 bool App::ClassInit() {
 	FPSManager::CreateInstance();
 
+	InputManager::CreateInstance();
+	InputManager::GetInstance().Init();
+
 	SceneManager::CreateInstance();
 	SceneManager::GetInstance().Init();
 
@@ -90,6 +96,8 @@ bool App::ClassInit() {
 }
 
 void App::Update() {
+	InputManager::GetInstance().Update();
+
 	SceneManager::GetInstance().Update();
 }
 

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Scene\Pause\Pause.cpp" />
     <ClCompile Include="src\Object\Camera\Camera.cpp" />
     <ClCompile Include="src\Object\Common\AnimationController.cpp" />
     <ClCompile Include="src\Object\Player\Player.cpp" />
@@ -34,8 +35,11 @@
     <ClCompile Include="src\Scene\SceneBase.cpp" />
     <ClCompile Include="src\Object\Stage\Stage.cpp" />
     <ClCompile Include="src\Object\Trap\Trap.cpp" />
+    <ClCompile Include="src\Utility\Utility.cpp" />
+    <ClCompile Include="src\Scene\TitleScene\TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Scene\Pause\Pause.h" />
     <ClInclude Include="src\Object\Camera\Camera.h" />
     <ClInclude Include="src\Object\Common\AnimationController.h" />
     <ClInclude Include="src\Object\Player\Player.h" />
@@ -50,6 +54,8 @@
     <ClInclude Include="src\Scene\SceneBase.h" />
     <ClInclude Include="src\Object\Stage\Stage.h" />
     <ClInclude Include="src\Object\Trap\Trap.h" />
+    <ClInclude Include="src\Utility\Utility.h" />
+    <ClInclude Include="src\Scene\TitleScene\TitleScene.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
