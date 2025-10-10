@@ -32,4 +32,13 @@ void TitleScene::Draw() {
 	DrawString(10, y - fy - 50, "ENTER  : ゲーム開始／離脱", 0xFFFFFFU);
 	DrawString(10, y - fy - 30, "BACK   : ゲーム中ポーズ切替", 0xFFFFFFU);
 	DrawString(10, y - fy - 10, "ESCAPE : ゲーム終了", 0xFFFFFFU);
+
+	DrawString(320, y - fy - 50, "ワナの種類", 0xFFFFFFU);
+	DrawString(320, y - fy - 30, "ワナ   : 設置場所の上にある立方体を消す", 0xFFFFFFU);
+	DrawString(320, y - fy - 10, "ｽｰﾊﾟｰﾜﾅ: 設置場所とその周囲の上にある立方体を消す", 0xFFFFFFU);
+
+	DrawString(800, y - fy - 70, "立方体の種類", 0xFFFFFFU);
+	DrawString(800, y - fy - 50, "灰: 消すべき種類。特殊な効果は無い", 0xFFFFFFU);
+	DrawString(800, y - fy - 30, "紫: 消すべき種類。消した地点にスーパーワナが設置される", 0xFFFFFFU);
+	DrawString(800, y - fy - 10, "茶: 消すべきでない種類。消すと足場崩壊が1段階進む", 0xFFFFFFU);
 }

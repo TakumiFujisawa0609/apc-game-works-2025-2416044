@@ -1,11 +1,16 @@
+#include <iostream>
+#include "../../Common/GeometryDxLib.h"
+#include "../../Utility/Utility.h"
+#include "../Trap/Trap.h"
 #include "Block.h"
 #include "Stage.h"
-#include "../../Common/GeometryDxLib.h"
+
+void Stage::SetTrapPointer(Trap* p) { trap_ = p; }
 
 bool Stage::SystemInit() {
-	normalModel_ = MV1LoadModel("Data/Model/Blocks/Block_Stone.mv1");
-	advantageModel_ = MV1LoadModel("Data/Model/Blocks/Block_Blank.mv1");
-	forbiddenModel_ = MV1LoadModel("Data/Model/Blocks/Block_Crate.mv1");
+	blockModels_[(size_t)Block::TYPE::NORMAL] = MV1LoadModel("Data/Model/Blocks/Block_Stone.mv1");
+	blockModels_[(size_t)Block::TYPE::ADVANTAGE] = MV1LoadModel("Data/Model/Blocks/Block_Blank.mv1");
+	blockModels_[(size_t)Block::TYPE::FORBIDDEN] = MV1LoadModel("Data/Model/Blocks/Block_Crate.mv1");
 
 	return true;
 }
@@ -20,7 +25,7 @@ bool Stage::GameInit() {
 		auto& ptr = platformList_.emplace_back();
 		ptr = new Block(blockWidth_);
 		ptr->SetType(Block::TYPE::PLATFORM);
-		ptr->SetModelHandle(normalModel_);
+		ptr->SetModelHandle(blockModels_[0]);
 		ptr->SetStageIndex(0, pd);
 		ptr->SetPosition(
 			{ Block::HALF_BLOCK_SIZE, -Block::HALF_BLOCK_SIZE, pd * (-Block::BLOCK_SIZE) - Block::HALF_BLOCK_SIZE }
@@ -32,25 +37,11 @@ bool Stage::GameInit() {
 	wave_ = 4;
 
 	// ÉLÉÖÅ[Éu
-	for (int cp = 0; cp < phase_; ++cp) {
-		auto& waveList = cubeList_.emplace_back();
-		for (int cd = 0; cd < cubeDepth_; ++cd) {
-			auto& subList = waveList.emplace_back();
-			for (int cw = 0; cw < blockWidth_; ++cw) {
-				auto& ptr = subList.emplace_back();
-				ptr = new Block();
-				ptr->SetType(Block::TYPE::NORMAL);
-				ptr->SetModelHandle(normalModel_);
-				ptr->SetStageIndex(cw, cp * cubeDepth_ + cd);
-				ptr->SetPosition(
-					{ cw * Block::BLOCK_SIZE + Block::HALF_BLOCK_SIZE, Block::HALF_BLOCK_SIZE, (cp * cubeDepth_ + cd) * (-Block::BLOCK_SIZE) - Block::HALF_BLOCK_SIZE }
-				);
-			}
-		}
-	}
+	SetUpCube();
 
 	spinTimer_ = 0;
 	extraTimer_ = 0;
+	nextwave_ = false;
 	isSpinning_ = false;
 	fastForward_ = false;
 
@@ -116,6 +107,8 @@ void Stage::Draw() {
 	// âÒì]
 	if (isSpinning_) DrawFormatString(32, y - 32, 0xFFFFFFU, "âÒì]íÜ");
 	// óéâ∫êî
+	int count = stepQuota_.size() > 0 ? stepQuota_.back() : 0;
+	DrawFormatString(x - 256, 16, 0xFFFFFFU, "ï‡êî: %d/%d", stepCount_, count);
 	DrawFormatString(x - 256, y - 32, 0xFFFFFFU, "ë´èÍïˆâÛÇ‹Ç≈: %d/%d", fallCount_, blockWidth_);
 }
 
@@ -142,26 +135,35 @@ bool Stage::Release() {
 	}
 	cubeList_.clear();
 
-	MV1DeleteModel(normalModel_);
-	MV1DeleteModel(advantageModel_);
-	MV1DeleteModel(forbiddenModel_);
+	for (auto& sub : cubePattern_)
+		sub.clear();
+	cubePattern_.clear();
+
+	for (auto index : blockModels_)
+		MV1DeleteModel(index);
 
 	return true;
 }
 
 bool Stage::ReleaseWave() {
-	if (cubeList_.size() <= 0) return false;
-
-	auto& waveList = cubeList_.back();
-	for (auto& subList : waveList) {
-		for (auto& cube : subList) {
-			cube->Release();
-			delete cube;
+	if (cubeList_.size() > 0) {
+		auto& waveList = cubeList_.back();
+		for (auto& subList : waveList) {
+			for (auto& cube : subList) {
+				cube->Release();
+				delete cube;
+			}
+			subList.clear();
 		}
-		subList.clear();
+		waveList.clear();
+		cubeList_.pop_back();
 	}
-	waveList.clear();
-	cubeList_.pop_back();
+
+	if (stepQuota_.size() > 0) {
+		stepQuota_.pop_back();
+	}
+
+	stepCount_ = 0;
 
 	return true;
 }
@@ -171,7 +173,13 @@ void Stage::VanishBlock(const Vector2& trap_stage_pos) {
 		if (cube->GetStageIndex() == trap_stage_pos) {
 			cube->ChangeState(Block::STATE::VANISH);
 
-			if (cube->GetType() == Block::TYPE::FORBIDDEN) fallCount_ += blockWidth_;
+			if (cube->GetType() == Block::TYPE::ADVANTAGE)
+				trap_->SetTrap(GeometryDxLib::Vector3ToVECTOR(cube->GetPosition()), Trap::TRAP_TYPE::ADVANCE);
+
+			if (cube->GetType() == Block::TYPE::FORBIDDEN)
+				fallCount_ += blockWidth_;
+
+			if (stepCount_ == 0) stepCount_++;
 
 			spinTimer_ = SPIN_DELAY_FRAME;
 			return;
@@ -203,6 +211,60 @@ std::list<std::list<std::list<Block*>>> Stage::GetCubeList() const { return cube
 void Stage::SetFastForward(bool b) { fastForward_ = b; }
 
 bool Stage::IsSpinning() const { return isSpinning_; }
+
+void Stage::SetUpCube() {
+	for (int cp = 0; cp < phase_; ++cp) {
+		auto& waveList = cubeList_.emplace_back();
+
+		LoadPattern();
+		stepQuota_.emplace_back(std::stoi(cubePattern_[0][0]));
+
+		for (int cd = 0; cd < cubeDepth_; ++cd) {
+			auto& subList = waveList.emplace_back();
+
+			for (int cw = 0; cw < blockWidth_; ++cw) {
+				int pat = std::stoi(cubePattern_[cd + 1][cw]);
+
+				auto& ptr = subList.emplace_back();
+				ptr = new Block();
+				ptr->SetType((Block::TYPE)pat);
+				ptr->SetModelHandle(blockModels_[(size_t)pat]);
+				ptr->SetStageIndex(cw, cp * cubeDepth_ + cd);
+				ptr->SetPosition(
+					{ cw * Block::BLOCK_SIZE + Block::HALF_BLOCK_SIZE, Block::HALF_BLOCK_SIZE, (cp * cubeDepth_ + cd) * (-Block::BLOCK_SIZE) - Block::HALF_BLOCK_SIZE }
+				);
+			}
+		}
+	}
+}
+
+void Stage::LoadPattern() {
+	for (auto& sub : cubePattern_)
+		sub.clear();
+	cubePattern_.clear();
+
+	int rand = GetRand(CUBE_PATTERN_MAX - 1) + 1;
+
+	std::string num = "";
+	// ó·: "01", "10"
+	if (rand < 10)
+		num = "0" + std::to_string(rand);
+	else
+		num = std::to_string(rand);
+
+	// ó·: "4x2"
+	std::string size = std::to_string(blockWidth_) + "x" + std::to_string(cubeDepth_);
+
+	// ó·: "Data/Pattern/4x2/01.csv"
+	std::string name = "Data/Pattern/" + size + "/" + num + ".csv";
+
+	int debug = Utility::LoadCSV(name.c_str(), cubePattern_);
+
+	if (debug == -1) {
+		name = "Data/Pattern/" + size + "/01.csv";
+		Utility::LoadCSV(name.c_str(), cubePattern_);
+	}
+}
 
 void Stage::UpdateStop() {
 	for (auto& waveList : cubeList_) for (auto& subList : waveList) for (auto& cube : subList) {
@@ -252,9 +314,9 @@ void Stage::UpdateStop() {
 	}
 	else delFlag = false;
 
-	if (delFlag) {
-		ReleaseWave();
-		extraTimer_ = EXTRA_DELAY_FRAME;
+	if (delFlag && !nextwave_) {
+		nextwave_ = true;
+		extraTimer_ += EXTRA_DELAY_FRAME;
 		return;
 	}
 
@@ -263,7 +325,12 @@ void Stage::UpdateStop() {
 	if (spinTimer_ > 0) spinTimer_--;
 	else if (extraTimer_ > 0) extraTimer_--;
 
-	if (!stopFlag && extraTimer_ <= 0 && spinTimer_ <= 0) {
+	if ((!stopFlag || nextwave_) && extraTimer_ <= 0 && spinTimer_ <= 0) {
+		if (nextwave_) {
+			ReleaseWave();
+			nextwave_ = false;
+		}
+
 		// éüÇÃâÒì]ÇäJén
 		isSpinning_ = true;
 	}
@@ -306,7 +373,10 @@ void Stage::UpdateSpin() {
 			if (cubeRot.x <= -DX_PI_F / 2.f) {
 				auto idx = cube->GetStageIndex();
 				cube->SetStageIndex({ idx.x, idx.y + 1 });
-				if (isSpinning_) isSpinning_ = false;
+				if (isSpinning_) {
+					isSpinning_ = false;
+					if (stepCount_ > 0) stepCount_++;
+				}
 			}
 		}
 	}

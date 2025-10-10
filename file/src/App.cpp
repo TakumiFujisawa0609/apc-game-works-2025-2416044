@@ -1,4 +1,5 @@
 #include <DxLib.h>
+#include <random>
 #include <stdio.h>
 #include "Manager/FPSManager.h"
 #include "Manager/InputManager.h"
@@ -78,7 +79,18 @@ bool App::SystemInit() {
 	// DxLib の初期化
 	if (DxLib_Init() == -1) return false;
 
+	// 離脱変数
 	exit_ = false;
+
+	// 乱数生成処理の初期化
+	// 非決定的な乱数
+	std::random_device rd;
+	// 乱数rdをシード値とした、擬似乱数生成（メルセンヌ・ツイスター）
+	std::mt19937 mt(rd());
+	// 一様分布生成器（今回はint型を指定）
+	std::uniform_int_distribution<int> randDist(0, 9999);
+	// 乱数をSRand関数に渡す
+	SRand(randDist(mt));
 
 	return true;
 }

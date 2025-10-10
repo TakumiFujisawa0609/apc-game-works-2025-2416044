@@ -19,7 +19,10 @@ bool GameScene::SystemInit() {
 
 	trap_ = new Trap(stage_);
 
+
 	camera_->SetFollowTarget(player_);
+
+	stage_->SetTrapPointer(trap_);
 
 	return true;
 }
@@ -50,15 +53,16 @@ void GameScene::Update() {
 
 	Collision();
 	
-	// マーキング
+	// マーキング＆マーク起動
 	if (ins.NowKey(KEY_INPUT_J) && !ins.PrevKey(KEY_INPUT_J))
 		trap_->SetTrap(player_->GetPos());
 
-	// マーク起動
-	if (trap_->Execute()) {
-		stage_->VanishBlock(trap_->GetStagePos());
-		trap_->Reset();
-	}
+	// アドバンスドマーク起動
+	if (ins.NowKey(KEY_INPUT_K) && !ins.PrevKey(KEY_INPUT_K))
+		trap_->ExecuteAdvTrap();
+
+	// マーク更新
+	trap_->Update();
 
 	// 高速進行＆視点
 	if (player_->GetState() == Player::STATE::STOMP || ins.NowKey(KEY_INPUT_L)) {
@@ -108,7 +112,7 @@ bool GameScene::Release() {
 	//camera_->Release();
 	delete camera_;
 
-	//trap_->Release();
+	trap_->Release();
 	delete trap_;
 
 	return true;
