@@ -90,6 +90,8 @@ void Block::ChangeState(STATE st) {
 	// 状態がロックされている場合は、変更も処理もしない
 	if (stateLock_) return;
 
+	if (state_ == st) return;
+
 	state_ = st;
 	stateFrame_ = 0;
 
@@ -100,7 +102,8 @@ void Block::ChangeState(STATE st) {
 		rotation_.x = 0.f;
 		break;
 	case STATE::SPIN:
-		// 何もしない
+		// 行列用座標を更新
+		matrixPosition_ = { 0.f, position_.y - HALF_BLOCK_SIZE, position_.z - HALF_BLOCK_SIZE };
 		break;
 	case STATE::VANISH:
 	case STATE::FALL:

@@ -4,9 +4,9 @@
 void Pause::Update() {
 	auto& ins = InputManager::GetInstance();
 
-	if (ins.NowKey(KEY_INPUT_RETURN) && !ins.PrevKey(KEY_INPUT_RETURN))
+	if (ins.DownKey(KEY_INPUT_RETURN) || ins.DownButton(InputManager::BUTTONS::BUTTON_9))
 		nextScene_ = SceneBase::SCENE::TITLE;
-	if (ins.NowKey(KEY_INPUT_BACK) && !ins.PrevKey(KEY_INPUT_BACK))
+	if (ins.DownKey(KEY_INPUT_BACK) || ins.DownButton(InputManager::BUTTONS::BUTTON_8))
 		nextScene_ = SceneBase::SCENE::GAME;
 }
 

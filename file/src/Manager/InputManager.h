@@ -65,9 +65,13 @@ public:
 
 	int NowButton(BUTTONS) const;
 	int PrevButton(BUTTONS) const;
+	bool DownButton(BUTTONS) const;
+	bool UpButton(BUTTONS) const;
 
 	int NowKey(int DxLib_KEYcode);
 	int PrevKey(int DxLib_KEYcode);
+	bool DownKey(int DxLib_KEYcode);
+	bool UpKey(int DxLib_KEYcode);
 
 private:
 	static InputManager* instance_;

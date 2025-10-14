@@ -43,9 +43,9 @@ bool GameScene::GameInit() {
 void GameScene::Update() {
 	auto& ins = InputManager::GetInstance();
 
-	if (ins.NowKey(KEY_INPUT_RETURN) && !ins.PrevKey(KEY_INPUT_RETURN))
+	if (ins.DownKey(KEY_INPUT_RETURN) || ins.DownButton(InputManager::BUTTONS::BUTTON_9))
 		nextScene_ = SceneBase::SCENE::TITLE;
-	if (ins.NowKey(KEY_INPUT_BACK) && !ins.PrevKey(KEY_INPUT_BACK))
+	if (ins.DownKey(KEY_INPUT_BACK) || ins.DownButton(InputManager::BUTTONS::BUTTON_8))
 		nextScene_ = SceneBase::SCENE::PAUSE;
 
 	stage_->Update();
@@ -54,18 +54,18 @@ void GameScene::Update() {
 	Collision();
 	
 	// マーキング＆マーク起動
-	if (ins.NowKey(KEY_INPUT_J) && !ins.PrevKey(KEY_INPUT_J))
+	if (ins.DownKey(KEY_INPUT_J) || ins.DownButton(InputManager::BUTTONS::BUTTON_0))
 		trap_->SetTrap(player_->GetPos());
 
 	// アドバンスドマーク起動
-	if (ins.NowKey(KEY_INPUT_K) && !ins.PrevKey(KEY_INPUT_K))
+	if (ins.DownKey(KEY_INPUT_K) || ins.DownButton(InputManager::BUTTONS::BUTTON_2))
 		trap_->ExecuteAdvTrap();
 
 	// マーク更新
 	trap_->Update();
 
 	// 高速進行＆視点
-	if (player_->GetState() == Player::STATE::STOMP || ins.NowKey(KEY_INPUT_L)) {
+	if (player_->GetState() == Player::STATE::STOMP || ins.NowKey(KEY_INPUT_L) || ins.NowButton(InputManager::BUTTONS::BUTTON_3)) {
 		stage_->SetFastForward(true);
 		camera_->ChangeCameraMode(Camera::MODE::FIXED_FAST);
 	}
@@ -231,6 +231,7 @@ void GameScene::CollisionStomp() {
 			plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE
 			) {
 			player_->Stomp();
+			stage_->StartStep();
 		}
 	}
 }

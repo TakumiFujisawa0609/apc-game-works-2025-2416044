@@ -11,7 +11,7 @@ class Trap;
 
 class Stage {
 public:
-	static constexpr int SPIN_FRAME = 35;
+	static constexpr int SPIN_FRAME = 45;
 	static constexpr float SPIN_DEGREE = 90.f / SPIN_FRAME;
 
 	static constexpr float FAST_SPIN_DEGREE = 9.f;
@@ -43,6 +43,8 @@ public:
 	bool Release();
 
 	void VanishBlock(const Vector2& trap_stage_pos);
+	void StartStep();
+	void AddStep();
 
 	void ConvertStagePos(const VECTOR& pos, int& x, int& z);
 	VECTOR ConvertWorldPos(int x, int z);

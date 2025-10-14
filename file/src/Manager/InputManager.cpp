@@ -19,10 +19,7 @@ bool InputManager::Init() {
 void InputManager::Update() {
 	GetKeyInput();
 
-	int num = GetJoypadNum();
-	for (int i = DX_INPUT_PAD1; i <= num || i <= DX_INPUT_PAD4; i++) {
-		GetPadInput(i);
-	}
+	GetPadInput(DX_INPUT_PAD1);
 }
 
 bool InputManager::Release() {
@@ -64,12 +61,28 @@ int InputManager::PrevButton(BUTTONS b) const {
 	return prevButton_[(int)b];
 }
 
-int InputManager::NowKey(int DxLib_KEYcode) {
-	return nowKey_[DxLib_KEYcode];
+bool InputManager::DownButton(BUTTONS b) const {
+	return NowButton(b) && !PrevButton(b);
 }
 
-int InputManager::PrevKey(int DxLib_KEYcode) {
-	return prevKey_[DxLib_KEYcode];
+bool InputManager::UpButton(BUTTONS b) const {
+	return !NowButton(b) && PrevButton(b);
+}
+
+int InputManager::NowKey(int d) {
+	return nowKey_[d];
+}
+
+int InputManager::PrevKey(int d) {
+	return prevKey_[d];
+}
+
+bool InputManager::DownKey(int d) {
+	return NowKey(d) && !PrevKey(d);
+}
+
+bool InputManager::UpKey(int d) {
+	return !NowKey(d) && PrevKey(d);
 }
 
 void InputManager::GetKeyInput() {
@@ -79,8 +92,6 @@ void InputManager::GetKeyInput() {
 
 void InputManager::GetPadInput(int pad_num) {
 	int n = GetJoypadButtonNum(pad_num);
-
-	int t = GetJoypadType(pad_num);
 
 	DINPUT_JOYSTATE dIn = {};
 	GetJoypadDirectInputState(pad_num, &dIn);
@@ -93,32 +104,37 @@ void InputManager::GetPadInput(int pad_num) {
 	nowButton_ = {};
 
 	// X/Y（左スティック）
-	if (dIn.X < 0.0F)
+	if (dIn.X < 0)
 		nowButton_[(int)BUTTONS::LSTICK_L] = abs(dIn.X);
-	else if (dIn.X > 0.0F)
+	else if (dIn.X > 0)
 		nowButton_[(int)BUTTONS::LSTICK_R] = abs(dIn.X);
 
-	if (dIn.Y > 0.0F)
+	if (dIn.Y > 0)
 		nowButton_[(int)BUTTONS::LSTICK_U] = abs(dIn.Y);
-	else if (dIn.Y < 0.0F)
+	else if (dIn.Y < 0)
 		nowButton_[(int)BUTTONS::LSTICK_D] = abs(dIn.Y);
 
 	// POV（ハットスイッチ／十字キー）
 	// 本来はx = cos、y = sinだが、0が上から始まるので
 	// cosとsinを入れ替えた方が良い
-	float rad = DegToRad(dIn.POV[0] / 100.0F);
+	if (dIn.POV[0] != 0xFFFFFFFFU) {
+		double rad = DegToRad(dIn.POV[0] / 100.0);
+		double margin = 0.01;
+		
+		if (sin(rad) < margin)
+			nowButton_[(int)BUTTONS::DPAD_L] = (int)(sin(rad) * 100);
+		else if (sin(rad) > margin)
+			nowButton_[(int)BUTTONS::DPAD_R] = (int)(sin(rad) * 100);
 
-	if (sinf(rad) < 0.0F)
-		nowButton_[(int)BUTTONS::DPAD_L] = 1;
-	else if (sinf(rad) > 0.0F)
-		nowButton_[(int)BUTTONS::DPAD_R] = 1;
-
-	if (cosf(rad) > 0.0F)
-		nowButton_[(int)BUTTONS::DPAD_U] = 1;
-	else if (cosf(rad) < 0.0F)
-		nowButton_[(int)BUTTONS::DPAD_D] = 1;
+		if (cos(rad) > margin)
+			nowButton_[(int)BUTTONS::DPAD_U] = (int)(cos(rad) * 100);
+		else if (cos(rad) < margin)
+			nowButton_[(int)BUTTONS::DPAD_D] = (int)(cos(rad) * 100);
+	}
 
 	// Buttons（ボタン）
 	for (int index = 0; index < (int)BUTTONS::END - (int)BUTTONS::BUTTON_0; index++)
 		nowButton_[(int)BUTTONS::BUTTON_0 + index] = dIn.Buttons[index];
+
+	int debug = 0;
 }

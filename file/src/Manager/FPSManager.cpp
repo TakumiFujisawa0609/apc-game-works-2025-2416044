@@ -20,10 +20,7 @@ FPSManager::FPSManager(unsigned int fps) :
     showFPS_ = 0.f;
 }
 
-FPSManager::~FPSManager() {
-    // リストの後片付け
-    timeList_.clear();
-}
+FPSManager::~FPSManager() {}
 
 void FPSManager::Draw() {
     if (registerCount_ >= TARGET_FPS / SHOW_FPS_SAMPLING_NUM_PER_SECOND) { // 記録カウンターがサンプリング間隔に達する
@@ -74,6 +71,9 @@ void FPSManager::CheckWait() {
 }  
 
 bool FPSManager::Release() {
+    // リストの後片付け
+    timeList_.clear();
+
 	delete instance_;
 	return true;
 }

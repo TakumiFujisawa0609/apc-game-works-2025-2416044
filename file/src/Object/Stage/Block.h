@@ -17,6 +17,8 @@ public:
 	};
 
 	enum class STATE {
+		// ë“ã@
+		WAIT,
 		// ê√é~
 		STOP,
 		// âÒì]

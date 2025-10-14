@@ -71,25 +71,38 @@ bool Trap::Release() {
 }
 
 void Trap::ExecuteAdvTrap() {
-	for (auto it = traps_.begin(); it != traps_.end();) {
-		if ((*it).type != TRAP_TYPE::ADVANCE) continue;
+	int stSize[2] = {};
+	stage_->GetPlatformSize(stSize[0], stSize[1]);
 
+	for (auto it = traps_.begin(); it != traps_.end();) {
 		TRAP t = (*it);
+		if (t.type != TRAP_TYPE::ADVANCE || t.depWait != 0 || t.exeWait != -1) {
+			it++;
+			continue;
+		}
+
 		it = traps_.erase(it);
 
 		for (int x = -1; x < 2; x++) for (int y = -1; y < 2; y++) {
+			bool contFlag = false;
 			Vector2 nPos = { t.stagePos.x + x, t.stagePos.y + y };
-			for (auto& at : traps_) {
-				if (nPos == at.stagePos) continue;
 
-				TRAP nt = {};
-				nt.type = t.type;
-				nt.stagePos = nPos;
-				nt.color = t.color;
-				nt.depWait = 0;
-				nt.exeWait = COLOR_SUPER_TRAP;
-				traps_.emplace_back(nt);
+			if (nPos.x > stSize[0] || nPos.x < 0 ||
+				nPos.y > stSize[1] || nPos.y < 0) continue;
+
+			for (auto& at : traps_) if (nPos == at.stagePos) {
+				contFlag = true;
+				break;
 			}
+			if (contFlag) continue;
+			
+			TRAP nt = {};
+			nt.type = t.type;
+			nt.stagePos = nPos;
+			nt.color = t.color;
+			nt.depWait = 0;
+			nt.exeWait = WAIT_EXECUTE;
+			traps_.emplace_back(nt);
 		}
 	}
 }

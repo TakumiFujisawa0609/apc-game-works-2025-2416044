@@ -19,6 +19,7 @@
     <ClCompile Include="src\Utility\Utility.cpp" />
     <ClCompile Include="src\Scene\TitleScene\TitleScene.cpp" />
     <ClCompile Include="src\Scene\Pause\Pause.cpp" />
+    <ClCompile Include="src\Manager\AudioManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\App.h" />
@@ -38,5 +39,6 @@
     <ClInclude Include="src\Utility\Utility.h" />
     <ClInclude Include="src\Scene\TitleScene\TitleScene.h" />
     <ClInclude Include="src\Scene\Pause\Pause.h" />
+    <ClInclude Include="src\Manager\AudioManager.h" />
   </ItemGroup>
 </Project>

@@ -33,7 +33,7 @@ void Camera::Follow(int platform_size_x, int platform_size_z) {
 
 	VECTOR newAngles = {};
 	newAngles.y = -DegToRad((playerPos.x - HALF_PLATFORM_X) / HALF_PLATFORM_X * 30.f);
-	newAngles.x = -DegToRad(5.f + powf(playerPos.z / (platform_size_z * Block::BLOCK_SIZE) * 3.6f, 3));
+	newAngles.x = -DegToRad(6.f + powf(playerPos.z / (platform_size_z * Block::BLOCK_SIZE) * 3.5f, 3));
 
 	prevAngles_ = angles_;
 	// è≠ÇµÇ∏Ç¬ÉJÉÅÉâÇâÒì]

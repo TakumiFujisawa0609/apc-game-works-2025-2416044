@@ -10,11 +10,11 @@ bool TitleScene::SystemInit() {
 void TitleScene::Update() {
 	auto& ins = InputManager::GetInstance();
 
-	if (ins.NowKey(KEY_INPUT_RETURN) && !ins.PrevKey(KEY_INPUT_RETURN))
-		nextScene_ = SCENE::GAME;
-
-	if (!ins.NowKey(KEY_INPUT_ESCAPE) && ins.PrevKey(KEY_INPUT_ESCAPE))
+	if (ins.DownKey(KEY_INPUT_ESCAPE) || ins.DownButton(InputManager::BUTTONS::BUTTON_8))
 		App::GetInstance().Exit();
+
+	if (ins.DownKey(KEY_INPUT_RETURN) || ins.DownButton(InputManager::BUTTONS::BUTTON_9))
+		nextScene_ = SCENE::GAME;
 }
 
 void TitleScene::Draw() {
@@ -26,8 +26,9 @@ void TitleScene::Draw() {
 	SetFontSize(16);
 
 	int fy = 16;
-	DrawString(10, y - fy - 110, "W,A,S,D: 移動", 0xFFFFFFU);
-	DrawString(10, y - fy - 90, "J      : ワナの設置／起動", 0xFFFFFFU);
+	DrawString(10, y - fy - 130, "W,A,S,D: 移動", 0xFFFFFFU);
+	DrawString(10, y - fy - 110, "J      : ワナの設置／起動", 0xFFFFFFU);
+	DrawString(10, y - fy - 90, "K      : スーパーワナの起動", 0xFFFFFFU);
 	DrawString(10, y - fy - 70, "L      : 早送り", 0xFFFFFFU);
 	DrawString(10, y - fy - 50, "ENTER  : ゲーム開始／離脱", 0xFFFFFFU);
 	DrawString(10, y - fy - 30, "BACK   : ゲーム中ポーズ切替", 0xFFFFFFU);

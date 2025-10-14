@@ -19,7 +19,7 @@ bool Stage::GameInit() {
 	blockWidth_ = 4;
 
 	// 足場
-	platformDepth_ = 24;
+	platformDepth_ = 25;
 
 	for (int pd = 0; pd < platformDepth_; ++pd) {
 		auto& ptr = platformList_.emplace_back();
@@ -33,14 +33,14 @@ bool Stage::GameInit() {
 	}
 
 	cubeDepth_ = 2;
+	wave_ = 5;
 	phase_ = 3;
-	wave_ = 4;
 
 	// キューブ
 	SetUpCube();
 
 	spinTimer_ = 0;
-	extraTimer_ = 0;
+	extraTimer_ = 120;
 	nextwave_ = false;
 	isSpinning_ = false;
 	fastForward_ = false;
@@ -170,6 +170,8 @@ bool Stage::ReleaseWave() {
 
 void Stage::VanishBlock(const Vector2& trap_stage_pos) {
 	for (auto& waveList : cubeList_) for (auto& subList : waveList) for (auto& cube : subList) {
+		if (!cube->IsAlive() || cube->GetState() == Block::STATE::WAIT || cube->GetState() == Block::STATE::VANISH) continue;
+
 		if (cube->GetStageIndex() == trap_stage_pos) {
 			cube->ChangeState(Block::STATE::VANISH);
 
@@ -179,12 +181,20 @@ void Stage::VanishBlock(const Vector2& trap_stage_pos) {
 			if (cube->GetType() == Block::TYPE::FORBIDDEN)
 				fallCount_ += blockWidth_;
 
-			if (stepCount_ == 0) stepCount_++;
+			StartStep();
 
 			spinTimer_ = SPIN_DELAY_FRAME;
 			return;
 		}
 	}
+}
+
+void Stage::StartStep() {
+	if (stepCount_ == 0) stepCount_++;
+}
+
+void Stage::AddStep() {
+	if (stepCount_ > 0) stepCount_++;
 }
 
 void Stage::ConvertStagePos(const VECTOR& pos, int& x, int& z) {
@@ -213,7 +223,7 @@ void Stage::SetFastForward(bool b) { fastForward_ = b; }
 bool Stage::IsSpinning() const { return isSpinning_; }
 
 void Stage::SetUpCube() {
-	for (int cp = 0; cp < phase_; ++cp) {
+	for (int cp = 0; cp < wave_; ++cp) {
 		auto& waveList = cubeList_.emplace_back();
 
 		LoadPattern();
@@ -229,10 +239,10 @@ void Stage::SetUpCube() {
 				ptr = new Block();
 				ptr->SetType((Block::TYPE)pat);
 				ptr->SetModelHandle(blockModels_[(size_t)pat]);
+				ptr->ChangeState(Block::STATE::WAIT);
 				ptr->SetStageIndex(cw, cp * cubeDepth_ + cd);
 				ptr->SetPosition(
-					{ cw * Block::BLOCK_SIZE + Block::HALF_BLOCK_SIZE, Block::HALF_BLOCK_SIZE, (cp * cubeDepth_ + cd) * (-Block::BLOCK_SIZE) - Block::HALF_BLOCK_SIZE }
-				);
+					{ cw * Block::BLOCK_SIZE + Block::HALF_BLOCK_SIZE, Block::HALF_BLOCK_SIZE, (cp * cubeDepth_ + cd) * (-Block::BLOCK_SIZE) - Block::HALF_BLOCK_SIZE });
 			}
 		}
 	}
@@ -267,22 +277,30 @@ void Stage::LoadPattern() {
 }
 
 void Stage::UpdateStop() {
-	for (auto& waveList : cubeList_) for (auto& subList : waveList) for (auto& cube : subList) {
-		// 既に消えている場合、処理の必要が無いのでスキップ
-		if (!cube->IsAlive() || cube->GetState() == Block::STATE::FALL) continue;
+	bool isBack = true;
+	for (auto it = cubeList_.rbegin(); it != cubeList_.rend(); it++) {
+		for (auto& subList : (*it)) for (auto& cube : subList) {
+			// 既に消えている場合、処理の必要が無いのでスキップ
+			if (!cube->IsAlive() || cube->GetState() == Block::STATE::FALL) continue;
 
-		// 足場からはみ出している場合は落下させる
-		if (cube->GetPosition().z < platformDepth_ * (-Block::BLOCK_SIZE)) {
-			// 落下
-			cube->ChangeState(Block::STATE::FALL);
-			if (cube->GetType() != Block::TYPE::FORBIDDEN) fallCount_++;
+			// 足場からはみ出している場合は落下させる
+			if (cube->GetPosition().z < platformDepth_ * (-Block::BLOCK_SIZE)) {
+				// 落下
+				cube->ChangeState(Block::STATE::FALL);
+
+				if (cube->GetType() != Block::TYPE::FORBIDDEN) fallCount_++;
+			}
+			else {
+				if (isBack)
+					// 回転を止める
+					cube->ChangeState(Block::STATE::STOP);
+				else
+					cube->ChangeState(Block::STATE::WAIT);
+			}
 		}
-		else {
-			// 回転を止める
-			cube->ChangeState(Block::STATE::STOP);
-		}
+		isBack = false;
 	}
-	
+
 	auto stopFlag = true;
 	if (cubeList_.size() > 0) {
 		auto& waveList = cubeList_.back();
@@ -337,48 +355,53 @@ void Stage::UpdateStop() {
 }
 
 void Stage::UpdateSpin() {
-	if (cubeList_.size() > 0) {
-		++spinTimer_;
-		auto& waveList = cubeList_.back();
-		for (auto& subList : waveList) for (auto& cube : subList) {
-			// 既に消えているか消失中の場合、処理の必要が無いのでスキップ
-			if (!cube->IsAlive() || cube->GetState() == Block::STATE::VANISH || cube->GetState() == Block::STATE::FALL) continue;
+	if (cubeList_.size() == 0) {
+		isSpinning_ = false;
+		return;
+	}
 
-			// 衝突判定用（回転中は、キューブ後方の下辺の衝突判定が消える）
-			cube->ChangeState(Block::STATE::SPIN);
+	++spinTimer_;
+	auto step = false;
+	auto& waveList = cubeList_.back();
+	for (auto& subList : waveList) for (auto& cube : subList) {
+		// 既に消えているか消失中の場合、処理の必要が無いのでスキップ
+		if (!cube->IsAlive() || cube->GetState() == Block::STATE::VANISH || cube->GetState() == Block::STATE::FALL) continue;
 
-			// キューブの回転量
-			auto cubeRot = cube->GetRotation();
+		// 衝突判定用（回転中は、キューブ後方の下辺の衝突判定が消える）
+		cube->ChangeState(Block::STATE::SPIN);
 
-			// 追加される回転量
-			float deg = -SPIN_DEGREE;
-			if (fastForward_) deg = -FAST_SPIN_DEGREE;
-			float nextRot = DX_PI_F / 180.f * deg;
+		// キューブの回転量
+		auto cubeRot = cube->GetRotation();
 
-			// 合計回転量が-90度をオーバーしないように調整
-			if (cubeRot.x + nextRot < -DX_PI_F / 2.f)
-				nextRot = -DX_PI_F / 2.f - cubeRot.x;
+		// 追加される回転量
+		float deg = -SPIN_DEGREE;
+		if (fastForward_) deg = -FAST_SPIN_DEGREE;
+		float nextRot = DX_PI_F / 180.f * deg;
 
-			// 行列計算（原点への平行移動＋回転＋座標への平行移動）
-			Matrix4x4 mat = TranslationMatrix(cube->GetMatrixPosition()) * RotationMatrixX(nextRot) * TranslationMatrix(-cube->GetMatrixPosition());
+		// 合計回転量が-90度をオーバーしないように調整
+		if (cubeRot.x + nextRot < -DX_PI_F / 2.f)
+			nextRot = -DX_PI_F / 2.f - cubeRot.x;
 
-			// キューブの座標を更新
-			cube->SetPosition(mat * cube->GetPosition());
+		// 行列計算（原点への平行移動＋回転＋座標への平行移動）
+		Matrix4x4 mat = TranslationMatrix(cube->GetMatrixPosition()) * RotationMatrixX(nextRot) * TranslationMatrix(-cube->GetMatrixPosition());
 
-			// キューブの回転を更新
-			cubeRot.x += nextRot;
-			cube->SetRotation(cubeRot);
+		// キューブの座標を更新
+		cube->SetPosition(mat * cube->GetPosition());
 
-			// キューブの回転量が-90度になったら回転処理を停止
-			if (cubeRot.x <= -DX_PI_F / 2.f) {
-				auto idx = cube->GetStageIndex();
-				cube->SetStageIndex({ idx.x, idx.y + 1 });
-				if (isSpinning_) {
-					isSpinning_ = false;
-					if (stepCount_ > 0) stepCount_++;
-				}
+		// キューブの回転を更新
+		cubeRot.x += nextRot;
+		cube->SetRotation(cubeRot);
+
+		// キューブの回転量が-90度になったら回転処理を停止
+		if (cubeRot.x <= -DX_PI_F / 2.f) {
+			auto idx = cube->GetStageIndex();
+			cube->SetStageIndex({ idx.x, idx.y + 1 });
+			if (isSpinning_) {
+				isSpinning_ = false;
+				if (cube->GetType() != Block::TYPE::FORBIDDEN)
+					step = true;
 			}
 		}
 	}
-	else isSpinning_ = false;
+	if (step) AddStep();
 }

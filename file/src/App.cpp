@@ -1,6 +1,7 @@
 #include <DxLib.h>
 #include <random>
 #include <stdio.h>
+#include "Manager/AudioManager.h"
 #include "Manager/FPSManager.h"
 #include "Manager/InputManager.h"
 #include "Manager/SceneManager.h"
@@ -45,6 +46,8 @@ void App::GameLoop() {
 }
 
 bool App::Release() {
+	AudioManager::GetInstance().Release();
+
 	FPSManager::GetInstance().Release();
 
 	InputManager::GetInstance().Release();
@@ -96,6 +99,10 @@ bool App::SystemInit() {
 }
 
 bool App::ClassInit() {
+	AudioManager::CreateInstance();
+	AudioManager::GetInstance().Init();
+	AudioManager::GetInstance().LoadSE("Data/Sound/rollrock.wav", "‰ñ“]");
+
 	FPSManager::CreateInstance();
 
 	InputManager::CreateInstance();
