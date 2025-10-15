@@ -20,6 +20,7 @@
     <ClCompile Include="src\Scene\TitleScene\TitleScene.cpp" />
     <ClCompile Include="src\Scene\Pause\Pause.cpp" />
     <ClCompile Include="src\Manager\AudioManager.cpp" />
+    <ClCompile Include="src\Manager\FontManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\App.h" />
@@ -40,5 +41,6 @@
     <ClInclude Include="src\Scene\TitleScene\TitleScene.h" />
     <ClInclude Include="src\Scene\Pause\Pause.h" />
     <ClInclude Include="src\Manager\AudioManager.h" />
+    <ClInclude Include="src\Manager\FontManager.h" />
   </ItemGroup>
 </Project>

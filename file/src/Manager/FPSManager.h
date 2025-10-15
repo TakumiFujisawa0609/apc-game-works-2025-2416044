@@ -8,7 +8,7 @@ public:
 	static FPSManager& GetInstance();
 
 	// •`‰æˆ—
-	void Draw();
+	void Draw(int handle = -1);
 
 	// ‘Ò‹@ˆ—
 	void CheckWait();

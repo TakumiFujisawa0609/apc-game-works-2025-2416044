@@ -2,6 +2,7 @@
 #include <random>
 #include <stdio.h>
 #include "Manager/AudioManager.h"
+#include "Manager/FontManager.h"
 #include "Manager/FPSManager.h"
 #include "Manager/InputManager.h"
 #include "Manager/SceneManager.h"
@@ -47,6 +48,8 @@ void App::GameLoop() {
 
 bool App::Release() {
 	AudioManager::GetInstance().Release();
+
+	FontManager::GetInstance().Release();
 
 	FPSManager::GetInstance().Release();
 
@@ -99,15 +102,57 @@ bool App::SystemInit() {
 }
 
 bool App::ClassInit() {
+	// AudioManager
 	AudioManager::CreateInstance();
 	AudioManager::GetInstance().Init();
+
 	AudioManager::GetInstance().LoadSE("Data/Sound/rollrock.wav", "回転");
 
+	// FontManager
+	FontManager::CreateInstance();
+	FontManager::GetInstance().Init();
+
+	FontManager::GetInstance().AddFont("ロゴ", "HG明朝E", 64, 4, DX_FONTTYPE_ANTIALIASING);
+	FontManager::GetInstance().AddFont("汎用", "HGｺﾞｼｯｸE", 32, 4, DX_FONTTYPE_ANTIALIASING);
+	FontManager::GetInstance().AddFont("汎用（小）", "HGｺﾞｼｯｸE", 16, 4, DX_FONTTYPE_ANTIALIASING);
+
+	// FPSManager
 	FPSManager::CreateInstance();
 
+	// InputManager
 	InputManager::CreateInstance();
 	InputManager::GetInstance().Init();
 
+	InputManager::GetInstance().AddInputMap("移動上",
+		InputManager::BUTTONS::DPAD_U, InputManager::BUTTONS::NONE,
+		KEY_INPUT_W, 0x00);
+	InputManager::GetInstance().AddInputMap("移動下",
+		InputManager::BUTTONS::DPAD_D, InputManager::BUTTONS::NONE,
+		KEY_INPUT_S, 0x00);
+	InputManager::GetInstance().AddInputMap("移動左",
+		InputManager::BUTTONS::DPAD_L, InputManager::BUTTONS::NONE,
+		KEY_INPUT_A, 0x00);
+	InputManager::GetInstance().AddInputMap("移動右",
+		InputManager::BUTTONS::DPAD_R, InputManager::BUTTONS::NONE,
+		KEY_INPUT_D, 0x00);
+
+	InputManager::GetInstance().AddInputMap("ワナ",
+		InputManager::BUTTONS::BUTTON_0, InputManager::BUTTONS::NONE,
+		KEY_INPUT_J, 0x00);
+	InputManager::GetInstance().AddInputMap("スーパーワナ",
+		InputManager::BUTTONS::BUTTON_2, InputManager::BUTTONS::NONE,
+		KEY_INPUT_K, 0x00);
+	InputManager::GetInstance().AddInputMap("高速送り",
+		InputManager::BUTTONS::BUTTON_3, InputManager::BUTTONS::NONE,
+		KEY_INPUT_L, 0x00);
+	InputManager::GetInstance().AddInputMap("決定",
+		InputManager::BUTTONS::BUTTON_7, InputManager::BUTTONS::NONE,
+		KEY_INPUT_RETURN, 0x00);
+	InputManager::GetInstance().AddInputMap("戻る",
+		InputManager::BUTTONS::BUTTON_6, InputManager::BUTTONS::NONE,
+		KEY_INPUT_BACK, KEY_INPUT_ESCAPE);
+
+	// SceneManager
 	SceneManager::CreateInstance();
 	SceneManager::GetInstance().Init();
 
@@ -127,7 +172,7 @@ void App::Draw() {
 	// 描画先の画面
 	SetDrawScreen(DX_SCREEN_BACK);
 
-	FPSManager::GetInstance().Draw();
+	FPSManager::GetInstance().Draw(FontManager::GetInstance().GetFontHandle("汎用（小）"));
 	SceneManager::GetInstance().Draw();
 
 	// 裏画面を表画面に転写

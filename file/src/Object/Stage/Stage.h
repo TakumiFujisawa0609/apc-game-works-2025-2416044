@@ -85,6 +85,11 @@ private:
 	void SetUpCube();
 	void LoadPattern();
 
+	void StartWave();
+	void StopAndFall();
+	bool KeepStop();
+	void NextWave();
+
 	void UpdateStop();
 	void UpdateSpin();
 

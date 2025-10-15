@@ -8,11 +8,11 @@ class Stage;
 class Trap {
 public:
 	static constexpr unsigned int COLOR_TRAP = 0x4040FFU;
-	static constexpr unsigned int COLOR_SUPER_TRAP = 0x40FFFFU;
+	static constexpr unsigned int COLOR_SUPER_TRAP = 0x40FF4FU;
 	static constexpr unsigned int COLOR_EXECUTE = 0xFF4040U;
 
-	static constexpr int WAIT_DEPLOY = 5;
-	static constexpr int WAIT_EXECUTE = 5;
+	static constexpr int WAIT_DEPLOY = 6;
+	static constexpr int WAIT_EXECUTE = 12;
 
 	enum class TRAP_TYPE {
 		NORMAL,

@@ -137,10 +137,13 @@ void Player::Move() {
 	dir.x -= ins.NowButton(InputManager::BUTTONS::LSTICK_L) / 1000.0F;
 	dir.x += ins.NowButton(InputManager::BUTTONS::LSTICK_R) / 1000.0F;
 
-	if (ins.NowKey(KEY_INPUT_W) || ins.NowButton(InputManager::BUTTONS::DPAD_U)) dir.z += 1.0F;
-	if (ins.NowKey(KEY_INPUT_S) || ins.NowButton(InputManager::BUTTONS::DPAD_D)) dir.z -= 1.0F;
-	if (ins.NowKey(KEY_INPUT_A) || ins.NowButton(InputManager::BUTTONS::DPAD_L)) dir.x -= 1.0F;
-	if (ins.NowKey(KEY_INPUT_D) || ins.NowButton(InputManager::BUTTONS::DPAD_R)) dir.x += 1.0F;
+	if (ins.NowMap("ˆÚ“®ã")) dir.z += 1.0F;
+	if (ins.NowMap("ˆÚ“®‰º")) dir.z -= 1.0F;
+	if (ins.NowMap("ˆÚ“®¶")) dir.x -= 1.0F;
+	if (ins.NowMap("ˆÚ“®‰E")) dir.x += 1.0F;
+
+	dir.x = min(max(-1.0F, dir.x), 1.0F);
+	dir.z = min(max(-1.0F, dir.z), 1.0F);
 
 	if (dir.x != 0.0F || dir.z != 0.0F) {
 		dir = VNorm(dir);

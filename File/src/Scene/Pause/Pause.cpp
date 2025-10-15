@@ -4,9 +4,9 @@
 void Pause::Update() {
 	auto& ins = InputManager::GetInstance();
 
-	if (ins.DownKey(KEY_INPUT_RETURN) || ins.DownButton(InputManager::BUTTONS::BUTTON_9))
+	if (ins.DownMap("Œˆ’è"))
 		nextScene_ = SceneBase::SCENE::TITLE;
-	if (ins.DownKey(KEY_INPUT_BACK) || ins.DownButton(InputManager::BUTTONS::BUTTON_8))
+	if (ins.DownMap("–ß‚é"))
 		nextScene_ = SceneBase::SCENE::GAME;
 }
 

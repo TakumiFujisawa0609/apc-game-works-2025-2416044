@@ -87,8 +87,8 @@ void Trap::ExecuteAdvTrap() {
 			bool contFlag = false;
 			Vector2 nPos = { t.stagePos.x + x, t.stagePos.y + y };
 
-			if (nPos.x > stSize[0] || nPos.x < 0 ||
-				nPos.y > stSize[1] || nPos.y < 0) continue;
+			if (nPos.x > stSize[0] - 1 || nPos.x < 0 ||
+				nPos.y > stSize[1] - 1 || nPos.y < 0) continue;
 
 			for (auto& at : traps_) if (nPos == at.stagePos) {
 				contFlag = true;

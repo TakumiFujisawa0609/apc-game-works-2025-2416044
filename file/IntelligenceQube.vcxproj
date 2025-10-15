@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Manager\FontManager.cpp" />
     <ClCompile Include="src\Manager\AudioManager.cpp" />
     <ClCompile Include="src\Scene\Pause\Pause.cpp" />
     <ClCompile Include="src\Object\Camera\Camera.cpp" />
@@ -40,6 +41,7 @@
     <ClCompile Include="src\Scene\TitleScene\TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Manager\FontManager.h" />
     <ClInclude Include="src\Manager\AudioManager.h" />
     <ClInclude Include="src\Scene\Pause\Pause.h" />
     <ClInclude Include="src\Object\Camera\Camera.h" />

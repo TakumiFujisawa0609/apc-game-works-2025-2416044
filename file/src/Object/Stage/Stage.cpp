@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../../Common/GeometryDxLib.h"
+#include "../../Manager/AudioManager.h"
 #include "../../Utility/Utility.h"
 #include "../Trap/Trap.h"
 #include "Block.h"
@@ -19,7 +20,7 @@ bool Stage::GameInit() {
 	blockWidth_ = 4;
 
 	// 足場
-	platformDepth_ = 25;
+	platformDepth_ = 18;
 
 	for (int pd = 0; pd < platformDepth_; ++pd) {
 		auto& ptr = platformList_.emplace_back();
@@ -106,10 +107,18 @@ void Stage::Draw() {
 	GetWindowSize(&x, &y);
 	// 回転
 	if (isSpinning_) DrawFormatString(32, y - 32, 0xFFFFFFU, "回転中");
-	// 落下数
+	// 歩数
 	int count = stepQuota_.size() > 0 ? stepQuota_.back() : 0;
 	DrawFormatString(x - 256, 16, 0xFFFFFFU, "歩数: %d/%d", stepCount_, count);
-	DrawFormatString(x - 256, y - 32, 0xFFFFFFU, "足場崩壊まで: %d/%d", fallCount_, blockWidth_);
+	// 落下数
+	std::string s = "";
+	for (int i = (blockWidth_ - 1) - fallCount_; i > 0; i--) {
+		s += "□";
+	}
+	for (int i = fallCount_; i > 0; i--) {
+		s += "■";
+	}
+	DrawFormatString(x - 256, y - 32, 0xFFFFFFU, s.c_str());
 }
 
 bool Stage::Release() {
@@ -238,7 +247,8 @@ void Stage::SetUpCube() {
 				auto& ptr = subList.emplace_back();
 				ptr = new Block();
 				ptr->SetType((Block::TYPE)pat);
-				ptr->SetModelHandle(blockModels_[(size_t)pat]);
+				//ptr->SetModelHandle(blockModels_[(size_t)pat]);
+				ptr->SetModelHandle(blockModels_[0]);
 				ptr->ChangeState(Block::STATE::WAIT);
 				ptr->SetStageIndex(cw, cp * cubeDepth_ + cd);
 				ptr->SetPosition(
@@ -276,10 +286,28 @@ void Stage::LoadPattern() {
 	}
 }
 
-void Stage::UpdateStop() {
+void Stage::StartWave() {
+	// 例外スローの防止
+	if (cubeList_.size() == 0) return;
+
+	// 現在のウェーブのリスト
+	auto& waveList = cubeList_.back();
+
+	for (auto& subList : waveList) {
+		for (auto& cube : subList) {
+			// モデルハンドルをタイプに合わせたものに再設定
+			cube->SetModelHandle(blockModels_[(size_t)cube->GetType()]);
+		}
+	}
+}
+
+void Stage::StopAndFall() {
+	// 現在のウェーブだけで有効なフラグ
 	bool isBack = true;
-	for (auto it = cubeList_.rbegin(); it != cubeList_.rend(); it++) {
-		for (auto& subList : (*it)) for (auto& cube : subList) {
+
+	// 逆イテレーターでforループ
+	for (auto rit = cubeList_.rbegin(); rit != cubeList_.rend(); rit++) {
+		for (auto& subList : (*rit)) for (auto& cube : subList) {
 			// 既に消えている場合、処理の必要が無いのでスキップ
 			if (!cube->IsAlive() || cube->GetState() == Block::STATE::FALL) continue;
 
@@ -298,71 +326,102 @@ void Stage::UpdateStop() {
 					cube->ChangeState(Block::STATE::WAIT);
 			}
 		}
+		// 現在のウェーブの処理が終了したので、フラグを折る
 		isBack = false;
 	}
+}
 
-	auto stopFlag = true;
-	if (cubeList_.size() > 0) {
-		auto& waveList = cubeList_.back();
-		for (auto& subList : waveList) {
-			for (auto& cube : subList) {
-				if (cube->IsAlive() &&
-					cube->GetState() != Block::STATE::FALL &&
-					cube->GetState() != Block::STATE::VANISH) {
-					stopFlag = false;
-					break;
-				}
-			}
-			if (!stopFlag) break;
+bool Stage::KeepStop() {
+	// 例外スローの防止
+	if (cubeList_.size() == 0) return false;
+
+	auto ret = true;
+
+	auto& waveList = cubeList_.back();
+	for (auto& subList : waveList) for (auto& cube : subList) {
+		if (cube->IsAlive() &&
+			cube->GetState() != Block::STATE::FALL &&
+			cube->GetState() != Block::STATE::VANISH) {
+			ret = false;
+			return ret;
 		}
 	}
+
+	return ret;
+}
+
+void Stage::NextWave() {
+	// 例外スローの防止
+	if (cubeList_.size() == 0) return;
 
 	auto delFlag = true;
-	if (cubeList_.size() > 0) {
-		auto& waveList = cubeList_.back();
-		for (auto& subList : waveList) {
-			for (auto& cube : subList) {
-				if (cube->IsAlive()) {
-					delFlag = false;
-					break;
-				}
-			}
-			if (!delFlag) break;
+
+	auto& waveList = cubeList_.back();
+	for (auto& subList : waveList) {
+		for (auto& cube : subList) {
+			if (!cube->IsAlive()) continue;
+			
+			delFlag = false;
+			break;
 		}
+		if (!delFlag) break;
 	}
-	else delFlag = false;
 
 	if (delFlag && !nextwave_) {
 		nextwave_ = true;
 		extraTimer_ += EXTRA_DELAY_FRAME;
 		return;
 	}
+}
 
+void Stage::UpdateStop() {
+	// 停止・落下処理
+	StopAndFall();
+
+	// 足止め処理
+	auto stopFlag = KeepStop();
+
+	// ウェーブ移行処理
+	NextWave();
+
+	// タイマー処理
 	if (fastForward_) spinTimer_ = 0;
 
 	if (spinTimer_ > 0) spinTimer_--;
 	else if (extraTimer_ > 0) extraTimer_--;
 
+	// 最終的な判断
 	if ((!stopFlag || nextwave_) && extraTimer_ <= 0 && spinTimer_ <= 0) {
 		if (nextwave_) {
 			ReleaseWave();
 			nextwave_ = false;
 		}
 
+		// ウェーブ開始処理
+		StartWave();
+		
 		// 次の回転を開始
 		isSpinning_ = true;
 	}
 }
 
 void Stage::UpdateSpin() {
+	// 例外スローの防止＋α
 	if (cubeList_.size() == 0) {
 		isSpinning_ = false;
 		return;
 	}
 
+	// スピンタイマー
 	++spinTimer_;
+
+	// 歩数を追加する？
 	auto step = false;
+
+	// 現在のウェーブのリスト
 	auto& waveList = cubeList_.back();
+
+	// リストを隅々まで処理
 	for (auto& subList : waveList) for (auto& cube : subList) {
 		// 既に消えているか消失中の場合、処理の必要が無いのでスキップ
 		if (!cube->IsAlive() || cube->GetState() == Block::STATE::VANISH || cube->GetState() == Block::STATE::FALL) continue;
@@ -373,16 +432,18 @@ void Stage::UpdateSpin() {
 		// キューブの回転量
 		auto cubeRot = cube->GetRotation();
 
-		// 追加される回転量
+		// 追加される回転量（弧度ベース）
 		float deg = -SPIN_DEGREE;
+		// 高速状態なら、より大きく回転させる
 		if (fastForward_) deg = -FAST_SPIN_DEGREE;
+		// 回転量をラジアンに変換
 		float nextRot = DX_PI_F / 180.f * deg;
 
-		// 合計回転量が-90度をオーバーしないように調整
+		// 合計回転量が-90度をオーバーしないよう、追加される回転量を調整
 		if (cubeRot.x + nextRot < -DX_PI_F / 2.f)
 			nextRot = -DX_PI_F / 2.f - cubeRot.x;
 
-		// 行列計算（原点への平行移動＋回転＋座標への平行移動）
+		// 行列計算（座標への平行移動×回転×原点への平行移動）
 		Matrix4x4 mat = TranslationMatrix(cube->GetMatrixPosition()) * RotationMatrixX(nextRot) * TranslationMatrix(-cube->GetMatrixPosition());
 
 		// キューブの座標を更新

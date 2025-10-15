@@ -55,12 +55,16 @@ void AudioManager::PlaySE(const char* name, bool loop) {
 }
 
 void AudioManager::LoadBGM(const char* file_path, const char* name) {
+	if (bgmList_.find(name) != bgmList_.end()) return;
+
 	int handle = LoadSoundMem(file_path);
 	SetVolumeSoundMem(handle, volumeBGM_);
 	bgmList_.emplace(name, handle);
 }
 
 void AudioManager::LoadSE(const char* file_path, const char* name) {
+	if (seList_.find(name) != seList_.end()) return;
+
 	int handle = LoadSoundMem(file_path);
 	SetVolumeSoundMem(handle, volumeSE_);
 	seList_.emplace(name, handle);
@@ -69,8 +73,7 @@ void AudioManager::LoadSE(const char* file_path, const char* name) {
 float AudioManager::GetVolumeBGM() const { return volumeBGM_; }
 
 void AudioManager::SetVolumeBGM(float f) {
-	volumeBGM_ = f;
-	min(max(0.0F, volumeBGM_), 1.0F);
+	volumeBGM_ = min(max(0.0F, f), 1.0F);
 
 	for (auto& bgm : bgmList_) {
 		SetVolumeSoundMem(bgm.second, volumeBGM_);
@@ -80,8 +83,7 @@ void AudioManager::SetVolumeBGM(float f) {
 float AudioManager::GetVolumeSE() const { return volumeSE_; }
 
 void AudioManager::SetVolumeSE(float f) {
-	volumeSE_ = f;
-	min(max(0.0F, volumeSE_), 1.0F);
+	volumeSE_ = min(max(0.0F, f), 1.0F);
 
 	for (auto& se : seList_) {
 		SetVolumeSoundMem(se.second, volumeSE_);
