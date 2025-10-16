@@ -1,12 +1,9 @@
+#include <algorithm>
 #include <cmath>
+#include <numbers>
 #include "Geometry.h"
 
-#if _HAS_CXX20
-#include <numbers>
-#else
-#include <math.h>
-#define _USE_MATH_DEFINES
-#endif
+// 注意: 全ての関数を正常にコンパイル・動作させるには、C++20以上が必要です
 
 int Round(float n) {
 	return n - (int)n >= 0.5f ? (int)n + 1 : (int)n;
@@ -25,58 +22,41 @@ int RoundDown(double n) {
 }
 
 int RoundUp(float n) {
-	return n - (int)n > 0.f ? (int)n + 1 : (int)n;
+	return n - (int)n > 0.0f ? (int)n + 1 : (int)n;
 }
 
 int RoundUp(double n) {
-	return n - (int)n > 0 ? (int)n + 1 : (int)n;
+	return n - (int)n > 0.0 ? (int)n + 1 : (int)n;
 }
 
 float DegToRad(float n) {
-#if _HAS_CXX20
-	return n * (float)std::numbers::pi / 180.f;
-#else
-	return n * (float)M_PI / 180.f;
-#endif
+	return n * (float)std::numbers::pi / 180.0f;
 }
 
 double DegToRad(double n) {
-#if _HAS_CXX20
-	return n * std::numbers::pi / 180.f;
-#else
-	return n * M_PI / 180.f;
-#endif
+	return n * std::numbers::pi / 180.0f;
 }
 
 float RadToDeg(float n) {
-#if _HAS_CXX20
-	return n / (float)std::numbers::pi * 180.f;
-#else
-	return n / (float)M_PI * 180.f;
-#endif
+	return n / (float)std::numbers::pi * 180.0f;
 }
 
 double RadToDeg(double n) {
-#if _HAS_CXX20
-	return n / std::numbers::pi * 180.f;
-#else
-	return n / M_PI * 180.f;
-#endif
+	return n / std::numbers::pi * 180.0f;
 }
 
 float Lerp(float start, float end, float lerp) {
-	if (lerp > 1.f) return 0.f;
+	lerp = std::min(std::max(lerp, 0.0f), 1.0f);
 
 	return start + (end - start) * lerp;
 }
 
 float LerpRad(float start, float end, float lerp) {
-	if (lerp > 1.f) return 0.f;
+	lerp = std::min(std::max(lerp, 0.0f), 1.0f);
 
 	float ret = 0.f;
 	float diff = end - start;
 
-#if _HAS_CXX20
 	if (diff < -(float)std::numbers::pi) {
 		end += (float)std::numbers::pi * 2.f;
 		ret = Lerp(start, end, lerp);
@@ -90,22 +70,31 @@ float LerpRad(float start, float end, float lerp) {
 	else {
 		ret = Lerp(start, end, lerp);
 	}
-#else
-	if (diff < -(float)M_PI) {
-		end += (float)M_PI * 2.f;
-		ret = Lerp(start, end, lerp);
-		while (ret >= (float)M_PI * 2.f) ret -= (float)M_PI * 2.f;
-	}
-	else if (diff > (float)M_PI) {
-		end -= (float)M_PI * 2.f;
-		ret = Lerp(start, end, lerp);
-		while (ret < 0.f) ret += (float)M_PI * 2.f;
-	}
-	else {
-		ret = Lerp(start, end, lerp);
-	}
-#endif
 
+	return ret;
+}
+
+void Color::Normalize() {
+	float high = std::max({ r, g, b });
+
+	if (high > 255) {
+		high = 255 / high;
+		r *= high;
+		b *= high;
+		g *= high;
+	}
+}
+
+Color Color::Normalized() const {
+	return Color();
+}
+
+unsigned int Color::GetColor() {
+	Normalize();
+	unsigned int ret = 0u;
+	ret += (unsigned int)r * 0x10000u;
+	ret += (unsigned int)g * 0x100u;
+	ret += (unsigned int)b;
 	return ret;
 }
 
@@ -121,7 +110,7 @@ void Vector2::Normalize() {
 
 Vector2 Vector2::Normalized() const {
 	float mag = Magnitude();
-	return Vector2(x / mag, y / mag);
+	return { x / mag, y / mag };
 }
 
 float Vector2::Angle() const {
@@ -129,11 +118,7 @@ float Vector2::Angle() const {
 }
 
 float Vector2::AngleDegree() const {
-#if _HAS_CXX20
 	return Angle() / (float)std::numbers::pi * 180.f;
-#else
-	return Angle() / (float)M_PI * 180.f;
-#endif
 }
 
 void Vector2::operator+=(const Vector2& v) {
@@ -152,19 +137,19 @@ void Vector2::operator*=(float scale) {
 }
 
 Vector2 Vector2::operator*(float scale) const {
-	return Vector2(x * scale, y * scale);
+	return { x * scale, y * scale };
 }
 
 Vector2 Vector2::operator-() const {
-	return Vector2(-x, -y);
+	return { -x, -y };
 }
 
 Vector2 operator+(const Vector2& va, const Vector2& vb) {
-	return Vector2(va.x + vb.x, va.y + vb.y);
+	return { va.x + vb.x, va.y + vb.y };
 }
 
 Vector2 operator-(const Vector2& va, const Vector2& vb) {
-	return Vector2(va.x - vb.x, va.y - vb.y);
+	return { va.x - vb.x, va.y - vb.y };
 }
 
 bool operator==(const Vector2& va, const Vector2& vb) {
@@ -230,19 +215,23 @@ void Vector3::operator*=(float scale) {
 }
 
 Vector3 Vector3::operator*(float scale) const {
-	return Vector3(x * scale, y * scale, z * scale);
+	return { x * scale, y * scale, z * scale };
 }
 
 Vector3 Vector3::operator-() const {
-	return Vector3(-x, -y, -z);
+	return { -x, -y, -z };
 }
 
 Vector3 operator+(const Vector3& va, const Vector3& vb) {
-	return Vector3(va.x + vb.x, va.y + vb.y, va.z + vb.z);
+	return { va.x + vb.x, va.y + vb.y, va.z + vb.z };
 }
 
 Vector3 operator-(const Vector3& va, const Vector3& vb) {
-	return Vector3(va.x - vb.x, va.y - vb.y, va.z - vb.z);
+	return { va.x - vb.x, va.y - vb.y, va.z - vb.z };
+}
+
+bool operator==(const Vector3& va, const Vector3& vb) {
+	return va.x == vb.x && va.y == vb.y && va.z == vb.z;
 }
 
 float Dot(const Vector3& va, const Vector3& vb) {
@@ -250,7 +239,9 @@ float Dot(const Vector3& va, const Vector3& vb) {
 }
 
 Vector3 Cross(const Vector3& va, const Vector3& vb) {
-	return Vector3(va.z * vb.y - va.y * vb.z, va.z * vb.x - va.x * vb.z, va.x * vb.y - vb.x * va.y);
+	return { va.z * vb.y - va.y * vb.z,
+			va.z * vb.x - va.x * vb.z,
+			va.x * vb.y - vb.x * va.y };
 }
 
 float operator*(const Vector3& va, const Vector3& vb) {
@@ -283,10 +274,10 @@ Vector3 Matrix4x4::operator*(const Vector3& v) const {
 
 Matrix4x4 IdentityMatrix() {
 	return {
-		1.f, 0.f, 0.f, 0.f,
-		0.f, 1.f, 0.f, 0.f,
-		0.f, 0.f, 1.f, 0.f,
-		0.f, 0.f, 0.f, 1.f
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
 	};
 }
 
@@ -301,28 +292,28 @@ Matrix4x4 TransposeMatrix(const Matrix4x4& m) {
 
 Matrix4x4 RotationMatrixX(float angle) {
 	return {
-		1.f, 0.f, 0.f, 0.f,
-		0.f, cosf(angle), -sinf(angle), 0.f,
-		0.f, sinf(angle), cosf(angle), 0.f,
-		0.f, 0.f, 0.f, 1.f
+		1.0f, 0.0f,			0.0f,			0.0f,
+		0.0f, cosf(angle),	-sinf(angle),	0.0f,
+		0.0f, sinf(angle),	cosf(angle),	0.0f,
+		0.0f, 0.0f,			0.0f,			1.0f
 	};
 }
 
 Matrix4x4 RotationMatrixY(float angle) {
 	return {
-		cosf(angle), 0.f, sinf(angle), 0.f,
-		0.f, 1.f, 0.f, 0.f,
-		-sinf(angle), 0.f, cosf(angle), 0.f,
-		0.f, 0.f, 0.f, 1.f
+		cosf(angle),	0.0f, sinf(angle),	0.0f,
+		0.0f,			1.0f, 0.0f,			0.0f,
+		-sinf(angle),	0.0f, cosf(angle),	0.0f,
+		0.0f,			0.0f, 0.0f,			1.0f
 	};
 }
 
 Matrix4x4 RotationMatrixZ(float angle) {
 	return {
-		cosf(angle), -sinf(angle), 0.f, 0.f,
-		sinf(angle), cosf(angle), 0.f, 0.f,
-		0.f, 0.f, 1.f, 0.f,
-		0.f, 0.f, 0.f, 1.f
+		cosf(angle),	-sinf(angle),	0.0f, 0.0f,
+		sinf(angle),	cosf(angle),	0.0f, 0.0f,
+		0.0f,			0.0f,			1.0f, 0.0f,
+		0.0f,			0.0f,			0.0f, 1.0f
 	};
 }
 

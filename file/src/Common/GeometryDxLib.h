@@ -13,13 +13,22 @@ public:
 	static MATRIX Matrix4x4ToMATRIX(const Matrix4x4& m);
 	static Matrix4x4 MATRIXToMatrix4x4(const MATRIX& m);
 
+	// 暗黙でないゼロベクトル
 	static VECTOR VZero();
+	// X方向のみの単位ベクトル
+	static VECTOR VGetIdentX();
+	// Y方向のみの単位ベクトル
+	static VECTOR VGetIdentY();
+	// Z方向のみの単位ベクトル
+	static VECTOR VGetIdentZ();
 
 	// 線形補間
 	static VECTOR VLerp(const VECTOR& In1, const VECTOR& In2, float lerp = 0.2f);
 	// 線形補間（ラジアン）
 	static VECTOR VLerpRad(const VECTOR& In1, const VECTOR& In2, float lerp = 0.2f);
 
+	// VECTOR 型の単項マイナス演算
+	static VECTOR VMinus(const VECTOR& In);
 	// VECTOR 型の単項マイナス演算
 	static VECTOR VInverse(const VECTOR& In);
 

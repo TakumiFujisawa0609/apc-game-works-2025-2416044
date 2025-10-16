@@ -1,5 +1,7 @@
 #pragma once
 
+// 注意: 全ての関数を正常にコンパイル・動作させるには、C++20以上が必要です
+
 // 四捨五入
 int Round(float n);
 // 四捨五入
@@ -29,6 +31,20 @@ double RadToDeg(double n);
 float Lerp(float start, float end, float lerp = 0.2f);
 // 線形補間（ラジアン）
 float LerpRad(float start, float end, float lerp = 0.2f);
+
+struct Color {
+	Color() : r(0), g(0), b(0) {}
+	Color(float r, float g, float b) : r(r), g(g), b(b) {}
+
+	float r, g, b;
+
+	// 正規化
+	void Normalize();
+	// 正規化済み
+	Color Normalized() const;
+	// unsigned int型を返す
+	unsigned int GetColor();
+};
 
 // ２次元ベクトル
 struct Vector2 {
@@ -115,6 +131,8 @@ struct Vector3 {
 Vector3 operator+(const Vector3& va, const Vector3& vb);
 // ベクトル同士の減算
 Vector3 operator-(const Vector3& va, const Vector3& vb);
+// ベクトル同士の比較
+bool operator==(const Vector3& va, const Vector3& vb);
 
 // 内積（ドット積）
 float Dot(const Vector3& va, const Vector3& vb);

@@ -14,7 +14,7 @@ public:
 	static constexpr int SPIN_FRAME = 45;
 	static constexpr float SPIN_DEGREE = 90.f / SPIN_FRAME;
 
-	static constexpr float FAST_SPIN_DEGREE = 9.f;
+	static constexpr float FAST_SPIN_DEGREE = 9.0f;
 
 	static constexpr int SPIN_DELAY_FRAME = SPIN_FRAME * 2;
 	static constexpr int EXTRA_DELAY_FRAME = 90;
@@ -27,7 +27,7 @@ public:
 	static constexpr int PLATFORM_HEIGHT = 3;
 	static constexpr int PLATFORM_DEPTH = CUBE_DEPTH * 4;
 
-	static constexpr float STOMP_DEGREE_THRESHOLD = -70.f;
+	static constexpr float STOMP_DEGREE_THRESHOLD = -70.0f;
 
 	static constexpr int CUBE_PATTERN_MAX = 5;
 
@@ -58,6 +58,10 @@ public:
 	bool IsSpinning() const;
 
 private:
+	static constexpr unsigned int FONT_COLOR_NORMAL = 0xffffffu;
+	static constexpr unsigned int FONT_COLOR_LESS_STEP = 0x8080ffu;
+	static constexpr unsigned int FONT_COLOR_MORE_STEP = 0xff8080u;
+
 	Trap* trap_;
 
 	std::list<Block*> platformList_;
@@ -80,7 +84,7 @@ private:
 	bool isSpinning_;
 	bool fastForward_;
 
-	std::array<int, 3ULL> blockModels_;
+	std::array<int, 3ull> blockModels_;
 
 	void SetUpCube();
 	void LoadPattern();

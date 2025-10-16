@@ -6,13 +6,16 @@
 Block::Block(int width) : WIDTH(width) {
 	modelHandle_ = -1;
 	type_ = TYPE::PLATFORM;
-	state_ = STATE::STOP;
+	state_ = STATE::NONE;
 	stateLock_ = false;
 	stateFrame_ = 0U;
 }
 
 void Block::Update() {
 	switch (state_) {
+	case STATE::RISING:
+		if (--stateFrame_ == 0) state_ = STATE::WAIT;
+		break;
 	case STATE::STOP:
 	case STATE::SPIN:
 		// 何もしない
@@ -58,11 +61,21 @@ void Block::Draw() {
 	if (!isAlive_) return;
 
 	MV1SetRotationXYZ(modelHandle_, GeometryDxLib::Vector3ToVECTOR(rotation_));
-	MV1SetPosition(modelHandle_, GeometryDxLib::Vector3ToVECTOR(position_));
+
+	if (state_ == STATE::RISING) {
+		Vector3 temp;
+		temp = position_;
+		temp.y -= BLOCK_SIZE * ((float)stateFrame_ / RISING_FRAME);
+
+		MV1SetPosition(modelHandle_, GeometryDxLib::Vector3ToVECTOR(temp));
+	}
+	else
+		MV1SetPosition(modelHandle_, GeometryDxLib::Vector3ToVECTOR(position_));
 
 	if (type_ == TYPE::PLATFORM) {
 		for (unsigned int i = 0; i < WIDTH; ++i) {
-			Vector3 temp = position_;
+			Vector3 temp;
+			temp = position_;
 			temp.x += BLOCK_SIZE * i;
 			for (unsigned int i = 0; i < 3; ++i) {
 				MV1SetPosition(modelHandle_, GeometryDxLib::Vector3ToVECTOR(temp));
@@ -86,7 +99,7 @@ bool Block::Release() {
 	return true;
 }
 
-void Block::ChangeState(STATE st) {
+void Block::ChangeState(STATE st, int frame) {
 	// 状態がロックされている場合は、変更も処理もしない
 	if (stateLock_) return;
 
@@ -96,11 +109,14 @@ void Block::ChangeState(STATE st) {
 	stateFrame_ = 0;
 
 	switch (state_) {
+	case STATE::RISING:
+		if (frame == -1)
+			stateFrame_ = RISING_FRAME;
+		else
+			stateFrame_ = frame;
+	case STATE::WAIT:
 	case STATE::STOP:
-		// 行列用座標を更新
-		matrixPosition_ = { 0.f, position_.y - HALF_BLOCK_SIZE, position_.z - HALF_BLOCK_SIZE };
 		rotation_.x = 0.f;
-		break;
 	case STATE::SPIN:
 		// 行列用座標を更新
 		matrixPosition_ = { 0.f, position_.y - HALF_BLOCK_SIZE, position_.z - HALF_BLOCK_SIZE };
@@ -222,6 +238,11 @@ void Block::OutLine(Vector3 position) {
 	FLOAT3 pos7 = { HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE, HALF_BLOCK_SIZE };
 	// 奥左下
 	FLOAT3 pos8 = { -HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE, HALF_BLOCK_SIZE };
+
+	// 上昇中のみ特別に処理する
+	if (state_ == STATE::RISING) {
+		position.y -= BLOCK_SIZE * ((float)stateFrame_ / RISING_FRAME);
+	}
 
 	// ベクトルの回転
 	pos1 = VAdd(VTransform(pos1, m), GeometryDxLib::Vector3ToVECTOR(position));

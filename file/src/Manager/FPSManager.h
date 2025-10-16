@@ -8,7 +8,7 @@ public:
 	static FPSManager& GetInstance();
 
 	// 描画処理
-	void Draw(int handle = -1);
+	void Draw(bool show_key, int handle = -1);
 
 	// 待機処理
 	void CheckWait();
@@ -45,6 +45,12 @@ private:
 
 	// 記録回数カウンタ
 	unsigned int registerCount_;
+
+	// FPS表示フラグ
+	bool showFlag_;
+
+	// 表示キーの前フレームの入力状態
+	bool showKey_;
 
 	/* 関数 */
 	// コンストラクタ

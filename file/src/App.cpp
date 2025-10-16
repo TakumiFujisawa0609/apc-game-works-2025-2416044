@@ -106,15 +106,15 @@ bool App::ClassInit() {
 	AudioManager::CreateInstance();
 	AudioManager::GetInstance().Init();
 
-	AudioManager::GetInstance().LoadSE("Data/Sound/rollrock.wav", "夞揮");
+	AudioManager::GetInstance().LoadSE("夞揮", "Data/Sound/rollrock.wav");
 
 	// FontManager
 	FontManager::CreateInstance();
 	FontManager::GetInstance().Init();
 
-	FontManager::GetInstance().AddFont("儘僑", "HG柧挬E", 64, 4, DX_FONTTYPE_ANTIALIASING);
-	FontManager::GetInstance().AddFont("斈梡", "HG恨集窫", 32, 4, DX_FONTTYPE_ANTIALIASING);
-	FontManager::GetInstance().AddFont("斈梡乮彫乯", "HG恨集窫", 16, 4, DX_FONTTYPE_ANTIALIASING);
+	FontManager::GetInstance().AddFont("儘僑", "HG柧挬E", 64, 4, DX_FONTTYPE_ANTIALIASING_EDGE);
+	FontManager::GetInstance().AddFont("斈梡", "HG恨集窫", 48, 5, DX_FONTTYPE_ANTIALIASING_EDGE);
+	FontManager::GetInstance().AddFont("斈梡乮彫乯", "HG恨集窫", 16, 5, DX_FONTTYPE_ANTIALIASING_EDGE);
 
 	// FPSManager
 	FPSManager::CreateInstance();
@@ -172,7 +172,10 @@ void App::Draw() {
 	// 昤夋愭偺夋柺
 	SetDrawScreen(DX_SCREEN_BACK);
 
-	FPSManager::GetInstance().Draw(FontManager::GetInstance().GetFontHandle("斈梡乮彫乯"));
+	FPSManager::GetInstance().Draw(
+		InputManager::GetInstance().NowKey(KEY_INPUT_INSERT),
+		FontManager::GetInstance().GetFontHandle("斈梡乮彫乯"));
+
 	SceneManager::GetInstance().Draw();
 
 	// 棤夋柺傪昞夋柺偵揮幨

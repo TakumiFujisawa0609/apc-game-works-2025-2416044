@@ -114,6 +114,9 @@ bool Trap::CheckTrapReady() const { return setTrap_ && readyTrap_; }
 Vector2 Trap::GetStagePos() const { return stagePos_; }
 
 void Trap::SetNormalTrap(const VECTOR& pos) {
+	int x, z;
+	stage_->ConvertStagePos(pos, x, z);
+
 	auto nt = traps_.begin();
 	bool flag = true;
 	for (; nt != traps_.end(); nt++) {
@@ -125,9 +128,12 @@ void Trap::SetNormalTrap(const VECTOR& pos) {
 
 
 	if (flag) {
-		int x, z;
-		stage_->ConvertStagePos(pos, x, z);
-
+		for (auto& nt2 : traps_) {
+			if (nt2.type == TRAP_TYPE::ADVANCE &&
+				nt2.stagePos == Vector2((float)x, (float)z)) {
+				return;
+			}
+		}
 		TRAP t = {};
 		t.type = TRAP_TYPE::NORMAL;
 		t.stagePos = { (float)x, (float)z };
@@ -138,7 +144,7 @@ void Trap::SetNormalTrap(const VECTOR& pos) {
 	}
 	else if (nt == traps_.end()) return;
 	else {
-		if ((*nt).depWait == 0) {
+		if ((*nt).depWait == 0 && (*nt).exeWait == -1) {
 			(*nt).exeWait = WAIT_EXECUTE;
 		}
 	}

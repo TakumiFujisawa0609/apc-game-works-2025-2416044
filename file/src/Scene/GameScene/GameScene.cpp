@@ -47,11 +47,6 @@ void GameScene::Update() {
 		nextScene_ = SceneBase::SCENE::TITLE;
 	if (ins.DownMap("戻る"))
 		nextScene_ = SceneBase::SCENE::PAUSE;
-
-	stage_->Update();
-	player_->Update();
-
-	Collision();
 	
 	// マーキング＆マーク起動
 	if (ins.DownMap("ワナ"))
@@ -63,6 +58,14 @@ void GameScene::Update() {
 
 	// マーク更新
 	trap_->Update();
+
+	stage_->Update();
+	player_->Update();
+
+	Collision();
+
+	// スコア更新
+
 
 	// 高速進行＆視点
 	if (player_->GetState() == Player::STATE::STOMP || ins.NowMap("高速送り")) {
@@ -159,7 +162,8 @@ void GameScene::CollisionCube() {
 				retPos.z = c4->GetMatrixPosition().z + 1;
 			}
 
-			if (c4->GetState() == Block::STATE::STOP || c4->GetState() == Block::STATE::VANISH) { // 停止中のみ判定
+			if (c4->GetState() == Block::STATE::RISING || c4->GetState() == Block::STATE::WAIT ||
+				c4->GetState() == Block::STATE::STOP || c4->GetState() == Block::STATE::VANISH) { // 停止中のみ判定
 				// 奥 → キューブ
 				if (plPos.z <= c4->GetMatrixPosition().z + Block::BLOCK_SIZE && c4->GetMatrixPosition().z + Block::BLOCK_SIZE <= plPrevPos.z &&
 					((plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPos.x) ||

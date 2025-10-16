@@ -48,7 +48,7 @@ void Camera::Follow(int platform_size_x, int platform_size_z) {
 	// 注視点の移動
 	VECTOR targetLocalRotPos = VTransform(FOLLOW_TARGET_LOCAL_POS, mat);
 	VECTOR newTargetPos = VAdd(playerPos, targetLocalRotPos);
-	targetPos_ = GeometryDxLib::VLerp(prevTargetPos_, newTargetPos, 1.f);
+	targetPos_ = GeometryDxLib::VLerp(prevTargetPos_, newTargetPos, 1.0f);
 
 	// カメラの移動
 	// 相対座標を回転させて、回転後の相対座標を取得する
@@ -70,6 +70,7 @@ void Camera::FixedFast(int platform_size_x, int platform_size_z) {
 	VECTOR playerPos = player_->GetPos();
 
 	VECTOR newAngles = {};
+	newAngles.x = DegToRad(8.0f);
 	newAngles.y = atan2f((float)-platform_size_x, (float)platform_size_z);
 
 	prevAngles_ = angles_;
@@ -83,12 +84,12 @@ void Camera::FixedFast(int platform_size_x, int platform_size_z) {
 
 	prevTargetPos_ = targetPos_;
 	// 注視点の移動
-	VECTOR newTargetPos = { platform_size_x * Block::BLOCK_SIZE / 2.f, 0.f, -platform_size_z * Block::BLOCK_SIZE / 2.f };
+	VECTOR newTargetPos = { 0.0f, 0.0f, 0.0f };
 	targetPos_ = GeometryDxLib::VLerp(prevTargetPos_, newTargetPos, 0.12f);
 
 	prevPos_ = pos_;
 	// カメラの移動
-	VECTOR newPos = VTransform({ 0.f, 600.f, -platform_size_z * Block::BLOCK_SIZE * 1.25f }, mat);
+	VECTOR newPos = VTransform({ -platform_size_z * 5.0f, platform_size_z * 2.5f, -(platform_size_z + 6) * Block::BLOCK_SIZE }, mat);
 	pos_ = GeometryDxLib::VLerp(prevPos_, newPos, 0.12f);
 
 	// カメラの上方向を計算

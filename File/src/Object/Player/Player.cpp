@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "../../Common/GeometryDxLib.h"
 #include "../../Manager/InputManager.h"
 #include "../Common/AnimationController.h"
@@ -19,11 +20,11 @@ bool Player::SystemInit() {
 
 bool Player::GameInit(int stage_width, int stage_depth) {
 	pos_.x = Block::BLOCK_SIZE * stage_width / 2;
-	pos_.y = 0.f;
+	pos_.y = 0.0f;
 	pos_.z = -Block::BLOCK_SIZE * stage_depth / 4 * 3;
 	MV1SetPosition(modelId_, pos_);
 
-	worldAngles_ = { 0.f, 0.f, 0.f };
+	worldAngles_ = { 0.0f, 0.0f, 0.0f };
 	MV1SetRotationMatrix(modelId_, GeometryDxLib::Multiplication(LOCAL_ANGLES, worldAngles_));
 
 	MV1SetScale(modelId_, SCALES);
@@ -40,47 +41,48 @@ bool Player::GameInit(int stage_width, int stage_depth) {
 
 	stateTimer_ = 0;
 
+	invincible_ = 0;
+
 	return true;
 }
 
 void Player::Update() {
-	VECTOR dir = {};
+	// 無敵時間の消費
+	if (invincible_ > 0) invincible_--;
 
+	// ステートメント
 	switch (state_) {
 	case STATE::NORMAL:
 		Move();
 		stateTimer_ = 0;
 		break;
-	case STATE::INVINCIBLE:
-		Move();
-		if (stateTimer_++ >= STATE_INVINCIBLE_TIME) {
+	case STATE::STOMP:
+		if (stateTimer_++ >= STATE_STOMP_TIME) {
+			// 一定時間無敵
+			invincible_ = INVINCIBLE_TIME;
+
+			// 通常状態に移行
 			state_ = STATE::NORMAL;
 			stateTimer_ = 0;
 		}
 		break;
-	case STATE::STOMP:
-		if (stateTimer_++ >= STATE_STOMP_TIME) {
-			state_ = STATE::INVINCIBLE;
-			stateTimer_ = 0;
-		}
-		break;
 	case STATE::OVER:
+		// 高さが一定値より上の間、落下し続ける
 		if (pos_.y > -1500.f) pos_.y -= FALL_SPEED;
 		break;
 	}
 
+	// アニメーション
 	animControll_->Play(static_cast<int>(animType_));
 	animControll_->Update();
 }
 
 void Player::Draw() {
-	if (state_ == STATE::INVINCIBLE && stateTimer_ % 2 == 0) {
-		return;
-	}
-
 	VECTOR footPos = pos_;
 	footPos.y += 2.f;
-	GeometryDxLib::DrawShadow3D(footPos, 30.f, 24);
+	GeometryDxLib::DrawShadow3D(footPos, 30.0f, 24);
+
+	if (invincible_ % 2 == 1) return;
 
 	MV1DrawModel(modelId_);
 }
@@ -132,25 +134,25 @@ void Player::Move() {
 
 	VECTOR dir = {};
 
-	dir.z -= ins.NowButton(InputManager::BUTTONS::LSTICK_U) / 1000.0F;
-	dir.z += ins.NowButton(InputManager::BUTTONS::LSTICK_D) / 1000.0F;
-	dir.x -= ins.NowButton(InputManager::BUTTONS::LSTICK_L) / 1000.0F;
-	dir.x += ins.NowButton(InputManager::BUTTONS::LSTICK_R) / 1000.0F;
+	dir.z -= ins.NowButton(InputManager::BUTTONS::LSTICK_U) / 1000.0f;
+	dir.z += ins.NowButton(InputManager::BUTTONS::LSTICK_D) / 1000.0f;
+	dir.x -= ins.NowButton(InputManager::BUTTONS::LSTICK_L) / 1000.0f;
+	dir.x += ins.NowButton(InputManager::BUTTONS::LSTICK_R) / 1000.0f;
 
-	if (ins.NowMap("移動上")) dir.z += 1.0F;
-	if (ins.NowMap("移動下")) dir.z -= 1.0F;
-	if (ins.NowMap("移動左")) dir.x -= 1.0F;
-	if (ins.NowMap("移動右")) dir.x += 1.0F;
+	if (ins.NowMap("移動上")) dir.z += 1.0f;
+	if (ins.NowMap("移動下")) dir.z -= 1.0f;
+	if (ins.NowMap("移動左")) dir.x -= 1.0f;
+	if (ins.NowMap("移動右")) dir.x += 1.0f;
 
-	dir.x = min(max(-1.0F, dir.x), 1.0F);
-	dir.z = min(max(-1.0F, dir.z), 1.0F);
+	dir.x = (std::min)((std::max)(dir.x, -1.0f), 1.0f);
+	dir.z = (std::min)((std::max)(dir.z, -1.0f), 1.0f);
 
-	if (dir.x != 0.0F || dir.z != 0.0F) {
+	if (dir.x != 0.0f || dir.z != 0.0f) {
 		dir = VNorm(dir);
 		VECTOR tempAngles = {};
 		tempAngles.y = atan2f(dir.x, dir.z);
 
-		worldAngles_.y = LerpRad(worldAngles_.y, tempAngles.y, 0.4F);
+		worldAngles_.y = LerpRad(worldAngles_.y, tempAngles.y, 0.3f);
 
 		animType_ = ANIM_TYPE::RUN;
 	}

@@ -6,9 +6,13 @@ class AnimationController;
 class Player {
 public:
 	enum class STATE {
+		// 通常
 		NORMAL,
-		INVINCIBLE,
+		// 体勢が崩れてゴロゴロ
+		ROLLING,
+		// ぺしゃんこ
 		STOMP,
+		// ゲームオーバー
 		OVER,
 	};
 
@@ -47,7 +51,7 @@ private:
 	// 踏み潰され状態の時間
 	static constexpr int STATE_STOMP_TIME = 150;
 	// 無敵状態の時間
-	static constexpr int STATE_INVINCIBLE_TIME = 120;
+	static constexpr int INVINCIBLE_TIME = 120;
 	// 落下速度
 	static constexpr float FALL_SPEED = 50.f;
 
@@ -59,6 +63,7 @@ private:
 	STATE state_;
 	int stateTimer_;
 
+	int invincible_;
 	VECTOR pos_;
 	VECTOR worldAngles_;
 	VECTOR move_;

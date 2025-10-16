@@ -18,11 +18,12 @@ FPSManager::FPSManager(unsigned int fps) :
     TARGET_FPS(fps), TIME_PER_FRAME(static_cast<int>(MICRO_TIMER / TARGET_FPS)) {
     // 表示FPS
     showFPS_ = 0.f;
+    showFlag_ = showKey_ = false;
 }
 
 FPSManager::~FPSManager() {}
 
-void FPSManager::Draw(int handle) {
+void FPSManager::Draw(bool show_key, int handle) {
     if (registerCount_ >= TARGET_FPS / SHOW_FPS_SAMPLING_NUM_PER_SECOND) { // 記録カウンターがサンプリング間隔に達する
         // リストの逆イテレータを取得
         auto rit = timeList_.rbegin();
@@ -43,12 +44,20 @@ void FPSManager::Draw(int handle) {
         registerCount_ -= TARGET_FPS / SHOW_FPS_SAMPLING_NUM_PER_SECOND;
     }
 
-    // FPSを表示
-    if (handle == -1) {
-        DrawFormatString(10, 10, 0xFFFFFF, "FPS: %.2f", showFPS_);
+    // FPS表示フラグの管理
+    if (!showKey_ && show_key) {
+        showFlag_ = !(showFlag_);
     }
-    else {
-        DrawFormatStringToHandle(10, 10, 0xFFFFFF, handle, "FPS: %.2f", showFPS_);
+    showKey_ = show_key;
+
+    // FPSを表示
+    if (showFlag_) {
+        if (handle == -1) {
+            DrawFormatString(10, 10, 0xFFFFFF, "FPS: %.2f", showFPS_);
+        }
+        else {
+            DrawFormatStringToHandle(10, 10, 0xFFFFFF, handle, "FPS: %.2f", showFPS_);
+        }
     }
 }
 

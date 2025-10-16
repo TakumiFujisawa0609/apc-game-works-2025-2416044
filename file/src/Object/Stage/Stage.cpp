@@ -1,6 +1,7 @@
 #include <iostream>
 #include "../../Common/GeometryDxLib.h"
 #include "../../Manager/AudioManager.h"
+#include "../../Manager/FontManager.h"
 #include "../../Utility/Utility.h"
 #include "../Trap/Trap.h"
 #include "Block.h"
@@ -67,7 +68,7 @@ void Stage::Update() {
 		fallCount_ -= blockWidth_;
 		
 		for (auto rit = platformList_.rbegin(); rit != platformList_.rend(); rit++) {
-			if ((*rit)->GetState() == Block::STATE::STOP) {
+			if ((*rit)->GetState() == Block::STATE::NONE) {
 				(*rit)->ChangeState(Block::STATE::ALERT);
 				break;
 			}
@@ -102,14 +103,25 @@ void Stage::Draw() {
 	}
 
 	// GUI
-	// ウインドウサイズ取得処理
+	// フォント取得
+	int f = FontManager::GetInstance().GetFontHandle("汎用");
+
+	// ウインドウサイズ取得
 	int x, y;
 	GetWindowSize(&x, &y);
+
 	// 回転
-	if (isSpinning_) DrawFormatString(32, y - 32, 0xFFFFFFU, "回転中");
+	if (isSpinning_) DrawFormatStringToHandle(32, y - 64, FONT_COLOR_NORMAL, f, "_");
+
 	// 歩数
 	int count = stepQuota_.size() > 0 ? stepQuota_.back() : 0;
-	DrawFormatString(x - 256, 16, 0xFFFFFFU, "歩数: %d/%d", stepCount_, count);
+
+	unsigned int color = FONT_COLOR_NORMAL;
+	if (stepCount_ < count) color = FONT_COLOR_LESS_STEP;
+	else if (stepCount_ > count) color = FONT_COLOR_MORE_STEP;
+
+	DrawFormatStringToHandle(x - 256, 16, color, f, "%d/%d", stepCount_, count);
+
 	// 落下数
 	std::string s = "";
 	for (int i = (blockWidth_ - 1) - fallCount_; i > 0; i--) {
@@ -118,7 +130,7 @@ void Stage::Draw() {
 	for (int i = fallCount_; i > 0; i--) {
 		s += "■";
 	}
-	DrawFormatString(x - 256, y - 32, 0xFFFFFFU, s.c_str());
+	DrawFormatStringToHandle(x - 256, y - 64, FONT_COLOR_NORMAL, f, s.c_str());
 }
 
 bool Stage::Release() {
@@ -179,7 +191,8 @@ bool Stage::ReleaseWave() {
 
 void Stage::VanishBlock(const Vector2& trap_stage_pos) {
 	for (auto& waveList : cubeList_) for (auto& subList : waveList) for (auto& cube : subList) {
-		if (!cube->IsAlive() || cube->GetState() == Block::STATE::WAIT || cube->GetState() == Block::STATE::VANISH) continue;
+		if (!cube->IsAlive() || cube->GetState() == Block::STATE::NONE ||
+			cube->GetState() == Block::STATE::WAIT || cube->GetState() == Block::STATE::VANISH) continue;
 
 		if (cube->GetStageIndex() == trap_stage_pos) {
 			cube->ChangeState(Block::STATE::VANISH);
@@ -232,7 +245,10 @@ void Stage::SetFastForward(bool b) { fastForward_ = b; }
 bool Stage::IsSpinning() const { return isSpinning_; }
 
 void Stage::SetUpCube() {
+	unsigned int add = 0;
+
 	for (int cp = 0; cp < wave_; ++cp) {
+
 		auto& waveList = cubeList_.emplace_back();
 
 		LoadPattern();
@@ -245,15 +261,22 @@ void Stage::SetUpCube() {
 				int pat = std::stoi(cubePattern_[cd + 1][cw]);
 
 				auto& ptr = subList.emplace_back();
+
 				ptr = new Block();
+				// タイプ
 				ptr->SetType((Block::TYPE)pat);
-				//ptr->SetModelHandle(blockModels_[(size_t)pat]);
+				// モデルハンドル
+				// 最初は外見で判別ができないよう、統一して隠しておく
 				ptr->SetModelHandle(blockModels_[0]);
-				ptr->ChangeState(Block::STATE::WAIT);
+				// ステージ座標
 				ptr->SetStageIndex(cw, cp * cubeDepth_ + cd);
+				// 実座標
 				ptr->SetPosition(
 					{ cw * Block::BLOCK_SIZE + Block::HALF_BLOCK_SIZE, Block::HALF_BLOCK_SIZE, (cp * cubeDepth_ + cd) * (-Block::BLOCK_SIZE) - Block::HALF_BLOCK_SIZE });
+				// 状態
+				ptr->ChangeState(Block::STATE::RISING, Block::RISING_FRAME + add);
 			}
+			add += 5u;
 		}
 	}
 }
@@ -293,17 +316,15 @@ void Stage::StartWave() {
 	// 現在のウェーブのリスト
 	auto& waveList = cubeList_.back();
 
-	for (auto& subList : waveList) {
-		for (auto& cube : subList) {
-			// モデルハンドルをタイプに合わせたものに再設定
-			cube->SetModelHandle(blockModels_[(size_t)cube->GetType()]);
-		}
+	for (auto& subList : waveList) for (auto& cube : subList) {
+		// モデルハンドルを、キューブに設定されているタイプに合わせたものに再設定
+		cube->SetModelHandle(blockModels_[(size_t)cube->GetType()]);
 	}
 }
 
 void Stage::StopAndFall() {
 	// 現在のウェーブだけで有効なフラグ
-	bool isBack = true;
+	bool nowWave = true;
 
 	// 逆イテレーターでforループ
 	for (auto rit = cubeList_.rbegin(); rit != cubeList_.rend(); rit++) {
@@ -316,18 +337,27 @@ void Stage::StopAndFall() {
 				// 落下
 				cube->ChangeState(Block::STATE::FALL);
 
+				// フォービドゥンキューブ以外なら、落下カウントを増やす
+				// ただ、潰されている間は問答無用で落下カウントを増やす（原作準拠の）仕様にするかも
 				if (cube->GetType() != Block::TYPE::FORBIDDEN) fallCount_++;
 			}
 			else {
-				if (isBack)
-					// 回転を止める
-					cube->ChangeState(Block::STATE::STOP);
-				else
-					cube->ChangeState(Block::STATE::WAIT);
+				// 上昇中は無効
+				if (cube->GetState() != Block::STATE::RISING) {
+					// 現在のウェーブに属するか
+					if (nowWave) {
+						// 回転を止める
+						cube->ChangeState(Block::STATE::STOP);
+					}
+					else {
+						// 待機状態を維持
+						cube->ChangeState(Block::STATE::WAIT);
+					}
+				}
 			}
 		}
-		// 現在のウェーブの処理が終了したので、フラグを折る
-		isBack = false;
+		// ここまでで、ウェーブ1つ分の処理が終了したので、フラグを折る
+		nowWave = false;
 	}
 }
 
@@ -335,42 +365,46 @@ bool Stage::KeepStop() {
 	// 例外スローの防止
 	if (cubeList_.size() == 0) return false;
 
-	auto ret = true;
-
+	// 現在のウェーブのみで判定
 	auto& waveList = cubeList_.back();
+
 	for (auto& subList : waveList) for (auto& cube : subList) {
+		// 生存中かつ、一時停止が必要な状態でない
 		if (cube->IsAlive() &&
 			cube->GetState() != Block::STATE::FALL &&
 			cube->GetState() != Block::STATE::VANISH) {
-			ret = false;
-			return ret;
+			// breakする間もなくそのまま返す
+			return false;
 		}
 	}
 
-	return ret;
+	// 関数の終点、戻り値を返す
+	return true;
 }
 
 void Stage::NextWave() {
 	// 例外スローの防止
 	if (cubeList_.size() == 0) return;
 
-	auto delFlag = true;
-
+	// 現在のウェーブのみで判定
 	auto& waveList = cubeList_.back();
-	for (auto& subList : waveList) {
-		for (auto& cube : subList) {
-			if (!cube->IsAlive()) continue;
-			
-			delFlag = false;
-			break;
-		}
-		if (!delFlag) break;
-	}
 
-	if (delFlag && !nextwave_) {
-		nextwave_ = true;
-		extraTimer_ += EXTRA_DELAY_FRAME;
+	for (auto& subList : waveList) for (auto& cube : subList) {
+		// 生存していない場合、スキップ
+		if (!cube->IsAlive()) continue;
+
+		// 生存している場合、途中で返る
 		return;
+	}
+	// ここに処理が来た場合、ウェーブ内のキューブは全滅している
+	
+	// 次のウェーブに移行するフラグが折れている場合
+	if (!nextwave_) {
+		// フラグを立てる
+		nextwave_ = true;
+
+		// 追加タイマーを起動
+		extraTimer_ += EXTRA_DELAY_FRAME;
 	}
 }
 
@@ -391,9 +425,14 @@ void Stage::UpdateStop() {
 	else if (extraTimer_ > 0) extraTimer_--;
 
 	// 最終的な判断
+	// 停止フラグが折れている or 次のウェーブに移行するフラグが立っている、かつ各種タイマーがゼロ
 	if ((!stopFlag || nextwave_) && extraTimer_ <= 0 && spinTimer_ <= 0) {
+		// 次のウェーブに移行する
 		if (nextwave_) {
+			// ウェーブ内のデータを解放
 			ReleaseWave();
+
+			// 次回の処理に向けて、フラグは折っておく
 			nextwave_ = false;
 		}
 

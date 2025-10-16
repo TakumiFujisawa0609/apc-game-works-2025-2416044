@@ -35,13 +35,25 @@ Matrix4x4 GeometryDxLib::MATRIXToMatrix4x4(const MATRIX& m) {
 }
 
 VECTOR GeometryDxLib::VZero() {
-	return { 0.f, 0.f, 0.f };
+	return { 0.0f, 0.0f, 0.0f };
+}
+
+VECTOR GeometryDxLib::VGetIdentX() {
+	return { 1.0f, 0.0f, 0.0f };
+}
+
+VECTOR GeometryDxLib::VGetIdentY() {
+	return { 0.0f, 1.0f, 0.0f };
+}
+
+VECTOR GeometryDxLib::VGetIdentZ() {
+	return { 0.0f, 0.0f, 1.0f };
 }
 
 VECTOR GeometryDxLib::VLerp(const VECTOR& In1, const VECTOR& In2, float lerp) {
 	VECTOR v = {};
 
-	if (lerp <= 1.f) {
+	if (lerp <= 1.0f) {
 		v.x = In1.x + (In2.x - In1.x) * lerp;
 		v.y = In1.y + (In2.y - In1.y) * lerp;
 		v.z = In1.z + (In2.z - In1.z) * lerp;
@@ -53,7 +65,7 @@ VECTOR GeometryDxLib::VLerp(const VECTOR& In1, const VECTOR& In2, float lerp) {
 VECTOR GeometryDxLib::VLerpRad(const VECTOR& In1, const VECTOR& In2, float lerp) {
 	VECTOR v = {};
 
-	if (lerp <= 1.f) {
+	if (lerp <= 1.0f) {
 		v.x = LerpRad(In1.x, In2.x, lerp);
 		v.y = LerpRad(In1.y, In2.y, lerp);
 		v.z = LerpRad(In1.z, In2.z, lerp);
@@ -62,8 +74,12 @@ VECTOR GeometryDxLib::VLerpRad(const VECTOR& In1, const VECTOR& In2, float lerp)
 	return v;
 }
 
-VECTOR GeometryDxLib::VInverse(const VECTOR& In) {
+VECTOR GeometryDxLib::VMinus(const VECTOR& In) {
 	return { -In.x, -In.y, -In.z };
+}
+
+VECTOR GeometryDxLib::VInverse(const VECTOR& In) {
+	return VMinus(In);
 }
 
 bool GeometryDxLib::VEquals(const VECTOR& In1, const VECTOR& In2) {
@@ -73,7 +89,7 @@ bool GeometryDxLib::VEquals(const VECTOR& In1, const VECTOR& In2) {
 bool GeometryDxLib::DrawShadow3D(VECTOR pos, float r, int div_num) {
 	if (div_num < 4) return false;
 
-	VECTOR rPos = { 0.f, 0.f, r };
+	VECTOR rPos = { 0.0f, 0.0f, r };
 
 	MATRIX rot = MGetIdent();
 	CreateRotationYMatrix(&rot, DX_TWO_PI_F / div_num);
@@ -82,7 +98,7 @@ bool GeometryDxLib::DrawShadow3D(VECTOR pos, float r, int div_num) {
 
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 0x80);
 	for (int d = 0; d < div_num; d++) {
-		DrawTriangle3D(pos, VAdd(pos, rPos), VAdd(pos, rPos2), 0x202020, true);
+		DrawTriangle3D(pos, VAdd(pos, rPos), VAdd(pos, rPos2), 0x202020u, true);
 
 		rPos = VTransform(rPos, rot);
 		rPos2 = VTransform(rPos2, rot);

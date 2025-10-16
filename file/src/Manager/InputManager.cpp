@@ -244,6 +244,38 @@ void InputManager::GetPadInput(int pad_num) {
 		else if (cosf(rad) < margin)
 			nowButton_[(int)BUTTONS::DPAD_D] = 1;
 		*/
+
+		// 上の処理が上手く行かないため、代わりの処理
+		switch (dIn.POV[0] / 100u) {
+		case 0u:
+			nowButton_[(int)BUTTONS::DPAD_U] = 1;
+			break;
+		case 45u:
+			nowButton_[(int)BUTTONS::DPAD_R] = 1;
+			nowButton_[(int)BUTTONS::DPAD_U] = 1;
+			break;
+		case 90u:
+			nowButton_[(int)BUTTONS::DPAD_R] = 1;
+			break;
+		case 135u:
+			nowButton_[(int)BUTTONS::DPAD_R] = 1;
+			nowButton_[(int)BUTTONS::DPAD_D] = 1;
+			break;
+		case 180u:
+			nowButton_[(int)BUTTONS::DPAD_D] = 1;
+			break;
+		case 225u:
+			nowButton_[(int)BUTTONS::DPAD_L] = 1;
+			nowButton_[(int)BUTTONS::DPAD_D] = 1;
+			break;
+		case 270u:
+			nowButton_[(int)BUTTONS::DPAD_L] = 1;
+			break;
+		case 315u:
+			nowButton_[(int)BUTTONS::DPAD_L] = 1;
+			nowButton_[(int)BUTTONS::DPAD_U] = 1;
+			break;
+		}
 	}
 
 	// Buttons（ボタン）
