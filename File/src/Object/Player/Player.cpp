@@ -56,6 +56,9 @@ void Player::Update() {
 		Move();
 		stateTimer_ = 0;
 		break;
+	case STATE::ROLLING:
+		pos_.y -= ROLLING_SPEED;
+		break;
 	case STATE::STOMP:
 		if (stateTimer_++ >= STATE_STOMP_TIME) {
 			// ˆê’èŽžŠÔ–³“G

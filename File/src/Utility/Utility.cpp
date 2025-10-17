@@ -2,6 +2,12 @@
 #include <sstream>
 #include "Utility.h"
 
+bool Utility::CheckFileExists(const char* file_name) {
+	std::ifstream ifs = std::ifstream(file_name);
+	if (ifs) return true;
+	return false;
+}
+
 int Utility::LoadCSV(const char* file_name, std::vector<std::vector<std::string>>& array) {
 	std::ifstream ifs = std::ifstream(file_name);
 

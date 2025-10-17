@@ -48,6 +48,8 @@ private:
 	static constexpr VECTOR LOCAL_ANGLES = { 0.f, DX_PI_F, 0.f };
 	// 移動速度
 	static constexpr float MOVE_SPEED = 8.f;
+	// ローリング速度
+	static constexpr float ROLLING_SPEED = 12.f;
 	// 踏み潰され状態の時間
 	static constexpr int STATE_STOMP_TIME = 150;
 	// 無敵状態の時間

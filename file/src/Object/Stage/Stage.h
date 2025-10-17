@@ -62,6 +62,11 @@ private:
 	static constexpr unsigned int FONT_COLOR_LESS_STEP = 0x8080ffu;
 	static constexpr unsigned int FONT_COLOR_MORE_STEP = 0xff8080u;
 
+	static constexpr float PLATFORM_DEPTH_MULT = 2.7f;
+
+	static constexpr int EXTRA_TIMER_FIRST_PHASE = 360;
+	static constexpr int EXTRA_TIMER_NEW_PHASE = 180;
+
 	Trap* trap_;
 
 	std::list<Block*> platformList_;
@@ -69,13 +74,21 @@ private:
 	std::vector<std::vector<std::string>> cubePattern_;
 	std::list<int> stepQuota_;
 
+	// ブロック全体の幅
 	int blockWidth_;
+	// 足場の奥行き
 	int platformDepth_;
+	// 足場の奥行き（前フレーム）
 	int prevPlatformDepth_;
+	// キューブの奥行き
 	int cubeDepth_;
+	// フェーズ
 	int phase_;
+	// ウェーブ
 	int wave_;
+	// 落下カウント
 	int fallCount_;
+	// 歩数カウント
 	int stepCount_;
 
 	int spinTimer_;

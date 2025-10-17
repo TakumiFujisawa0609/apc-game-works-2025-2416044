@@ -38,7 +38,7 @@ bool AudioManager::Release() {
 void AudioManager::PlayBGM(const char* name, bool loop) {
 	auto it = bgmList_.find(name);
 	if (it != bgmList_.end()) {
-		int ty = DX_PLAYTYPE_NORMAL;
+		int ty = DX_PLAYTYPE_BACK;
 		if (loop) ty = DX_PLAYTYPE_LOOP;
 
 		PlaySoundMem((*it).second, ty);
@@ -48,7 +48,7 @@ void AudioManager::PlayBGM(const char* name, bool loop) {
 void AudioManager::PlaySE(const char* name, bool loop) {
 	auto it = seList_.find(name);
 	if (it != seList_.end()) {
-		int ty = DX_PLAYTYPE_NORMAL;
+		int ty = DX_PLAYTYPE_BACK;
 		if (loop) ty = DX_PLAYTYPE_LOOP;
 
 		PlaySoundMem((*it).second, ty);

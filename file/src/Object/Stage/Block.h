@@ -105,6 +105,8 @@ private:
 	Vector3 matrixPosition_;
 	Vector3 rotation_;
 
+	Vector3 localPosition_;
+
 	Vector2 stageIndex_;
 
 	void OutLine(Vector3 position);

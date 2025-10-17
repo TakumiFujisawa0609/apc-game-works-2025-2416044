@@ -5,6 +5,7 @@
 
 class Utility {
 public:
+	static bool CheckFileExists(const char* file_name);
 	static int LoadCSV(const char* file_name, std::vector<std::vector<std::string>>& array);
 	static int LoadCSV(const char* file_name, std::list<std::list<std::string>>& array);
 

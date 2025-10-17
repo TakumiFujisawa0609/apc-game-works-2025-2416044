@@ -20,8 +20,11 @@ bool Stage::SystemInit() {
 bool Stage::GameInit() {
 	blockWidth_ = 4;
 
-	// 足場
-	platformDepth_ = 18;
+	cubeDepth_ = 2;
+	wave_ = 3;
+	phase_ = 0;
+
+	platformDepth_ = RoundDown(cubeDepth_ * wave_ * PLATFORM_DEPTH_MULT);
 
 	for (int pd = 0; pd < platformDepth_; ++pd) {
 		auto& ptr = platformList_.emplace_back();
@@ -34,15 +37,10 @@ bool Stage::GameInit() {
 		);
 	}
 
-	cubeDepth_ = 2;
-	wave_ = 5;
-	phase_ = 3;
-
 	// キューブ
 	SetUpCube();
 
 	spinTimer_ = 0;
-	extraTimer_ = 120;
 	nextwave_ = false;
 	isSpinning_ = false;
 	fastForward_ = false;
@@ -279,6 +277,13 @@ void Stage::SetUpCube() {
 			add += 5u;
 		}
 	}
+
+	if (++phase_ == 1) {
+		extraTimer_ = EXTRA_TIMER_FIRST_PHASE;
+	}
+	else {
+		extraTimer_ = EXTRA_TIMER_NEW_PHASE;
+	}
 }
 
 void Stage::LoadPattern() {
@@ -286,27 +291,40 @@ void Stage::LoadPattern() {
 		sub.clear();
 	cubePattern_.clear();
 
-	int rand = GetRand(CUBE_PATTERN_MAX - 1) + 1;
+	// 例: "4x2"
+	std::string size = std::to_string(blockWidth_) + "x" + std::to_string(cubeDepth_);
 
+	int n = 0;
+	while (true) {
+		std::string num = "";
+		// 例: "01", "10"
+		if (n < 10)
+			num = "0" + std::to_string(n + 1);
+		else
+			num = std::to_string(n + 1);
+
+		// 例: "Data/Pattern/4x2/01.csv"
+		std::string name = "Data/Pattern/" + size + "/" + num + ".csv";
+
+		bool b = Utility::CheckFileExists(name.c_str());
+
+		if (!b) break;
+
+		n++;
+	}
+
+	int rand = GetRand(n - 1) + 1;
 	std::string num = "";
 	// 例: "01", "10"
-	if (rand < 10)
+	if (++n < 10)
 		num = "0" + std::to_string(rand);
 	else
 		num = std::to_string(rand);
 
-	// 例: "4x2"
-	std::string size = std::to_string(blockWidth_) + "x" + std::to_string(cubeDepth_);
-
 	// 例: "Data/Pattern/4x2/01.csv"
 	std::string name = "Data/Pattern/" + size + "/" + num + ".csv";
 
-	int debug = Utility::LoadCSV(name.c_str(), cubePattern_);
-
-	if (debug == -1) {
-		name = "Data/Pattern/" + size + "/01.csv";
-		Utility::LoadCSV(name.c_str(), cubePattern_);
-	}
+	Utility::LoadCSV(name.c_str(), cubePattern_);
 }
 
 void Stage::StartWave() {
@@ -404,7 +422,7 @@ void Stage::NextWave() {
 		nextwave_ = true;
 
 		// 追加タイマーを起動
-		extraTimer_ += EXTRA_DELAY_FRAME;
+		extraTimer_ = EXTRA_DELAY_FRAME;
 	}
 }
 
@@ -436,11 +454,17 @@ void Stage::UpdateStop() {
 			nextwave_ = false;
 		}
 
-		// ウェーブ開始処理
-		StartWave();
-		
-		// 次の回転を開始
-		isSpinning_ = true;
+		if (cubeList_.size() > 0) {
+			// 次の回転を開始
+			isSpinning_ = true;
+
+			// ウェーブ開始処理
+			StartWave();
+		}
+		else {
+			// フェーズ進行処理
+			SetUpCube();
+		}
 	}
 }
 
@@ -463,7 +487,8 @@ void Stage::UpdateSpin() {
 	// リストを隅々まで処理
 	for (auto& subList : waveList) for (auto& cube : subList) {
 		// 既に消えているか消失中の場合、処理の必要が無いのでスキップ
-		if (!cube->IsAlive() || cube->GetState() == Block::STATE::VANISH || cube->GetState() == Block::STATE::FALL) continue;
+		if (!cube->IsAlive() ||
+			cube->GetState() == Block::STATE::VANISH || cube->GetState() == Block::STATE::FALL) continue;
 
 		// 衝突判定用（回転中は、キューブ後方の下辺の衝突判定が消える）
 		cube->ChangeState(Block::STATE::SPIN);
@@ -498,6 +523,7 @@ void Stage::UpdateSpin() {
 			cube->SetStageIndex({ idx.x, idx.y + 1 });
 			if (isSpinning_) {
 				isSpinning_ = false;
+				AudioManager::GetInstance().PlaySE("回転");
 				if (cube->GetType() != Block::TYPE::FORBIDDEN)
 					step = true;
 			}
