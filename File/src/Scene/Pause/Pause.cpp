@@ -1,3 +1,4 @@
+#include <DxLib.h>
 #include "../../Manager/InputManager.h"
 #include "Pause.h"
 
@@ -11,4 +12,11 @@ void Pause::Update() {
 }
 
 void Pause::Draw() {
+	// ウインドウサイズ取得
+	int x, y;
+	GetWindowSize(&x, &y);
+
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 0x80);
+	DrawFillBox(0, 0, x, y, 0x000000u);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }

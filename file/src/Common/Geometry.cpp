@@ -86,10 +86,12 @@ void Color::Normalize() {
 }
 
 Color Color::Normalized() const {
-	return Color();
+	Color ret = { r, g, b };
+	ret.Normalize();
+	return ret;
 }
 
-unsigned int Color::GetColor() {
+unsigned int Color::GetColorHex() {
 	Normalize();
 	unsigned int ret = 0u;
 	ret += (unsigned int)r * 0x10000u;
@@ -252,12 +254,12 @@ Vector3 operator%(const Vector3& va, const Vector3& vb) {
 	return Cross(va, vb);
 }
 
-Matrix4x4 Matrix4x4::operator*(const Matrix4x4& rhs) const {
+Matrix4x4 Matrix4x4::operator*(const Matrix4x4& mat) const {
 	Matrix4x4 result = {};
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			for (int k = 0; k < 4; k++) {
-				result.m[i][j] += m[i][k] * rhs.m[k][j];
+				result.m[i][j] += m[i][k] * mat.m[k][j];
 			}
 		}
 	}

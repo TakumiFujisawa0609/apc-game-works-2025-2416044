@@ -2,12 +2,14 @@
 #include "../../Common/GeometryDxLib.h"
 #include "../../Manager/AudioManager.h"
 #include "../../Manager/FontManager.h"
+#include "../../Manager/SceneManager.h"
+#include "../../Scene/GameScene/GameScene.h"
 #include "../../Utility/Utility.h"
 #include "../Trap/Trap.h"
 #include "Block.h"
 #include "Stage.h"
 
-void Stage::SetTrapPointer(Trap* p) { trap_ = p; }
+Stage::Stage(GameScene* ptr) : gameScene_(ptr) {}
 
 bool Stage::SystemInit() {
 	blockModels_[(size_t)Block::TYPE::NORMAL] = MV1LoadModel("Data/Model/Blocks/Block_Stone.mv1");
@@ -41,6 +43,8 @@ bool Stage::GameInit() {
 	SetUpCube();
 
 	spinTimer_ = 0;
+	gameStart_ = false;
+	startwave_ = false;
 	nextwave_ = false;
 	isSpinning_ = false;
 	fastForward_ = false;
@@ -96,8 +100,21 @@ void Stage::Draw() {
 	}
 
 	// キューブ
-	for (auto& waveList : cubeList_) for (auto& subList : waveList) for (auto& cube : subList) {
-		cube->Draw();
+	auto np = SceneManager::GetInstance().IsPause(),
+		pp = SceneManager::GetInstance().PrevPause();
+	bool nowWave = true;
+	for (auto rit = cubeList_.rbegin(); rit != cubeList_.rend(); ++rit) {
+		for (auto& subList : (*rit)) for (auto& cube : subList) {
+			if (nowWave && startwave_) {
+				if (np && !pp)
+					cube->SetModelHandle(blockModels_[0]);
+				else if (!np && pp)
+					cube->SetModelHandle(blockModels_[(size_t)cube->GetType()]);
+			}
+
+			cube->Draw();
+		}
+		nowWave = false;
 	}
 
 	// GUI
@@ -112,7 +129,8 @@ void Stage::Draw() {
 	if (isSpinning_) DrawFormatStringToHandle(32, y - 64, FONT_COLOR_NORMAL, f, "_");
 
 	// 歩数
-	int count = stepQuota_.size() > 0 ? stepQuota_.back() : 0;
+	int count = stepQuota_.size() > 0 && gameStart_ ?
+		stepQuota_.back() : 0;
 
 	unsigned int color = FONT_COLOR_NORMAL;
 	if (stepCount_ < count) color = FONT_COLOR_LESS_STEP;
@@ -196,7 +214,7 @@ void Stage::VanishBlock(const Vector2& trap_stage_pos) {
 			cube->ChangeState(Block::STATE::VANISH);
 
 			if (cube->GetType() == Block::TYPE::ADVANTAGE)
-				trap_->SetTrap(GeometryDxLib::Vector3ToVECTOR(cube->GetPosition()), Trap::TRAP_TYPE::ADVANCE);
+				gameScene_->GetTrapPtr()->SetTrap(GeometryDxLib::Vector3ToVECTOR(cube->GetPosition()), Trap::TRAP_TYPE::ADVANCE);
 
 			if (cube->GetType() == Block::TYPE::FORBIDDEN)
 				fallCount_ += blockWidth_;
@@ -334,6 +352,9 @@ void Stage::StartWave() {
 	// 現在のウェーブのリスト
 	auto& waveList = cubeList_.back();
 
+	// ウェーブ開始
+	startwave_ = true;
+
 	for (auto& subList : waveList) for (auto& cube : subList) {
 		// モデルハンドルを、キューブに設定されているタイプに合わせたものに再設定
 		cube->SetModelHandle(blockModels_[(size_t)cube->GetType()]);
@@ -421,6 +442,9 @@ void Stage::NextWave() {
 		// フラグを立てる
 		nextwave_ = true;
 
+		// ウェーブ開始状態をリセット
+		startwave_ = false;
+
 		// 追加タイマーを起動
 		extraTimer_ = EXTRA_DELAY_FRAME;
 	}
@@ -469,6 +493,8 @@ void Stage::UpdateStop() {
 }
 
 void Stage::UpdateSpin() {
+	if (!gameStart_) gameStart_ = true;
+
 	// 例外スローの防止＋α
 	if (cubeList_.size() == 0) {
 		isSpinning_ = false;

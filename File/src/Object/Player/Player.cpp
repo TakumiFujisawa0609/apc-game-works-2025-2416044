@@ -53,11 +53,28 @@ void Player::Update() {
 	// ステートメント
 	switch (state_) {
 	case STATE::NORMAL:
+		// 移動処理
 		Move();
+
+		// タイマーリセット
 		stateTimer_ = 0;
+
+		// 回転リセット
+		worldAngles_.x = 0.0f;
 		break;
 	case STATE::ROLLING:
-		pos_.y -= ROLLING_SPEED;
+		pos_.z -= ROLLING_SPEED;
+
+		// 回転
+		worldAngles_.x -= 0.2f;
+
+		if (stateTimer_++ >= 1) {
+			// 通常状態に移行
+			state_ = STATE::NORMAL;
+
+			// タイマーリセット
+			stateTimer_ = 0;
+		}
 		break;
 	case STATE::STOMP:
 		if (stateTimer_++ >= STATE_STOMP_TIME) {
@@ -66,14 +83,26 @@ void Player::Update() {
 
 			// 通常状態に移行
 			state_ = STATE::NORMAL;
+
+			// タイマーリセット
 			stateTimer_ = 0;
 		}
 		break;
 	case STATE::OVER:
+		// タイマーリセット
+		stateTimer_ = 0;
+
+		// 回転リセット
+		worldAngles_.x = 0.0f;
+
 		// 高さが一定値より上の間、落下し続ける
 		if (pos_.y > -1500.f) pos_.y -= FALL_SPEED;
 		break;
 	}
+
+
+	MV1SetPosition(modelId_, pos_);
+	MV1SetRotationMatrix(modelId_, GeometryDxLib::Multiplication(LOCAL_ANGLES, worldAngles_));
 
 	// アニメーション
 	animControll_->Play(static_cast<int>(animType_));
@@ -103,13 +132,23 @@ void Player::Stomp() {
 	if (state_ != STATE::NORMAL) return;
 
 	state_ = STATE::STOMP;
+	stateTimer_ = 0;
 
 	animType_ = ANIM_TYPE::DEATH;
 	animControll_->Play(static_cast<int>(animType_), false);
 }
 
+void Player::Rolling() {
+	state_ = STATE::ROLLING;
+	stateTimer_ = 0;
+
+	animType_ = ANIM_TYPE::IDLE;
+	animControll_->Play(static_cast<int>(animType_));
+}
+
 void Player::Over() {
 	state_ = STATE::OVER;
+	stateTimer_ = 0;
 
 	animType_ = ANIM_TYPE::DEATH;
 	animControll_->Play(static_cast<int>(animType_), false);
@@ -165,7 +204,4 @@ void Player::Move() {
 
 	move_ = VScale(dir, MOVE_SPEED);
 	pos_ = VAdd(pos_, move_);
-
-	MV1SetPosition(modelId_, pos_);
-	MV1SetRotationMatrix(modelId_, GeometryDxLib::Multiplication(LOCAL_ANGLES, worldAngles_));
 }

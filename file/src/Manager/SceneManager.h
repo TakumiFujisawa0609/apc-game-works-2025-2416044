@@ -19,6 +19,9 @@ public:
 	std::list<SceneBase*> GetSceneList();
 	float GetDeltaTime() const;
 
+	bool IsPause() const;
+	bool PrevPause() const;
+
 private:
 	static SceneManager* instance_;
 
@@ -34,5 +37,8 @@ private:
 	void ParamInit();
 
 	SceneBase* ChangeScene(SceneBase::SCENE);
+
+	bool isPause_;
+	bool prevPause_;
 
 };

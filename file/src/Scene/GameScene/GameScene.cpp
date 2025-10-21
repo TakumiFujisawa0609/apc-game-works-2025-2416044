@@ -11,7 +11,7 @@ bool GameScene::SystemInit() {
 	camera_ = new Camera();
 	camera_->Init();
 
-	stage_ = new Stage();
+	stage_ = new Stage(this);
 	stage_->SystemInit();
 
 	player_ = new Player();
@@ -21,8 +21,6 @@ bool GameScene::SystemInit() {
 
 
 	camera_->SetFollowTarget(player_);
-
-	stage_->SetTrapPointer(trap_);
 
 	return true;
 }
@@ -122,17 +120,19 @@ bool GameScene::Release() {
 }
 
 void GameScene::Collision() {
-	// 足場判定
-	if (player_->GetState() != Player::STATE::OVER) CollisionPlatform();
-
 	// キューブ判定
 	CollisionCube();
+
+	// 足場判定
+	if (player_->GetState() != Player::STATE::OVER) CollisionPlatform();
 
 	// 踏み潰され判定
 	CollisionStomp();
 
 	return;
 }
+
+Trap* GameScene::GetTrapPtr() { return trap_; }
 
 void GameScene::CollisionCube() {
 	VECTOR plPos = player_->GetPos();
@@ -141,13 +141,13 @@ void GameScene::CollisionCube() {
 
 	auto c1 = stage_->GetCubeList();
 
-	// プレイヤーが移動していなければ、判定できない
-	if (!GeometryDxLib::VEquals(plPos, plPrevPos))
-		// キューブ1個ずつ判定する
-		for (auto& c2 : c1) for (auto& c3 : c2) for (auto& c4 : c3) {
-			// キューブが生存していなければ、衝突もしない
-			if (!c4->IsAlive()) continue;
+	// キューブ1個ずつ判定する
+	for (auto& c2 : c1) for (auto& c3 : c2) for (auto& c4 : c3) {
+		// キューブが生存していなければ、衝突もしない
+		if (!c4->IsAlive()) continue;
 
+		// プレイヤーが移動していなければ、判定できない
+		if (!GeometryDxLib::VEquals(plPos, plPrevPos)) {
 			// 手前 → キューブ
 			if (plPos.z >= c4->GetMatrixPosition().z && c4->GetMatrixPosition().z >= plPrevPos.z &&
 				((plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPos.x) ||
@@ -187,6 +187,16 @@ void GameScene::CollisionCube() {
 			}
 		}
 
+		if (plPos.z <= c4->GetPosition().z + Block::HALF_BLOCK_SIZE &&
+			plPos.z >= c4->GetPosition().z - Block::HALF_BLOCK_SIZE &&
+			plPos.x <= c4->GetPosition().x + Block::HALF_BLOCK_SIZE &&
+			plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE &&
+			c4->GetState() == Block::STATE::RISING) {
+			player_->Rolling();
+			return;
+		}
+	}
+
 	player_->SetPos(retPos);
 }
 
@@ -210,7 +220,8 @@ void GameScene::CollisionPlatform() {
 		stage_->ConvertStagePos(playerPos, playerX, playerZ);
 		int prevPlatformZ = stage_->GetPrevPlatformSizeZ();
 
-		if (playerZ > platformZ - 1 && prevPlatformZ > platformZ)
+		if (player_->GetState() == Player::STATE::ROLLING ||
+			playerZ > platformZ - 1 && prevPlatformZ > platformZ)
 			player_->Over();
 		else
 			retPos.z = platform.z + 1;

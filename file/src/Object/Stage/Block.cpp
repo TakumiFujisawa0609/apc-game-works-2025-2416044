@@ -63,8 +63,7 @@ void Block::Draw() {
 	MV1SetRotationXYZ(modelHandle_, GeometryDxLib::Vector3ToVECTOR(rotation_));
 
 	if (state_ == STATE::RISING) {
-		Vector3 temp;
-		temp = position_;
+		Vector3 temp = position_;
 		temp.y -= BLOCK_SIZE * ((float)stateFrame_ / RISING_FRAME);
 
 		MV1SetPosition(modelHandle_, GeometryDxLib::Vector3ToVECTOR(temp));
@@ -74,8 +73,7 @@ void Block::Draw() {
 
 	if (type_ == TYPE::PLATFORM) {
 		for (unsigned int i = 0; i < WIDTH; ++i) {
-			Vector3 temp;
-			temp = position_;
+			Vector3 temp = position_;
 			temp.x += BLOCK_SIZE * i;
 			for (unsigned int i = 0; i < 3; ++i) {
 				MV1SetPosition(modelHandle_, GeometryDxLib::Vector3ToVECTOR(temp));

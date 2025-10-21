@@ -29,6 +29,7 @@ public:
 	bool Release();
 
 	void Stomp();
+	void Rolling();
 	void Over();
 
 	VECTOR GetPos() const;
@@ -39,23 +40,23 @@ public:
 
 private:
 	// アニメーション速度
-	static constexpr float ANIM_SPEED = 40.f;
+	static constexpr float ANIM_SPEED = 40.0f;
 	// 自己発光
-	static constexpr COLOR_F MODEL_EMI_COLOR = { 0.2F, 0.2F, 0.2F, 1.f };
+	static constexpr COLOR_F MODEL_EMI_COLOR = { 0.2F, 0.2F, 0.2F, 1.0f };
 	// 大きさ
 	static constexpr VECTOR SCALES = { 0.5f, 0.5f, 0.5f };
 	// ローカル角度
-	static constexpr VECTOR LOCAL_ANGLES = { 0.f, DX_PI_F, 0.f };
+	static constexpr VECTOR LOCAL_ANGLES = { 0.0f, DX_PI_F, 0.0f };
 	// 移動速度
-	static constexpr float MOVE_SPEED = 8.f;
+	static constexpr float MOVE_SPEED = 8.0f;
 	// ローリング速度
-	static constexpr float ROLLING_SPEED = 12.f;
+	static constexpr float ROLLING_SPEED = 200.0f / 5;
 	// 踏み潰され状態の時間
 	static constexpr int STATE_STOMP_TIME = 150;
 	// 無敵状態の時間
 	static constexpr int INVINCIBLE_TIME = 120;
 	// 落下速度
-	static constexpr float FALL_SPEED = 50.f;
+	static constexpr float FALL_SPEED = 50.0f;
 
 	AnimationController* animControll_;
 

@@ -42,11 +42,24 @@ void SceneManager::Update() {
 
 	// アクティブなシーンだけ更新する
 	back->Update();
+
+	back->LateUpdate();
+
+	prevPause_ = isPause_;
+	isPause_ = back->GetMyScene() == SceneBase::SCENE::PAUSE ?
+		true : false;
 }
 
 void SceneManager::Draw() {
 	// 非アクティブのシーンも描画する
-	for (auto scene : sceneList_) scene->Draw();
+	for (auto scene : sceneList_) {
+		scene->Draw();
+
+		// フェーダー等の画面エフェクトを挟む
+		//fader_->Draw();
+
+		scene->DrawUI();
+	}
 }
 
 bool SceneManager::Release() {
@@ -68,13 +81,13 @@ void SceneManager::ReleaseScene() {
 	sceneList_.pop_back();
 }
 
-std::list<SceneBase*> SceneManager::GetSceneList() {
-	return sceneList_;
-}
+std::list<SceneBase*> SceneManager::GetSceneList() { return sceneList_; }
 
-float SceneManager::GetDeltaTime() const {
-	return deltaTime_;
-}
+float SceneManager::GetDeltaTime() const { return deltaTime_; }
+
+bool SceneManager::IsPause() const { return isPause_; }
+
+bool SceneManager::PrevPause() const { return prevPause_; }
 
 bool SceneManager::ClassInit() {
 	return true;

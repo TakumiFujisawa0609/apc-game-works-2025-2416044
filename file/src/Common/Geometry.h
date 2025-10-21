@@ -43,7 +43,7 @@ struct Color {
 	// 正規化済み
 	Color Normalized() const;
 	// unsigned int型を返す
-	unsigned int GetColor();
+	unsigned int GetColorHex();
 };
 
 // ２次元ベクトル
@@ -149,7 +149,7 @@ struct Matrix4x4 {
 	float m[4][4] = {};
 
 	// 行列の結合
-	Matrix4x4 operator*(const Matrix4x4& rhs) const;
+	Matrix4x4 operator*(const Matrix4x4& mat) const;
 	// ３次元ベクトルとの結合
 	Vector3 operator*(const Vector3& v) const;
 };

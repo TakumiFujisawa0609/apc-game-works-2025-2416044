@@ -7,7 +7,7 @@
 #include "../../Common/Geometry.h"
 
 class Block;
-class Trap;
+class GameScene;
 
 class Stage {
 public:
@@ -31,10 +31,8 @@ public:
 
 	static constexpr int CUBE_PATTERN_MAX = 5;
 
-	Stage() {}
+	Stage(GameScene*);
 	~Stage() {}
-
-	void SetTrapPointer(Trap*);
 
 	bool SystemInit();
 	bool GameInit();
@@ -58,6 +56,11 @@ public:
 	bool IsSpinning() const;
 
 private:
+	static constexpr unsigned long long SCORE_LIST_MAX = 8ull;
+	static constexpr int SCORE_LIST[SCORE_LIST_MAX] = {
+		100, 300, 500, 700, 1000, 1500, 2000, 3000
+	};
+
 	static constexpr unsigned int FONT_COLOR_NORMAL = 0xffffffu;
 	static constexpr unsigned int FONT_COLOR_LESS_STEP = 0x8080ffu;
 	static constexpr unsigned int FONT_COLOR_MORE_STEP = 0xff8080u;
@@ -67,11 +70,16 @@ private:
 	static constexpr int EXTRA_TIMER_FIRST_PHASE = 360;
 	static constexpr int EXTRA_TIMER_NEW_PHASE = 180;
 
-	Trap* trap_;
+	// GameSceneクラスのポインタ
+	GameScene* gameScene_;
 
+	// 足場リスト
 	std::list<Block*> platformList_;
+	// キューブリスト
 	std::list<std::list<std::list<Block*>>> cubeList_;
+	// キューブパターン
 	std::vector<std::vector<std::string>> cubePattern_;
+	// 歩数ノルマ
 	std::list<int> stepQuota_;
 
 	// ブロック全体の幅
@@ -91,25 +99,44 @@ private:
 	// 歩数カウント
 	int stepCount_;
 
+	// スピンタイマー
 	int spinTimer_;
+	// 追加タイマー
 	int extraTimer_;
+	// ゲーム開始フラグ
+	bool gameStart_;
+	// ウェーブ開始フラグ
+	bool startwave_;
+	// 次のウェーブへの移行フラグ
 	bool nextwave_;
+	// 回転中フラグ
 	bool isSpinning_;
+	// 高速進行フラグ
 	bool fastForward_;
 
+	// ブロック全体のモデルハンドル配列
 	std::array<int, 3ull> blockModels_;
 
+	// キューブの準備
 	void SetUpCube();
+	// キューブパターン読み込み
 	void LoadPattern();
 
+	// ウェーブ開始
 	void StartWave();
+	// 停止と落下
 	void StopAndFall();
+	// 停止状態の維持
 	bool KeepStop();
+	// 次のウェーブに移行
 	void NextWave();
 
+	// 停止中の更新処理
 	void UpdateStop();
+	// 回転中の更新処理
 	void UpdateSpin();
 
+	// 現在のウェーブのみを解放
 	bool ReleaseWave();
 
 };
