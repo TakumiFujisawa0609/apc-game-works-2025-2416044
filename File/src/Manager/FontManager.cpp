@@ -17,7 +17,7 @@ bool FontManager::Init() {
 
 bool FontManager::Release() {
 	for (auto& f : fontList_)
-		DeleteFontToHandle(f.second);
+		DeleteFontToHandle(f.second.handle);
 
 	fontList_.clear();
 
@@ -28,14 +28,17 @@ void FontManager::AddFont(const char* id_name, const char* font_name, int size, 
 	if (fontList_.find(id_name) != fontList_.end()) return;
 
 	int h = CreateFontToHandle(font_name, size, thick, font_type, char_set, edge_size, italic);
-	fontList_.emplace(id_name, h);
+
+	DATA data = { h, size };
+
+	fontList_.emplace(id_name, data);
 }
 
-int FontManager::GetFontHandle(const char* name) {
+FontManager::DATA FontManager::GetFontData(const char* name) {
 	auto it = fontList_.find(name);
 
 	if (it != fontList_.end())
 		return (*it).second;
 	else
-		return -1;
+		return DATA();
 }

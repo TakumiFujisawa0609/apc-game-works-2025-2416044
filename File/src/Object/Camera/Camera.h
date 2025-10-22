@@ -35,5 +35,6 @@ private:
 	VECTOR prevAngles_;
 
 	void Follow(int platform_size_x, int platform_size_z);
+	void FixedPerfect(int platform_size_x, int platform_size_z);
 	void FixedFast(int platform_size_x, int platform_size_z);
 };

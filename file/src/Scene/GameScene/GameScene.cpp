@@ -1,4 +1,5 @@
 #include "../../Common/GeometryDxLib.h"
+#include "../../Manager/FontManager.h"
 #include "../../Manager/InputManager.h"
 #include "../../Object/Camera/Camera.h"
 #include "../../Object/Player/Player.h"
@@ -87,20 +88,27 @@ void GameScene::Draw() {
 	trap_->Draw();
 
 	player_->Draw();
+}
 
-
+void GameScene::DrawUI() {
 	// ウインドウサイズ取得処理
 	int x, y;
 	GetWindowSize(&x, &y);
-	auto cubes = stage_->GetCubeList().size();
 
+	stage_->DrawUI();
+
+	// フォント取得
+	auto f = FontManager::GetInstance().GetFontData("汎用");
+
+	DrawFormatStringToHandle(48, 48, 0xFFFFFFU, f.handle, "%09u", score_ * 100u);
+
+	auto cubes = stage_->GetCubeList().size();
 	if (player_->GetState() == Player::STATE::OVER) {
 		DrawString(x / 3, y / 3, "GAME OVER", 0xFFFFFFU);
 	}
 	else if (cubes == 0) {
 		DrawString(x / 3, y / 3, "GAME CLEAR", 0xFFFFFFU);
 	}
-
 }
 
 bool GameScene::Release() {
@@ -133,6 +141,31 @@ void GameScene::Collision() {
 }
 
 Trap* GameScene::GetTrapPtr() { return trap_; }
+
+unsigned int GameScene::GetScore() const { return score_; }
+
+void GameScene::AddScore(int integer) {
+	if ((long long)score_ + integer < 0) {
+		score_ = 0u;
+	}
+	else if (score_ + integer > SCORE_MAX) {
+		score_ = SCORE_MAX;
+	}
+	else {
+		score_ += integer;
+	}
+}
+
+unsigned int GameScene::GetIQ() const { return iq_; }
+
+void GameScene::AddIQ(int integer) {
+	if ((long long)iq_ + integer < 0) {
+		iq_ = 0u;
+	}
+	else {
+		iq_ += integer;
+	}
+}
 
 void GameScene::CollisionCube() {
 	VECTOR plPos = player_->GetPos();

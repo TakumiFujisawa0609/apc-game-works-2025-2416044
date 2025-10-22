@@ -54,10 +54,12 @@ void SceneManager::Draw() {
 	// 非アクティブのシーンも描画する
 	for (auto scene : sceneList_) {
 		scene->Draw();
+	}
 
-		// フェーダー等の画面エフェクトを挟む
-		//fader_->Draw();
+	// フェーダー等の画面エフェクトを挟む
+	//fader_->Draw();
 
+	for (auto scene : sceneList_) {
 		scene->DrawUI();
 	}
 }

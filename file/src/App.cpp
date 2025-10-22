@@ -174,7 +174,7 @@ void App::Draw() {
 
 	FPSManager::GetInstance().Draw(
 		InputManager::GetInstance().NowKey(KEY_INPUT_INSERT),
-		FontManager::GetInstance().GetFontHandle("汎用（小）"));
+		FontManager::GetInstance().GetFontData("汎用（小）").handle);
 
 	SceneManager::GetInstance().Draw();
 

@@ -1,5 +1,6 @@
 #include <cmath>
 #include "../../Common/GeometryDxLib.h"
+#include "../../Manager/SceneManager.h"
 #include "../Player/Player.h"
 #include "../Stage/Block.h"
 #include "Camera.h"
@@ -13,14 +14,27 @@ bool Camera::Init() {
 }
 
 void Camera::BeforeDraw(int platform_size_x, int platform_size_z) {
-	switch (mode_) {
+	if (!SceneManager::GetInstance().IsPause()) switch (mode_) {
 	case MODE::FOLLOW:
 		Follow(platform_size_x, platform_size_z);
+		break;
+	case MODE::FIXED_PERFECT:
 		break;
 	case MODE::FIXED_FAST:
 		FixedFast(platform_size_x, platform_size_z);
 		break;
 	}
+
+	// カメラの回転行列を作成
+	MATRIX mat = MGetIdent();
+	mat = MMult(mat, MGetRotX(angles_.x));
+	mat = MMult(mat, MGetRotY(angles_.y));
+
+	// カメラの上方向を計算
+	VECTOR up = VTransform({ 0.f, 1.f, 0.f }, mat);
+
+	// カメラの設定(位置と注視点による制御)
+	SetCameraPositionAndTargetAndUpVec(pos_, targetPos_, up);
 }
 
 void Camera::SetFollowTarget(Player* player) { player_ = player; }
@@ -58,12 +72,9 @@ void Camera::Follow(int platform_size_x, int platform_size_z) {
 	// 相対座標からワールド座標に直して、カメラ座標とする
 	VECTOR newPos = VAdd(playerPos, cameraLocalRotPos);
 	pos_ = GeometryDxLib::VLerp(prevPos_, newPos, 1.f);
+}
 
-	// カメラの上方向を計算
-	VECTOR up = VTransform({ 0.f, 1.f, 0.f }, mat);
-
-	// カメラの設定(位置と注視点による制御)
-	SetCameraPositionAndTargetAndUpVec(pos_, targetPos_, up);
+void Camera::FixedPerfect(int platform_size_x, int platform_size_z) {
 }
 
 void Camera::FixedFast(int platform_size_x, int platform_size_z) {
@@ -91,10 +102,4 @@ void Camera::FixedFast(int platform_size_x, int platform_size_z) {
 	// カメラの移動
 	VECTOR newPos = VTransform({ -platform_size_z * 5.0f, platform_size_z * 2.5f, -(platform_size_z + 6) * Block::BLOCK_SIZE }, mat);
 	pos_ = GeometryDxLib::VLerp(prevPos_, newPos, 0.12f);
-
-	// カメラの上方向を計算
-	VECTOR up = VTransform({ 0.f, 1.f, 0.f }, mat);
-
-	// カメラの設定(位置と注視点による制御)
-	SetCameraPositionAndTargetAndUpVec(pos_, targetPos_, up);
 }

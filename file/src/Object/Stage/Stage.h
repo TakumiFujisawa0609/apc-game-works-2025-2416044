@@ -5,6 +5,7 @@
 #include <vector>
 #include <DxLib.h>
 #include "../../Common/Geometry.h"
+#include "../Trap/Trap.h"
 
 class Block;
 class GameScene;
@@ -38,9 +39,10 @@ public:
 	bool GameInit();
 	void Update();
 	void Draw();
+	void DrawUI();
 	bool Release();
 
-	void VanishBlock(const Vector2& trap_stage_pos);
+	void VanishBlock(const Vector2& trap_stage_pos, Trap::TYPE type);
 	void StartStep();
 	void AddStep();
 
@@ -56,87 +58,72 @@ public:
 	bool IsSpinning() const;
 
 private:
-	static constexpr unsigned long long SCORE_LIST_MAX = 8ull;
-	static constexpr int SCORE_LIST[SCORE_LIST_MAX] = {
-		100, 300, 500, 700, 1000, 1500, 2000, 3000
+	/// 定数
+	static constexpr int SCORE_LIST[] = { // 消去時のスコア
+		2, 3, 5, 7, 10, 15, 20, 30, 50, 75, 100
 	};
+	static constexpr unsigned int SCORE_LIST_MAX = _countof(SCORE_LIST);
 
-	static constexpr unsigned int FONT_COLOR_NORMAL = 0xffffffu;
-	static constexpr unsigned int FONT_COLOR_LESS_STEP = 0x8080ffu;
-	static constexpr unsigned int FONT_COLOR_MORE_STEP = 0xff8080u;
+	static constexpr unsigned int FONT_COLOR_NORMAL = 0xffffffu;	// 色：白
+	static constexpr unsigned int FONT_COLOR_LESS_STEP = 0x8080ffu;	// 色：薄青
+	static constexpr unsigned int FONT_COLOR_MORE_STEP = 0xff8080u;	// 色：薄赤
 
-	static constexpr float PLATFORM_DEPTH_MULT = 2.7f;
+	static constexpr float PLATFORM_DEPTH_MULT = 2.7f;	// 初期配置のキューブの奥行きに対する、足場の奥行きの倍率
 
-	static constexpr int EXTRA_TIMER_FIRST_PHASE = 360;
-	static constexpr int EXTRA_TIMER_NEW_PHASE = 180;
+	static constexpr int EXTRA_TIMER_FIRST_PHASE = 360;	// フェーズ1の開始前の追加タイマー
+	static constexpr int EXTRA_TIMER_NEW_PHASE = 180;	// フェーズ2以降の開始前の追加タイマー
+	static constexpr int EXTRA_TIMER_PERFECT = 90;		// パーフェクト時の追加タイマー
 
-	// GameSceneクラスのポインタ
-	GameScene* gameScene_;
+	/// 変数
+	// 外部クラスポインタ
+	GameScene* gameScene_; // GameSceneクラスのポインタ
 
-	// 足場リスト
-	std::list<Block*> platformList_;
-	// キューブリスト
-	std::list<std::list<std::list<Block*>>> cubeList_;
-	// キューブパターン
-	std::vector<std::vector<std::string>> cubePattern_;
-	// 歩数ノルマ
-	std::list<int> stepQuota_;
+	// ゲーム
+	std::array<int, 3ull> blockModels_;	// ブロック全体のモデルハンドル配列
+	std::list<Block*> platformList_;	// 足場リスト
+	int blockWidth_;					// ブロック全体の幅
+	int platformDepth_;					// 足場の奥行き
+	int prevPlatformDepth_;				// 足場の奥行き（前フレーム）
+	int cubeDepth_;						// キューブの奥行き
+	int stage_;							// ステージ数
+	int phase_;							// フェーズ数
+	int wave_;							// ウェーブ数
+	int fallCount_;						// 落下カウント
 
-	// ブロック全体の幅
-	int blockWidth_;
-	// 足場の奥行き
-	int platformDepth_;
-	// 足場の奥行き（前フレーム）
-	int prevPlatformDepth_;
-	// キューブの奥行き
-	int cubeDepth_;
 	// フェーズ
-	int phase_;
+	std::vector<std::vector<std::string>> cubePattern_;	// キューブパターン
+	std::list<std::list<std::list<Block*>>> cubeList_;	// キューブリスト
+	bool gameStart_;									// ゲーム開始フラグ
+
 	// ウェーブ
-	int wave_;
-	// 落下カウント
-	int fallCount_;
-	// 歩数カウント
-	int stepCount_;
+	bool startwave_;			// ウェーブ開始フラグ
+	bool nextwave_;				// 次のウェーブへの移行フラグ
+	std::list<int> stepQuota_;	// 歩数ノルマ
+	int stepCount_;				// 歩数カウント
+	int waveFallCount_;			// ウェーブ内での落下カウント
 
-	// スピンタイマー
-	int spinTimer_;
-	// 追加タイマー
-	int extraTimer_;
-	// ゲーム開始フラグ
-	bool gameStart_;
-	// ウェーブ開始フラグ
-	bool startwave_;
-	// 次のウェーブへの移行フラグ
-	bool nextwave_;
-	// 回転中フラグ
-	bool isSpinning_;
-	// 高速進行フラグ
-	bool fastForward_;
+	// フレーム
+	bool trapVanish_;		// 通常ワナでの消去フラグ
+	int advVanishCount_;	// スーパーワナでの消去カウント
 
-	// ブロック全体のモデルハンドル配列
-	std::array<int, 3ull> blockModels_;
+	// その他
+	int spinTimer_;		// スピンタイマー
+	int extraTimer_;	// 追加タイマー
+	bool isSpinning_;	// 回転中フラグ
+	bool fastForward_;	// 高速進行フラグ
 
-	// キューブの準備
-	void SetUpCube();
-	// キューブパターン読み込み
-	void LoadPattern();
+	/// 関数
+	void SetUpCube();	// キューブの準備
+	void LoadPattern();	// キューブパターン読み込み
 
-	// ウェーブ開始
-	void StartWave();
-	// 停止と落下
-	void StopAndFall();
-	// 停止状態の維持
-	bool KeepStop();
-	// 次のウェーブに移行
-	void NextWave();
+	void StartWave();	// ウェーブ開始
+	void StopAndFall();	// 停止と落下
+	bool KeepStop();	// 停止状態の維持
+	void NextWave();	// 次のウェーブに移行
 
-	// 停止中の更新処理
-	void UpdateStop();
-	// 回転中の更新処理
-	void UpdateSpin();
+	void UpdateStop();	// 停止中の更新処理
+	void UpdateSpin();	// 回転中の更新処理
 
-	// 現在のウェーブのみを解放
-	bool ReleaseWave();
+	bool ReleaseWave();	// 現在のウェーブのみを解放
 
 };

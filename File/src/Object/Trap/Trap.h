@@ -14,13 +14,13 @@ public:
 	static constexpr int WAIT_DEPLOY = 6;
 	static constexpr int WAIT_EXECUTE = 12;
 
-	enum class TRAP_TYPE {
+	enum class TYPE {
 		NORMAL,
 		ADVANCE,
 	};
 
 	struct TRAP {
-		TRAP_TYPE type;
+		TYPE type;
 		Vector2 stagePos;
 		unsigned int color;
 		int depWait;
@@ -34,7 +34,7 @@ public:
 	void Draw();
 	bool Release();
 
-	void SetTrap(const VECTOR& pos, TRAP_TYPE type = TRAP_TYPE::NORMAL);
+	void SetTrap(const VECTOR& pos, TYPE type = TYPE::NORMAL);
 	void ExecuteAdvTrap();
 	void Reset();
 

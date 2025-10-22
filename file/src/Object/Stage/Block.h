@@ -17,22 +17,24 @@ public:
 	};
 
 	enum class STATE {
-		// 無し
+		// 無し（足場専用）
 		NONE,
-		// 上昇
+		// 上昇（キューブ専用）
 		RISING,
-		// 待機
+		// 待機（キューブ専用）
 		WAIT,
-		// 静止
+		// 静止（キューブ専用）
 		STOP,
-		// 回転
+		// 回転（キューブ専用）
 		SPIN,
-		// 消す
+		// 消す（キューブ専用）
 		VANISH,
 		// 落下
 		FALL,
 		// 落下前警告（足場専用）
 		ALERT,
+		// 手前から追加（足場専用）
+		ADD,
 	};
 
 	static constexpr float BLOCK_SIZE = 200.f;

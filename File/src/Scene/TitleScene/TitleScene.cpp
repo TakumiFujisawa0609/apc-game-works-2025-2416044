@@ -22,8 +22,8 @@ void TitleScene::Draw() {
 	GetWindowSize(&x, &y);
 
 	auto& fIns = FontManager::GetInstance();
-	int fl = fIns.GetFontHandle("ロゴ");
-	int fs = fIns.GetFontHandle("汎用（小）");
+	auto fl = fIns.GetFontData("ロゴ").handle;
+	auto fs = fIns.GetFontData("汎用（小）").handle;
 
 	DrawStringToHandle(x / 2 - 278, 128, "知 性 の 立 方 体", 0xFFFFFFU, fl);
 

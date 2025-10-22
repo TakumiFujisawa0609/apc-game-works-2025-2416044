@@ -67,6 +67,7 @@ void Player::Update() {
 
 		// ‰ñ“]
 		worldAngles_.x -= 0.2f;
+		worldAngles_.y = 0.0f;
 
 		if (stateTimer_++ >= 1) {
 			// ’Êíó‘Ô‚ÉˆÚs
@@ -143,7 +144,7 @@ void Player::Rolling() {
 	stateTimer_ = 0;
 
 	animType_ = ANIM_TYPE::IDLE;
-	animControll_->Play(static_cast<int>(animType_));
+	animControll_->Play(static_cast<int>(animType_), false);
 }
 
 void Player::Over() {

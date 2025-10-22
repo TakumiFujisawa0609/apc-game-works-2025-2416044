@@ -5,7 +5,6 @@
 #include "../../Manager/SceneManager.h"
 #include "../../Scene/GameScene/GameScene.h"
 #include "../../Utility/Utility.h"
-#include "../Trap/Trap.h"
 #include "Block.h"
 #include "Stage.h"
 
@@ -50,6 +49,10 @@ bool Stage::GameInit() {
 	fastForward_ = false;
 
 	fallCount_ = 0;
+	waveFallCount_ = 0;
+
+	trapVanish_ = false;
+	advVanishCount_ = 0;
 
 	return true;
 }
@@ -91,6 +94,18 @@ void Stage::Update() {
 		}
 	}
 	platformDepth_ = count;
+
+	if (trapVanish_) {
+		gameScene_->AddScore(SCORE_LIST[0]);
+		trapVanish_ = false;
+	}
+	if (advVanishCount_ > 0) {
+		if (advVanishCount_ > SCORE_LIST_MAX) {
+			advVanishCount_ = SCORE_LIST_MAX;
+		}
+		gameScene_->AddScore(SCORE_LIST[advVanishCount_ - 1]);
+		advVanishCount_ = 0;
+	}
 }
 
 void Stage::Draw() {
@@ -116,17 +131,18 @@ void Stage::Draw() {
 		}
 		nowWave = false;
 	}
+}
 
-	// GUI
+void Stage::DrawUI() {
 	// フォント取得
-	int f = FontManager::GetInstance().GetFontHandle("汎用");
+	auto f = FontManager::GetInstance().GetFontData("汎用");
 
 	// ウインドウサイズ取得
 	int x, y;
 	GetWindowSize(&x, &y);
 
 	// 回転
-	if (isSpinning_) DrawFormatStringToHandle(32, y - 64, FONT_COLOR_NORMAL, f, "_");
+	if (isSpinning_) DrawFormatStringToHandle(32, y - 64, FONT_COLOR_NORMAL, f.handle, "_");
 
 	// 歩数
 	int count = stepQuota_.size() > 0 && gameStart_ ?
@@ -136,7 +152,7 @@ void Stage::Draw() {
 	if (stepCount_ < count) color = FONT_COLOR_LESS_STEP;
 	else if (stepCount_ > count) color = FONT_COLOR_MORE_STEP;
 
-	DrawFormatStringToHandle(x - 256, 16, color, f, "%d/%d", stepCount_, count);
+	DrawFormatStringToHandle(x - 48 - (int)(f.size * 2.5), 48, color, f.handle, "%2d/%2d", stepCount_, count);
 
 	// 落下数
 	std::string s = "";
@@ -146,7 +162,7 @@ void Stage::Draw() {
 	for (int i = fallCount_; i > 0; i--) {
 		s += "■";
 	}
-	DrawFormatStringToHandle(x - 256, y - 64, FONT_COLOR_NORMAL, f, s.c_str());
+	DrawFormatStringToHandle(x - 48 - (int)(f.size * (int)s.length() * 0.5), y - 48 - f.size, FONT_COLOR_NORMAL, f.handle, s.c_str());
 }
 
 bool Stage::Release() {
@@ -205,7 +221,7 @@ bool Stage::ReleaseWave() {
 	return true;
 }
 
-void Stage::VanishBlock(const Vector2& trap_stage_pos) {
+void Stage::VanishBlock(const Vector2& trap_stage_pos, Trap::TYPE type) {
 	for (auto& waveList : cubeList_) for (auto& subList : waveList) for (auto& cube : subList) {
 		if (!cube->IsAlive() || cube->GetState() == Block::STATE::NONE ||
 			cube->GetState() == Block::STATE::WAIT || cube->GetState() == Block::STATE::VANISH) continue;
@@ -213,11 +229,25 @@ void Stage::VanishBlock(const Vector2& trap_stage_pos) {
 		if (cube->GetStageIndex() == trap_stage_pos) {
 			cube->ChangeState(Block::STATE::VANISH);
 
-			if (cube->GetType() == Block::TYPE::ADVANTAGE)
-				gameScene_->GetTrapPtr()->SetTrap(GeometryDxLib::Vector3ToVECTOR(cube->GetPosition()), Trap::TRAP_TYPE::ADVANCE);
+			switch (type) {
+			case Trap::TYPE::NORMAL:
+				trapVanish_ = true;
+				break;
+			case Trap::TYPE::ADVANCE:
+				advVanishCount_++;
+				break;
+			}
 
-			if (cube->GetType() == Block::TYPE::FORBIDDEN)
+			switch (cube->GetType()) {
+			case Block::TYPE::NORMAL:
+				break;
+			case Block::TYPE::ADVANTAGE:
+				gameScene_->GetTrapPtr()->SetTrap(GeometryDxLib::Vector3ToVECTOR(cube->GetPosition()), Trap::TYPE::ADVANCE);
+				break;
+			case Block::TYPE::FORBIDDEN:
 				fallCount_ += blockWidth_;
+				break;
+			}
 
 			StartStep();
 
@@ -447,6 +477,13 @@ void Stage::NextWave() {
 
 		// 追加タイマーを起動
 		extraTimer_ = EXTRA_DELAY_FRAME;
+
+		if (waveFallCount_ == 0) {
+			extraTimer_ += EXTRA_DELAY_FRAME;
+		}
+		else {
+			waveFallCount_ = 0;
+		}
 	}
 }
 

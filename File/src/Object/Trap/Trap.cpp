@@ -21,7 +21,7 @@ void Trap::Update() {
 		if (t.exeWait > 0) t.exeWait--;
 
 		if (t.exeWait == 0 && !stage_->IsSpinning()) {
-			stage_->VanishBlock(t.stagePos);
+			stage_->VanishBlock(t.stagePos, t.type);
 			it = traps_.erase(it);
 		}
 		else {
@@ -30,12 +30,12 @@ void Trap::Update() {
 	}
 }
 
-void Trap::SetTrap(const VECTOR& pos, TRAP_TYPE type) {
+void Trap::SetTrap(const VECTOR& pos, TYPE type) {
 	switch (type) {
-	case TRAP_TYPE::NORMAL:
+	case TYPE::NORMAL:
 		SetNormalTrap(pos);
 		break;
-	case TRAP_TYPE::ADVANCE:
+	case TYPE::ADVANCE:
 		SetAdvanceTrap(pos);
 		break;
 	}
@@ -76,7 +76,7 @@ void Trap::ExecuteAdvTrap() {
 
 	for (auto it = traps_.begin(); it != traps_.end();) {
 		TRAP t = (*it);
-		if (t.type != TRAP_TYPE::ADVANCE || t.depWait != 0 || t.exeWait != -1) {
+		if (t.type != TYPE::ADVANCE || t.depWait != 0 || t.exeWait != -1) {
 			it++;
 			continue;
 		}
@@ -97,7 +97,7 @@ void Trap::ExecuteAdvTrap() {
 			if (contFlag) continue;
 			
 			TRAP nt = {};
-			nt.type = t.type;
+			nt.type = TYPE::ADVANCE;
 			nt.stagePos = nPos;
 			nt.color = t.color;
 			nt.depWait = 0;
@@ -117,7 +117,7 @@ void Trap::SetNormalTrap(const VECTOR& pos) {
 	auto nt = traps_.begin();
 	bool flag = true;
 	for (; nt != traps_.end(); nt++) {
-		if ((*nt).type == TRAP_TYPE::NORMAL) {
+		if ((*nt).type == TYPE::NORMAL) {
 			flag = false;
 			break;
 		}
@@ -128,13 +128,13 @@ void Trap::SetNormalTrap(const VECTOR& pos) {
 		stage_->ConvertStagePos(pos, x, z);
 
 		for (auto& nt2 : traps_) {
-			if (nt2.type == TRAP_TYPE::ADVANCE &&
+			if (nt2.type == TYPE::ADVANCE &&
 				nt2.stagePos == Vector2((float)x, (float)z)) {
 				return;
 			}
 		}
 		TRAP t = {};
-		t.type = TRAP_TYPE::NORMAL;
+		t.type = TYPE::NORMAL;
 		t.stagePos = { (float)x, (float)z };
 		t.color = COLOR_TRAP;
 		t.depWait = WAIT_DEPLOY;
@@ -152,7 +152,7 @@ void Trap::SetAdvanceTrap(const VECTOR& pos) {
 	stage_->ConvertStagePos(pos, x, z);
 
 	TRAP t = {};
-	t.type = TRAP_TYPE::ADVANCE;
+	t.type = TYPE::ADVANCE;
 	t.stagePos = { (float)x, (float)z };
 	t.color = COLOR_SUPER_TRAP;
 	t.depWait = 0;
