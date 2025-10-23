@@ -19,9 +19,8 @@ void Camera::BeforeDraw(int platform_size_x, int platform_size_z) {
 		Follow(platform_size_x, platform_size_z);
 		break;
 	case MODE::FIXED_PERFECT:
-		break;
 	case MODE::FIXED_FAST:
-		FixedFast(platform_size_x, platform_size_z);
+		Fixed(platform_size_x, platform_size_z);
 		break;
 	}
 
@@ -38,6 +37,8 @@ void Camera::BeforeDraw(int platform_size_x, int platform_size_z) {
 }
 
 void Camera::SetFollowTarget(Player* player) { player_ = player; }
+
+Camera::MODE Camera::GetCameraMode() const { return mode_; }
 
 void Camera::ChangeCameraMode(MODE mode) { mode_ = mode; }
 
@@ -74,12 +75,7 @@ void Camera::Follow(int platform_size_x, int platform_size_z) {
 	pos_ = GeometryDxLib::VLerp(prevPos_, newPos, 1.f);
 }
 
-void Camera::FixedPerfect(int platform_size_x, int platform_size_z) {
-}
-
-void Camera::FixedFast(int platform_size_x, int platform_size_z) {
-	VECTOR playerPos = player_->GetPos();
-
+void Camera::Fixed(int platform_size_x, int platform_size_z) {
 	VECTOR newAngles = {};
 	newAngles.x = DegToRad(8.0f);
 	newAngles.y = atan2f((float)-platform_size_x, (float)platform_size_z);
@@ -100,6 +96,8 @@ void Camera::FixedFast(int platform_size_x, int platform_size_z) {
 
 	prevPos_ = pos_;
 	// ÉJÉÅÉâÇÃà⁄ìÆ
-	VECTOR newPos = VTransform({ -platform_size_z * 5.0f, platform_size_z * 2.5f, -(platform_size_z + 6) * Block::BLOCK_SIZE }, mat);
+	const VECTOR CAMERA_LOCAL_POS = { -platform_size_z * 5.0f, platform_size_z * 2.5f, -(platform_size_z + 4) * Block::BLOCK_SIZE * 1.2f };
+
+	VECTOR newPos = VTransform(CAMERA_LOCAL_POS, mat);
 	pos_ = GeometryDxLib::VLerp(prevPos_, newPos, 0.12f);
 }

@@ -21,6 +21,8 @@ public:
 		NONE,
 		// 上昇（キューブ専用）
 		RISING,
+		// 手前から追加（足場専用）
+		ADD,
 		// 待機（キューブ専用）
 		WAIT,
 		// 静止（キューブ専用）
@@ -33,14 +35,13 @@ public:
 		FALL,
 		// 落下前警告（足場専用）
 		ALERT,
-		// 手前から追加（足場専用）
-		ADD,
 	};
 
 	static constexpr float BLOCK_SIZE = 200.f;
 	static constexpr float HALF_BLOCK_SIZE = BLOCK_SIZE / 2.f;
 
 	static constexpr unsigned int RISING_FRAME = 30;
+	static constexpr unsigned int ADD_FRAME = 45;
 	static constexpr unsigned int VANISH_FRAME = 30;
 	static constexpr unsigned int FALL_FRAME = 30;
 	static constexpr unsigned int ALERT_FRAME = 30;

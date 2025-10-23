@@ -5,6 +5,7 @@
 #include "../../Manager/SceneManager.h"
 #include "../../Scene/GameScene/GameScene.h"
 #include "../../Utility/Utility.h"
+#include "../Camera/Camera.h"
 #include "Block.h"
 #include "Stage.h"
 
@@ -24,6 +25,7 @@ bool Stage::GameInit() {
 	cubeDepth_ = 2;
 	wave_ = 3;
 	phase_ = 0;
+	stage_ = 1;
 
 	platformDepth_ = RoundDown(cubeDepth_ * wave_ * PLATFORM_DEPTH_MULT);
 
@@ -42,6 +44,8 @@ bool Stage::GameInit() {
 	SetUpCube();
 
 	spinTimer_ = 0;
+	waveEndDelay_ = -1;
+
 	gameStart_ = false;
 	startwave_ = false;
 	nextwave_ = false;
@@ -53,6 +57,8 @@ bool Stage::GameInit() {
 
 	trapVanish_ = false;
 	advVanishCount_ = 0;
+
+	perfectCamTimer_ = 0;
 
 	return true;
 }
@@ -85,7 +91,8 @@ void Stage::Update() {
 	for (auto& platform : platformList_) {
 		platform->Update();
 
-		if (platform->GetState() != Block::STATE::FALL) count++;
+		if (platform->GetState() != Block::STATE::FALL &&
+			platform->GetState() != Block::STATE::ADD) count++;
 
 		if (!platform->IsAlive()) {
 			delete platform;
@@ -105,6 +112,14 @@ void Stage::Update() {
 		}
 		gameScene_->AddScore(SCORE_LIST[advVanishCount_ - 1]);
 		advVanishCount_ = 0;
+	}
+
+	if (perfectCamTimer_ > 0) {
+		perfectCamTimer_--;
+		gameScene_->GetCameraPtr()->ChangeCameraMode(Camera::MODE::FIXED_PERFECT);
+	}
+	else {
+		gameScene_->GetCameraPtr()->ChangeCameraMode(Camera::MODE::FOLLOW);
 	}
 }
 
@@ -152,7 +167,7 @@ void Stage::DrawUI() {
 	if (stepCount_ < count) color = FONT_COLOR_LESS_STEP;
 	else if (stepCount_ > count) color = FONT_COLOR_MORE_STEP;
 
-	DrawFormatStringToHandle(x - 48 - (int)(f.size * 2.5), 48, color, f.handle, "%2d/%2d", stepCount_, count);
+	DrawFormatStringToHandle(x - 48 - int(f.size * 2.5), 48, color, f.handle, "%2d/%2d", stepCount_, count);
 
 	// 落下数
 	std::string s = "";
@@ -162,7 +177,7 @@ void Stage::DrawUI() {
 	for (int i = fallCount_; i > 0; i--) {
 		s += "■";
 	}
-	DrawFormatStringToHandle(x - 48 - (int)(f.size * (int)s.length() * 0.5), y - 48 - f.size, FONT_COLOR_NORMAL, f.handle, s.c_str());
+	DrawFormatStringToHandle(x - 48 - int(f.size * (int)s.length() * 0.5), y - 48 - f.size, FONT_COLOR_NORMAL, f.handle, s.c_str());
 }
 
 bool Stage::Release() {
@@ -229,6 +244,8 @@ void Stage::VanishBlock(const Vector2& trap_stage_pos, Trap::TYPE type) {
 		if (cube->GetStageIndex() == trap_stage_pos) {
 			cube->ChangeState(Block::STATE::VANISH);
 
+			AudioManager::GetInstance().PlaySE("キューブ消滅");
+
 			switch (type) {
 			case Trap::TYPE::NORMAL:
 				trapVanish_ = true;
@@ -246,6 +263,7 @@ void Stage::VanishBlock(const Vector2& trap_stage_pos, Trap::TYPE type) {
 				break;
 			case Block::TYPE::FORBIDDEN:
 				fallCount_ += blockWidth_;
+				waveFallCount_ += blockWidth_;
 				break;
 			}
 
@@ -290,7 +308,38 @@ void Stage::SetFastForward(bool b) { fastForward_ = b; }
 
 bool Stage::IsSpinning() const { return isSpinning_; }
 
+bool Stage::IsVanishing() const {
+	bool ret = false;
+
+	if (cubeList_.size() > 0) {
+		auto& waveList = cubeList_.back();
+
+		for (auto& subList : waveList) {
+			for (auto& cube : subList) {
+				if (cube->IsAlive() && cube->GetState() == Block::STATE::VANISH) {
+					ret = true;
+					break;
+				}
+			}
+			if (ret) break;
+		}
+	}
+
+	return ret;
+}
+
 void Stage::SetUpCube() {
+	gameStart_ = false;
+
+	if (++phase_ == 1) {
+		extraTimer_ = EXTRA_TIMER_FIRST_PHASE;
+	}
+	else {
+		extraTimer_ = EXTRA_TIMER_NEW_PHASE;
+	}
+
+	if (phase_ == 4) cubeDepth_++;
+
 	unsigned int add = 0;
 
 	for (int cp = 0; cp < wave_; ++cp) {
@@ -304,7 +353,7 @@ void Stage::SetUpCube() {
 			auto& subList = waveList.emplace_back();
 
 			for (int cw = 0; cw < blockWidth_; ++cw) {
-				int pat = std::stoi(cubePattern_[cd + 1][cw]);
+				int pat = std::stoi(cubePattern_[size_t(cd + 1)][cw]);
 
 				auto& ptr = subList.emplace_back();
 
@@ -325,13 +374,6 @@ void Stage::SetUpCube() {
 			add += 5u;
 		}
 	}
-
-	if (++phase_ == 1) {
-		extraTimer_ = EXTRA_TIMER_FIRST_PHASE;
-	}
-	else {
-		extraTimer_ = EXTRA_TIMER_NEW_PHASE;
-	}
 }
 
 void Stage::LoadPattern() {
@@ -342,11 +384,14 @@ void Stage::LoadPattern() {
 	// 例: "4x2"
 	std::string size = std::to_string(blockWidth_) + "x" + std::to_string(cubeDepth_);
 
+	// ファイルの番号
 	int n = 0;
-	while (true) {
+	while (true) { // 永久ループ
 		std::string num = "";
+
 		// 例: "01", "10"
 		if (n < 10)
+			// 桁が1つしかないので、先頭に"0"を足す
 			num = "0" + std::to_string(n + 1);
 		else
 			num = std::to_string(n + 1);
@@ -354,17 +399,22 @@ void Stage::LoadPattern() {
 		// 例: "Data/Pattern/4x2/01.csv"
 		std::string name = "Data/Pattern/" + size + "/" + num + ".csv";
 
+		// ファイルを確認
 		bool b = Utility::CheckFileExists(name.c_str());
 
+		// ファイルがなければループを離脱
 		if (!b) break;
 
+		// ファイルの番号をインクリメント
 		n++;
 	}
 
 	int rand = GetRand(n - 1) + 1;
 	std::string num = "";
+
 	// 例: "01", "10"
 	if (++n < 10)
+		// 桁が1つしかないので、先頭に"0"を足す
 		num = "0" + std::to_string(rand);
 	else
 		num = std::to_string(rand);
@@ -382,13 +432,16 @@ void Stage::StartWave() {
 	// 現在のウェーブのリスト
 	auto& waveList = cubeList_.back();
 
-	// ウェーブ開始
-	startwave_ = true;
-
 	for (auto& subList : waveList) for (auto& cube : subList) {
 		// モデルハンドルを、キューブに設定されているタイプに合わせたものに再設定
 		cube->SetModelHandle(blockModels_[(size_t)cube->GetType()]);
 	}
+
+	// ウェーブ開始
+	startwave_ = true;
+
+	// ウェーブ終了遅延を初期化
+	waveEndDelay_ = -1;
 }
 
 void Stage::StopAndFall() {
@@ -408,7 +461,10 @@ void Stage::StopAndFall() {
 
 				// フォービドゥンキューブ以外なら、落下カウントを増やす
 				// ただ、潰されている間は問答無用で落下カウントを増やす（原作準拠の）仕様にするかも
-				if (cube->GetType() != Block::TYPE::FORBIDDEN) fallCount_++;
+				if (cube->GetType() != Block::TYPE::FORBIDDEN) {
+					fallCount_++;
+					waveFallCount_++;
+				}
 			}
 			else {
 				// 上昇中は無効
@@ -452,39 +508,69 @@ bool Stage::KeepStop() {
 }
 
 void Stage::NextWave() {
-	// 例外スローの防止
-	if (cubeList_.size() == 0) return;
+	if (waveEndDelay_ == -1) {
+		// 例外スローの防止
+		if (cubeList_.size() == 0) return;
 
-	// 現在のウェーブのみで判定
-	auto& waveList = cubeList_.back();
+		// 現在のウェーブのみで判定
+		auto& waveList = cubeList_.back();
 
-	for (auto& subList : waveList) for (auto& cube : subList) {
-		// 生存していない場合、スキップ
-		if (!cube->IsAlive()) continue;
+		for (auto& subList : waveList) for (auto& cube : subList) {
+			// 生存していない場合、スキップ
+			if (!cube->IsAlive()) continue;
 
-		// 生存している場合、途中で返る
-		return;
-	}
-	// ここに処理が来た場合、ウェーブ内のキューブは全滅している
-	
-	// 次のウェーブに移行するフラグが折れている場合
-	if (!nextwave_) {
-		// フラグを立てる
-		nextwave_ = true;
-
-		// ウェーブ開始状態をリセット
-		startwave_ = false;
-
-		// 追加タイマーを起動
-		extraTimer_ = EXTRA_DELAY_FRAME;
-
-		if (waveFallCount_ == 0) {
-			extraTimer_ += EXTRA_DELAY_FRAME;
+			// 生存している場合、途中で返る
+			return;
 		}
-		else {
-			waveFallCount_ = 0;
+		// ここに処理が来た場合、ウェーブ内のキューブは全滅している
+		waveEndDelay_ = WAVE_END_DELAY;
+	}
+	else {
+		if (waveEndDelay_ > 0) waveEndDelay_--;
+
+		// 次のウェーブに移行するフラグが折れている場合
+		if (!nextwave_ && waveEndDelay_ == 0) {
+			if (gameStart_) {
+				// フラグを立てる
+				nextwave_ = true;
+			}
+
+			// ウェーブ開始状態をリセット
+			startwave_ = false;
+
+			if (phase_ != 0 && gameStart_ && waveFallCount_ == 0) {
+				// 追加タイマーを起動
+				extraTimer_ += EXTRA_TIMER_PERFECT;
+				PerfectProc();
+			}
+			else {
+				// ウェーブ内落下カウントを初期化
+				waveFallCount_ = 0;
+			}
 		}
 	}
+}
+
+void Stage::PerfectProc() {
+	auto& ptr = platformList_.emplace_back();
+	ptr = new Block(blockWidth_);
+	ptr->SetType(Block::TYPE::PLATFORM);
+	ptr->SetModelHandle(blockModels_[0]);
+	ptr->SetStageIndex(0, platformDepth_);
+	ptr->SetPosition(
+		{ Block::HALF_BLOCK_SIZE, -Block::HALF_BLOCK_SIZE, platformDepth_ * (-Block::BLOCK_SIZE) - Block::HALF_BLOCK_SIZE }
+	);
+	ptr->ChangeState(Block::STATE::ADD);
+
+	if (stepCount_ <= stepQuota_.back()) {
+		gameScene_->AddScore(stage_ * phase_ * 100);
+		gameScene_->AddIQ(1);
+	}
+	else {
+		gameScene_->AddScore(stage_ * phase_ * 50);
+	}
+
+	perfectCamTimer_ = PERFECT_CAM_TIMER;
 }
 
 void Stage::UpdateStop() {
@@ -504,8 +590,7 @@ void Stage::UpdateStop() {
 	else if (extraTimer_ > 0) extraTimer_--;
 
 	// 最終的な判断
-	// 停止フラグが折れている or 次のウェーブに移行するフラグが立っている、かつ各種タイマーがゼロ
-	if ((!stopFlag || nextwave_) && extraTimer_ <= 0 && spinTimer_ <= 0) {
+	if ((!stopFlag || nextwave_) && waveEndDelay_ <= 0 && extraTimer_ <= 0 && spinTimer_ <= 0 && !IsVanishing()) {
 		// 次のウェーブに移行する
 		if (nextwave_) {
 			// ウェーブ内のデータを解放
@@ -587,10 +672,11 @@ void Stage::UpdateSpin() {
 			if (isSpinning_) {
 				isSpinning_ = false;
 				AudioManager::GetInstance().PlaySE("回転");
-				if (cube->GetType() != Block::TYPE::FORBIDDEN)
-					step = true;
 			}
+			if (cube->GetType() != Block::TYPE::FORBIDDEN)
+				step = true;
 		}
 	}
+
 	if (step) AddStep();
 }

@@ -58,16 +58,9 @@ void Player::Update() {
 
 		// タイマーリセット
 		stateTimer_ = 0;
-
-		// 回転リセット
-		worldAngles_.x = 0.0f;
 		break;
 	case STATE::ROLLING:
 		pos_.z -= ROLLING_SPEED;
-
-		// 回転
-		worldAngles_.x -= 0.2f;
-		worldAngles_.y = 0.0f;
 
 		if (stateTimer_++ >= 1) {
 			// 通常状態に移行
@@ -143,7 +136,7 @@ void Player::Rolling() {
 	state_ = STATE::ROLLING;
 	stateTimer_ = 0;
 
-	animType_ = ANIM_TYPE::IDLE;
+	animType_ = ANIM_TYPE::DEATH;
 	animControll_->Play(static_cast<int>(animType_), false);
 }
 

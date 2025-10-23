@@ -17,6 +17,7 @@ public:
 	void BeforeDraw(int platform_size_x, int platform_size_z);
 
 	void SetFollowTarget(Player* player);
+	MODE GetCameraMode() const;
 	void ChangeCameraMode(MODE mode);
 
 private:
@@ -35,6 +36,5 @@ private:
 	VECTOR prevAngles_;
 
 	void Follow(int platform_size_x, int platform_size_z);
-	void FixedPerfect(int platform_size_x, int platform_size_z);
-	void FixedFast(int platform_size_x, int platform_size_z);
+	void Fixed(int platform_size_x, int platform_size_z);
 };

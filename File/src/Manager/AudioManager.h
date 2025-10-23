@@ -28,4 +28,6 @@ private:
 	float volumeBGM_;
 	float volumeSE_;
 
+	int VolumeMultiplier(float);
+
 };

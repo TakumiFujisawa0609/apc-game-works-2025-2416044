@@ -12,13 +12,12 @@ class GameScene;
 
 class Stage {
 public:
-	static constexpr int SPIN_FRAME = 45;
+	static constexpr int SPIN_FRAME = 36;
 	static constexpr float SPIN_DEGREE = 90.f / SPIN_FRAME;
 
 	static constexpr float FAST_SPIN_DEGREE = 9.0f;
 
 	static constexpr int SPIN_DELAY_FRAME = SPIN_FRAME * 2;
-	static constexpr int EXTRA_DELAY_FRAME = 90;
 
 	static constexpr int CUBE_WIDTH = 4;
 	static constexpr int CUBE_DEPTH = 3;
@@ -56,6 +55,7 @@ public:
 	void SetFastForward(bool);
 
 	bool IsSpinning() const;
+	bool IsVanishing() const;
 
 private:
 	/// 定数
@@ -70,9 +70,11 @@ private:
 
 	static constexpr float PLATFORM_DEPTH_MULT = 2.7f;	// 初期配置のキューブの奥行きに対する、足場の奥行きの倍率
 
+	static constexpr int WAVE_END_DELAY = 45;			// ウェーブ終了時遅延
 	static constexpr int EXTRA_TIMER_FIRST_PHASE = 360;	// フェーズ1の開始前の追加タイマー
-	static constexpr int EXTRA_TIMER_NEW_PHASE = 180;	// フェーズ2以降の開始前の追加タイマー
-	static constexpr int EXTRA_TIMER_PERFECT = 90;		// パーフェクト時の追加タイマー
+	static constexpr int EXTRA_TIMER_NEW_PHASE = 240;	// フェーズ2以降の開始前の追加タイマー
+	static constexpr int EXTRA_TIMER_PERFECT = 120;		// パーフェクト時の追加タイマー
+	static constexpr int PERFECT_CAM_TIMER = 75;		// カメラ用パーフェクト演出時間
 
 	/// 変数
 	// 外部クラスポインタ
@@ -107,10 +109,12 @@ private:
 	int advVanishCount_;	// スーパーワナでの消去カウント
 
 	// その他
-	int spinTimer_;		// スピンタイマー
-	int extraTimer_;	// 追加タイマー
-	bool isSpinning_;	// 回転中フラグ
-	bool fastForward_;	// 高速進行フラグ
+	int spinTimer_;			// スピンタイマー
+	int waveEndDelay_;		// ウェーブ終了遅延タイマー
+	int extraTimer_;		// 追加タイマー
+	int perfectCamTimer_;	// カメラ用パーフェクトタイマー
+	bool isSpinning_;		// 回転中フラグ
+	bool fastForward_;		// 高速進行フラグ
 
 	/// 関数
 	void SetUpCube();	// キューブの準備
@@ -120,6 +124,7 @@ private:
 	void StopAndFall();	// 停止と落下
 	bool KeepStop();	// 停止状態の維持
 	void NextWave();	// 次のウェーブに移行
+	void PerfectProc();	// パーフェクト時処理
 
 	void UpdateStop();	// 停止中の更新処理
 	void UpdateSpin();	// 回転中の更新処理

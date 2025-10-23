@@ -14,8 +14,8 @@ AudioManager& AudioManager::GetInstance() {
 }
 
 bool AudioManager::Init() {
-	volumeBGM_ = 0.3f;
-	volumeSE_ = 0.8f;
+	volumeBGM_ = 0.6f;
+	volumeSE_ = 1.0f;
 
 	return true;
 }
@@ -59,7 +59,7 @@ void AudioManager::LoadBGM(const char* name, const char* file_path) {
 	if (bgmList_.find(name) != bgmList_.end()) return;
 
 	int handle = LoadSoundMem(file_path);
-	SetVolumeSoundMem(handle, volumeBGM_);
+	SetVolumeSoundMem(VolumeMultiplier(volumeBGM_), handle);
 	bgmList_.emplace(name, handle);
 }
 
@@ -67,7 +67,7 @@ void AudioManager::LoadSE(const char* name, const char* file_path) {
 	if (seList_.find(name) != seList_.end()) return;
 
 	int handle = LoadSoundMem(file_path);
-	SetVolumeSoundMem(handle, volumeSE_);
+	SetVolumeSoundMem(VolumeMultiplier(volumeSE_), handle);
 	seList_.emplace(name, handle);
 }
 
@@ -77,7 +77,7 @@ void AudioManager::SetVolumeBGM(float f) {
 	volumeBGM_ = (std::min)((std::max)(f, 0.0f), 1.0f);
 
 	for (auto& bgm : bgmList_) {
-		SetVolumeSoundMem(bgm.second, volumeBGM_);
+		SetVolumeSoundMem(VolumeMultiplier(volumeBGM_), bgm.second);
 	}
 }
 
@@ -87,6 +87,10 @@ void AudioManager::SetVolumeSE(float f) {
 	volumeSE_ = (std::min)((std::max)(f, 0.0f), 1.0f);
 
 	for (auto& se : seList_) {
-		SetVolumeSoundMem(se.second, volumeSE_);
+		SetVolumeSoundMem(VolumeMultiplier(volumeSE_), se.second);
 	}
+}
+
+int AudioManager::VolumeMultiplier(float f) {
+	return int(f * 10000);
 }

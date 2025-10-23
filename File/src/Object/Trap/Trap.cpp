@@ -1,3 +1,4 @@
+#include "../../Manager/AudioManager.h"
 #include "../Stage/Block.h"
 #include "../Stage/Stage.h"
 #include "Trap.h"
@@ -140,10 +141,13 @@ void Trap::SetNormalTrap(const VECTOR& pos) {
 		t.depWait = WAIT_DEPLOY;
 		t.exeWait = -1;
 		traps_.emplace_back(t);
+
+		AudioManager::GetInstance().PlaySE("トラップ設置");
 	}
 	else if (nt == traps_.end()) return;
 	else if ((*nt).depWait == 0 && (*nt).exeWait == -1) {
 		(*nt).exeWait = WAIT_EXECUTE;
+		AudioManager::GetInstance().PlaySE("トラップ起動");
 	}
 }
 

@@ -31,6 +31,7 @@ public:
 
 	void Collision();
 
+	Camera* GetCameraPtr();
 	Trap* GetTrapPtr();
 
 	unsigned int GetScore() const;

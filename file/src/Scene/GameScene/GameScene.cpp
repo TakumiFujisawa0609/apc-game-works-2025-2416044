@@ -63,17 +63,20 @@ void GameScene::Update() {
 
 	Collision();
 
-	// スコア更新
+	if (camera_->GetCameraMode() != Camera::MODE::FIXED_PERFECT) {
+		// 高速進行＆視点
+		if (player_->GetState() == Player::STATE::STOMP || ins.NowMap("高速送り")) {
+			if (!stage_->IsVanishing())
+				stage_->SetFastForward(true);
+			else
+				stage_->SetFastForward(false);
 
-
-	// 高速進行＆視点
-	if (player_->GetState() == Player::STATE::STOMP || ins.NowMap("高速送り")) {
-		stage_->SetFastForward(true);
-		camera_->ChangeCameraMode(Camera::MODE::FIXED_FAST);
-	}
-	else {
-		stage_->SetFastForward(false);
-		camera_->ChangeCameraMode(Camera::MODE::FOLLOW);
+			camera_->ChangeCameraMode(Camera::MODE::FIXED_FAST);
+		}
+		else {
+			stage_->SetFastForward(false);
+			camera_->ChangeCameraMode(Camera::MODE::FOLLOW);
+		}
 	}
 }
 
@@ -99,8 +102,13 @@ void GameScene::DrawUI() {
 
 	// フォント取得
 	auto f = FontManager::GetInstance().GetFontData("汎用");
+	auto fl = FontManager::GetInstance().GetFontData("汎用（大）");
 
 	DrawFormatStringToHandle(48, 48, 0xFFFFFFU, f.handle, "%09u", score_ * 100u);
+
+	if (camera_->GetCameraMode() == Camera::MODE::FIXED_PERFECT) {
+		DrawFormatStringToHandle(400, 440, 0xFFFFFFU, fl.handle, "P e r f e c t !");
+	}
 
 	auto cubes = stage_->GetCubeList().size();
 	if (player_->GetState() == Player::STATE::OVER) {
@@ -139,6 +147,8 @@ void GameScene::Collision() {
 
 	return;
 }
+
+Camera* GameScene::GetCameraPtr() { return camera_; }
 
 Trap* GameScene::GetTrapPtr() { return trap_; }
 

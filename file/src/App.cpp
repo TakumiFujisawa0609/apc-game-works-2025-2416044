@@ -107,7 +107,10 @@ bool App::ClassInit() {
 	AudioManager::GetInstance().Init();
 
 	AudioManager::GetInstance().LoadSE("回転", "Data/Sound/rollrock.wav");
-
+	AudioManager::GetInstance().LoadSE("トラップ設置", "Data/Sound/AS_817822_ポン（デジタル・ボタン・決定・クリック）.wav");
+	AudioManager::GetInstance().LoadSE("トラップ起動", "Data/Sound/AS_792784_ビン（エラー音、アラート音）.wav");
+	AudioManager::GetInstance().LoadSE("キューブ消滅", "Data/Sound/AS_251915_カットイン／バシュッ／場面転換.wav");
+	
 	// FontManager
 	FontManager::CreateInstance();
 	FontManager::GetInstance().Init();
@@ -115,6 +118,7 @@ bool App::ClassInit() {
 	FontManager::GetInstance().AddFont("ロゴ", "HG明朝E", 64, 4, DX_FONTTYPE_ANTIALIASING_EDGE);
 	FontManager::GetInstance().AddFont("汎用", "HGｺﾞｼｯｸE", 48, 5, DX_FONTTYPE_ANTIALIASING_EDGE);
 	FontManager::GetInstance().AddFont("汎用（小）", "HGｺﾞｼｯｸE", 16, 5, DX_FONTTYPE_ANTIALIASING_EDGE);
+	FontManager::GetInstance().AddFont("汎用（大）", "HGｺﾞｼｯｸE", 64, 5, DX_FONTTYPE_ANTIALIASING_EDGE);
 
 	// FPSManager
 	FPSManager::CreateInstance();

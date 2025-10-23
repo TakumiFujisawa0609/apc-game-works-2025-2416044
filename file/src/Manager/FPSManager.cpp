@@ -17,7 +17,7 @@ FPSManager& FPSManager::GetInstance() {
 FPSManager::FPSManager(unsigned int fps) :
     TARGET_FPS(fps), TIME_PER_FRAME(static_cast<int>(MICRO_TIMER / TARGET_FPS)) {
     // 表示FPS
-    showFPS_ = 0.f;
+    showFPS_ = 0.0F;
     showFlag_ = showKey_ = false;
 }
 
@@ -53,10 +53,10 @@ void FPSManager::Draw(bool show_key, int handle) {
     // FPSを表示
     if (showFlag_) {
         if (handle == -1) {
-            DrawFormatString(10, 10, 0xFFFFFF, "FPS: %.2f", showFPS_);
+            DrawFormatString(10, 10, 0xFFFFFFU, "FPS: %.2f", showFPS_);
         }
         else {
-            DrawFormatStringToHandle(10, 10, 0xFFFFFF, handle, "FPS: %.2f", showFPS_);
+            DrawFormatStringToHandle(10, 10, 0xFFFFFFU, handle, "FPS: %.2f", showFPS_);
         }
     }
 }
@@ -76,7 +76,7 @@ void FPSManager::CheckWait() {
         // 実際にかかった時間が、本来の経過時間より少ない場合
         if (tookTime < TIME_PER_FRAME) {
             // ウェイト
-            WaitTimer(static_cast<int>((TIME_PER_FRAME - tookTime) / 1000.f));
+            WaitTimer(static_cast<int>((TIME_PER_FRAME - tookTime) / 1000.0F));
         }
     }
 

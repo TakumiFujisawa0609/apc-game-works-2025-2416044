@@ -16,6 +16,9 @@ void Block::Update() {
 	case STATE::RISING:
 		if (--stateFrame_ == 0) state_ = STATE::WAIT;
 		break;
+	case STATE::ADD:
+		if (--stateFrame_ == 0) state_ = STATE::NONE;
+		break;
 	case STATE::STOP:
 	case STATE::SPIN:
 		// 何もしない
@@ -62,19 +65,18 @@ void Block::Draw() {
 
 	MV1SetRotationXYZ(modelHandle_, GeometryDxLib::Vector3ToVECTOR(rotation_));
 
-	if (state_ == STATE::RISING) {
-		Vector3 temp = position_;
-		temp.y -= BLOCK_SIZE * ((float)stateFrame_ / RISING_FRAME);
-
-		MV1SetPosition(modelHandle_, GeometryDxLib::Vector3ToVECTOR(temp));
-	}
-	else
-		MV1SetPosition(modelHandle_, GeometryDxLib::Vector3ToVECTOR(position_));
+	Vector3 temp = position_;
 
 	if (type_ == TYPE::PLATFORM) {
+		if (state_ == STATE::ADD) {
+			temp.z -= BLOCK_SIZE * 8.0f * ((float)stateFrame_ / ADD_FRAME);
+		}
+
 		for (unsigned int i = 0; i < WIDTH; ++i) {
-			Vector3 temp = position_;
+			temp.x = position_.x, temp.y = position_.y;
+
 			temp.x += BLOCK_SIZE * i;
+
 			for (unsigned int i = 0; i < 3; ++i) {
 				MV1SetPosition(modelHandle_, GeometryDxLib::Vector3ToVECTOR(temp));
 
@@ -86,6 +88,15 @@ void Block::Draw() {
 		}
 	}
 	else {
+		if (state_ == STATE::RISING) {
+			temp.y -= BLOCK_SIZE * ((float)stateFrame_ / RISING_FRAME);
+
+			MV1SetPosition(modelHandle_, GeometryDxLib::Vector3ToVECTOR(temp));
+		}
+		else {
+			MV1SetPosition(modelHandle_, GeometryDxLib::Vector3ToVECTOR(position_));
+		}
+
 		OutLine(position_);
 		MV1DrawModel(modelHandle_);
 	}
@@ -112,9 +123,28 @@ void Block::ChangeState(STATE st, int frame) {
 			stateFrame_ = RISING_FRAME;
 		else
 			stateFrame_ = frame;
+
+		// 行列用座標を更新
+		matrixPosition_ = { 0.f, position_.y - HALF_BLOCK_SIZE, position_.z - HALF_BLOCK_SIZE };
+		break;
+	case STATE::ADD:
+		if (frame == -1)
+			stateFrame_ = ADD_FRAME;
+		else
+			stateFrame_ = frame;
+		break;
 	case STATE::WAIT:
+		rotation_.x = 0.f;
+
+		// 行列用座標を更新
+		matrixPosition_ = { 0.f, position_.y - HALF_BLOCK_SIZE, position_.z - HALF_BLOCK_SIZE };
+		break;
 	case STATE::STOP:
 		rotation_.x = 0.f;
+
+		// 行列用座標を更新
+		matrixPosition_ = { 0.f, position_.y - HALF_BLOCK_SIZE, position_.z - HALF_BLOCK_SIZE };
+		break;
 	case STATE::SPIN:
 		// 行列用座標を更新
 		matrixPosition_ = { 0.f, position_.y - HALF_BLOCK_SIZE, position_.z - HALF_BLOCK_SIZE };
