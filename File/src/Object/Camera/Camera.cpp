@@ -47,8 +47,8 @@ void Camera::Follow(int platform_size_x, int platform_size_z) {
 	const float HALF_PLATFORM_X = platform_size_x * Block::BLOCK_SIZE / 2;
 
 	VECTOR newAngles = {};
-	newAngles.y = -DegToRad((playerPos.x - HALF_PLATFORM_X) / HALF_PLATFORM_X * 30.f);
-	newAngles.x = -DegToRad(6.f + powf(playerPos.z / (platform_size_z * Block::BLOCK_SIZE) * 3.5f, 3));
+	newAngles.y = -DegToRad((playerPos.x - HALF_PLATFORM_X) / HALF_PLATFORM_X * 30.0f);
+	newAngles.x = DegToRad(0.0f + abs(powf(playerPos.z / (platform_size_z * Block::BLOCK_SIZE) * 3.8f, 3)));
 
 	prevAngles_ = angles_;
 	// è≠ÇµÇ∏Ç¬ÉJÉÅÉâÇâÒì]
@@ -91,7 +91,7 @@ void Camera::Fixed(int platform_size_x, int platform_size_z) {
 
 	prevTargetPos_ = targetPos_;
 	// íçéãì_ÇÃà⁄ìÆ
-	VECTOR newTargetPos = { 0.0f, 0.0f, 0.0f };
+	VECTOR newTargetPos = { 0.0f, -Block::BLOCK_SIZE * 2.0f, 0.0f };
 	targetPos_ = GeometryDxLib::VLerp(prevTargetPos_, newTargetPos, 0.12f);
 
 	prevPos_ = pos_;

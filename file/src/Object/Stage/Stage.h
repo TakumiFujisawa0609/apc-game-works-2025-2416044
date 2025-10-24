@@ -13,11 +13,11 @@ class GameScene;
 class Stage {
 public:
 	static constexpr int SPIN_FRAME = 36;
-	static constexpr float SPIN_DEGREE = 90.f / SPIN_FRAME;
+	static constexpr float SPIN_DEGREE = 90.0f / SPIN_FRAME;
 
 	static constexpr float FAST_SPIN_DEGREE = 9.0f;
 
-	static constexpr int SPIN_DELAY_FRAME = SPIN_FRAME * 2;
+	static constexpr int SPIN_DELAY_FRAME = 30 * 2 + SPIN_FRAME;
 
 	static constexpr int CUBE_WIDTH = 4;
 	static constexpr int CUBE_DEPTH = 3;

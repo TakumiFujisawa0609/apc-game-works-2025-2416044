@@ -23,7 +23,7 @@ public:
 private:
 	static constexpr VECTOR FOLLOW_TARGET_LOCAL_POS = { 0.0f, 0.0f, 800.0f };
 
-	static constexpr VECTOR FOLLOW_CAMERA_LOCAL_POS = { 0.0f, 400.0f, -800.0f };
+	static constexpr VECTOR FOLLOW_CAMERA_LOCAL_POS = { 0.0f, 300.0f, -900.0f };
 
 	Player* player_;
 

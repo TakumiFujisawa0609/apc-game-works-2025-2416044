@@ -338,6 +338,7 @@ void Stage::SetUpCube() {
 		extraTimer_ = EXTRA_TIMER_NEW_PHASE;
 	}
 
+	if (phase_ != 1 && phase_ % 2 == 1) wave_++;
 	if (phase_ == 4) cubeDepth_++;
 
 	unsigned int add = 0;

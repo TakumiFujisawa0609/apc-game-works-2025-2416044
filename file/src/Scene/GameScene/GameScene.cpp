@@ -43,9 +43,9 @@ void GameScene::Update() {
 	auto& ins = InputManager::GetInstance();
 
 	if (ins.DownMap("決定"))
-		nextScene_ = SceneBase::SCENE::TITLE;
-	if (ins.DownMap("戻る"))
 		nextScene_ = SceneBase::SCENE::PAUSE;
+	if (ins.DownMap("戻る"))
+		nextScene_ = SceneBase::SCENE::TITLE;
 	
 	// マーキング＆マーク起動
 	if (ins.DownMap("ワナ"))

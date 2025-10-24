@@ -3,6 +3,11 @@
 
 class AudioManager {
 public:
+	struct DATA {
+		int handle;
+		float volMult = 1.0f;
+	};
+
 	static void CreateInstance();
 	static AudioManager& GetInstance();
 
@@ -11,8 +16,8 @@ public:
 
 	void PlayBGM(const char* name, bool loop = false);
 	void PlaySE(const char* name, bool loop = false);
-	void LoadBGM(const char* name, const char* file_path);
-	void LoadSE(const char* name, const char* file_path);
+	void LoadBGM(const char* name, const char* file_path, float volume_mult = 1.0f);
+	void LoadSE(const char* name, const char* file_path, float volume_mult = 1.0f);
 
 	float GetVolumeBGM() const;
 	void SetVolumeBGM(float);
@@ -22,8 +27,8 @@ public:
 private:
 	static AudioManager* instance_;
 
-	std::map<const char*, int> bgmList_;
-	std::map<const char*, int> seList_;
+	std::map<const char*, DATA> bgmList_;
+	std::map<const char*, DATA> seList_;
 
 	float volumeBGM_;
 	float volumeSE_;

@@ -105,6 +105,8 @@ void Trap::ExecuteAdvTrap() {
 			nt.exeWait = WAIT_EXECUTE;
 			traps_.emplace_back(nt);
 		}
+
+		AudioManager::GetInstance().PlaySE("強化トラップ起動");
 	}
 }
 

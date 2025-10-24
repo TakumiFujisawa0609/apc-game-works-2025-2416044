@@ -150,7 +150,13 @@ void Block::ChangeState(STATE st, int frame) {
 		matrixPosition_ = { 0.f, position_.y - HALF_BLOCK_SIZE, position_.z - HALF_BLOCK_SIZE };
 		break;
 	case STATE::VANISH:
+		// 状態をロック
+		stateLock_ = true;
+		break;
 	case STATE::FALL:
+		// 状態をロック
+		stateLock_ = true;
+		break;
 	case STATE::ALERT:
 		// 状態をロック
 		stateLock_ = true;
