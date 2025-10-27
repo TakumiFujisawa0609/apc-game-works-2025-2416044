@@ -29,20 +29,42 @@ int RoundUp(double n) {
 	return n - (int)n > 0.0 ? (int)n + 1 : (int)n;
 }
 
-float DegToRad(float n) {
-	return n * (float)std::numbers::pi / 180.0f;
+float DegToRad(float degree) {
+	return degree * (float)std::numbers::pi / 180.0f;
 }
 
-double DegToRad(double n) {
-	return n * std::numbers::pi / 180.0f;
+double DegToRad(double degree) {
+	return degree * std::numbers::pi / 180.0;
 }
 
-float RadToDeg(float n) {
-	return n / (float)std::numbers::pi * 180.0f;
+float RadToDeg(float radian) {
+	return radian / (float)std::numbers::pi * 180.0f;
 }
 
-double RadToDeg(double n) {
-	return n / std::numbers::pi * 180.0f;
+double RadToDeg(double radian) {
+	return radian / std::numbers::pi * 180.0;
+}
+
+float RadIn2PI(float radian) {
+	if (radian >= (float)std::numbers::pi * 2.0f)
+		while (radian < (float)std::numbers::pi * 2.0f)
+			radian -= (float)std::numbers::pi * 2.0f;
+	else if (radian < 0.0f)
+		while (radian >= 0.0f)
+			radian += (float)std::numbers::pi * 2.0f;
+
+	return radian;
+}
+
+double RadIn2PI(double radian) {
+	if (radian >= std::numbers::pi * 2.0)
+		while (radian < std::numbers::pi * 2.0)
+			radian -= std::numbers::pi * 2.0;
+	else if (radian < 0.0)
+		while (radian >= 0.0)
+			radian += std::numbers::pi * 2.0;
+
+	return radian;
 }
 
 float Lerp(float start, float end, float lerp) {
@@ -54,18 +76,18 @@ float Lerp(float start, float end, float lerp) {
 float LerpRad(float start, float end, float lerp) {
 	lerp = std::min(std::max(lerp, 0.0f), 1.0f);
 
-	float ret = 0.f;
+	float ret = 0.0f;
 	float diff = end - start;
 
 	if (diff < -(float)std::numbers::pi) {
-		end += (float)std::numbers::pi * 2.f;
+		end += (float)std::numbers::pi * 2.0f;
 		ret = Lerp(start, end, lerp);
-		while (ret >= (float)std::numbers::pi * 2.f) ret -= (float)std::numbers::pi * 2.f;
+		while (ret >= (float)std::numbers::pi * 2.0f) ret -= (float)std::numbers::pi * 2.0f;
 	}
 	else if (diff > (float)std::numbers::pi) {
-		end -= (float)std::numbers::pi * 2.f;
+		end -= (float)std::numbers::pi * 2.0f;
 		ret = Lerp(start, end, lerp);
-		while (ret < 0.f) ret += (float)std::numbers::pi * 2.f;
+		while (ret < 0.0f) ret += (float)std::numbers::pi * 2.0f;
 	}
 	else {
 		ret = Lerp(start, end, lerp);
@@ -74,25 +96,7 @@ float LerpRad(float start, float end, float lerp) {
 	return ret;
 }
 
-void Color::Normalize() {
-	float high = std::max({ r, g, b });
-
-	if (high > 255) {
-		high = 255 / high;
-		r *= high;
-		b *= high;
-		g *= high;
-	}
-}
-
-Color Color::Normalized() const {
-	Color ret = { r, g, b };
-	ret.Normalize();
-	return ret;
-}
-
 unsigned int Color::GetColorHex() {
-	Normalize();
 	unsigned int ret = 0u;
 	ret += (unsigned int)r * 0x10000u;
 	ret += (unsigned int)g * 0x100u;
@@ -120,7 +124,7 @@ float Vector2::Angle() const {
 }
 
 float Vector2::AngleDegree() const {
-	return Angle() / (float)std::numbers::pi * 180.f;
+	return Angle() / (float)std::numbers::pi * 180.0f;
 }
 
 void Vector2::operator+=(const Vector2& v) {
@@ -241,9 +245,9 @@ float Dot(const Vector3& va, const Vector3& vb) {
 }
 
 Vector3 Cross(const Vector3& va, const Vector3& vb) {
-	return { va.z * vb.y - va.y * vb.z,
-			va.z * vb.x - va.x * vb.z,
-			va.x * vb.y - vb.x * va.y };
+	return { va.y * vb.z - va.z * vb.y,
+	         va.z * vb.x - va.x * vb.z,
+	         va.x * vb.y - vb.y * va.x };
 }
 
 float operator*(const Vector3& va, const Vector3& vb) {
@@ -256,12 +260,8 @@ Vector3 operator%(const Vector3& va, const Vector3& vb) {
 
 Matrix4x4 Matrix4x4::operator*(const Matrix4x4& mat) const {
 	Matrix4x4 result = {};
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			for (int k = 0; k < 4; k++) {
-				result.m[i][j] += m[i][k] * mat.m[k][j];
-			}
-		}
+	for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) for (int k = 0; k < 4; k++) {
+		result.m[i][j] += m[i][k] * mat.m[k][j];
 	}
 	return result;
 }
@@ -294,28 +294,28 @@ Matrix4x4 TransposeMatrix(const Matrix4x4& m) {
 
 Matrix4x4 RotationMatrixX(float angle) {
 	return {
-		1.0f, 0.0f,			0.0f,			0.0f,
-		0.0f, cosf(angle),	-sinf(angle),	0.0f,
-		0.0f, sinf(angle),	cosf(angle),	0.0f,
-		0.0f, 0.0f,			0.0f,			1.0f
+		1.0f, 0.0f,        0.0f,         0.0f,
+		0.0f, cosf(angle), -sinf(angle), 0.0f,
+		0.0f, sinf(angle), cosf(angle),  0.0f,
+		0.0f, 0.0f,        0.0f,         1.0f
 	};
 }
 
 Matrix4x4 RotationMatrixY(float angle) {
 	return {
-		cosf(angle),	0.0f, sinf(angle),	0.0f,
-		0.0f,			1.0f, 0.0f,			0.0f,
-		-sinf(angle),	0.0f, cosf(angle),	0.0f,
-		0.0f,			0.0f, 0.0f,			1.0f
+		cosf(angle),  0.0f, sinf(angle), 0.0f,
+		0.0f,         1.0f, 0.0f,        0.0f,
+		-sinf(angle), 0.0f, cosf(angle), 0.0f,
+		0.0f,         0.0f, 0.0f,        1.0f
 	};
 }
 
 Matrix4x4 RotationMatrixZ(float angle) {
 	return {
-		cosf(angle),	-sinf(angle),	0.0f, 0.0f,
-		sinf(angle),	cosf(angle),	0.0f, 0.0f,
-		0.0f,			0.0f,			1.0f, 0.0f,
-		0.0f,			0.0f,			0.0f, 1.0f
+		cosf(angle), -sinf(angle), 0.0f, 0.0f,
+		sinf(angle), cosf(angle),  0.0f, 0.0f,
+		0.0f,        0.0f,         1.0f, 0.0f,
+		0.0f,        0.0f,         0.0f, 1.0f
 	};
 }
 
@@ -333,4 +333,100 @@ Matrix4x4 TranslationMatrix(float x, float y, float z) {
 	result.m[1][3] = y;
 	result.m[2][3] = z;
 	return result;
+}
+
+double Dot(const Quaternion& qa, const Quaternion& qb) {
+	return (qa.w * qb.w + qa.x * qb.x + qa.y * qb.y + qa.z * qb.z);
+}
+
+Quaternion Quaternion::Euler(const Vector3& radian) {
+	return Euler(radian.x, radian.y, radian.z);
+}
+
+Quaternion Quaternion::Euler(double radian_x, double radian_y, double radian_z) {
+	Quaternion ret = Quaternion();
+
+	radian_x = RadIn2PI(radian_x);
+	radian_y = RadIn2PI(radian_y);
+	radian_z = RadIn2PI(radian_z);
+
+	double cosZ = cos(radian_z / 2.0f);
+	double sinZ = sin(radian_z / 2.0f);
+	double cosX = cos(radian_x / 2.0f);
+	double sinX = sin(radian_x / 2.0f);
+	double cosY = cos(radian_y / 2.0f);
+	double sinY = sin(radian_y / 2.0f);
+
+	//ret.w = cosZ * cosX * cosY + sinZ * sinX * sinY;
+	//ret.x = sinZ * cosX * cosY - cosZ * sinX * sinY;
+	//ret.y = cosZ * sinX * cosY + sinZ * cosX * sinY;
+	//ret.z = cosZ * cosX * sinY - sinZ * sinX * cosY;
+
+	ret.w = cosX * cosY * cosZ + sinX * sinY * sinZ;
+	ret.x = sinX * cosY * cosZ + cosX * sinY * sinZ;
+	ret.y = cosX * sinY * cosZ - sinX * cosY * sinZ;
+	ret.z = cosX * cosY * sinZ - sinX * sinY * cosZ;
+
+	return ret;
+}
+
+double Quaternion::Magnitude() const {
+	return sqrt(SquareMagnitude());
+}
+
+double Quaternion::SquareMagnitude() const {
+	return w * w + x * x + y * y + z * z;
+}
+
+Vector3 Quaternion::XYZ() const {
+	return { x, y, z };
+}
+
+void Quaternion::Normalize() {
+	double mag = Magnitude();
+	w /= mag;
+	x /= mag;
+	y /= mag;
+	z /= mag;
+}
+
+Quaternion Quaternion::Normalized() const {
+	double mag = Magnitude();
+	return Quaternion(w / mag, x / mag, y / mag, z / mag);
+}
+
+Quaternion Quaternion::operator*(const Quaternion& quat) const
+{
+	Quaternion ret = Quaternion();
+	double d1, d2, d3, d4;
+
+	// w‚ÌŒvŽZ 
+	d1 = w * quat.w;
+	d2 = -x * quat.x;
+	d3 = -y * quat.y;
+	d4 = -z * quat.z;
+	ret.w = d1 + d2 + d3 + d4;
+
+	// x‚ÌŒvŽZ 
+	d1 = w * quat.x;
+	d2 = x * quat.w;
+	d3 = y * quat.z;
+	d4 = -z * quat.y;
+	ret.x = d1 + d2 + d3 + d4;
+
+	// y‚ÌŒvŽZ
+	d1 = w * quat.y;
+	d2 = y * quat.w;
+	d3 = z * quat.x;
+	d4 = -x * quat.z;
+	ret.y = d1 + d2 + d3 + d4;
+
+	// z‚ÌŒvŽZ
+	d1 = w * quat.z;
+	d2 = z * quat.w;
+	d3 = x * quat.y;
+	d4 = -y * quat.x;
+	ret.z = d1 + d2 + d3 + d4;
+
+	return ret;
 }

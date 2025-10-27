@@ -18,14 +18,17 @@ int RoundUp(float n);
 int RoundUp(double n);
 
 // 弧度からラジアンに変換
-float DegToRad(float n);
+float DegToRad(float degree);
 // 弧度からラジアンに変換
-double DegToRad(double n);
+double DegToRad(double degree);
 
 // ラジアンから弧度に変換
-float RadToDeg(float n);
+float RadToDeg(float radian);
 // ラジアンから弧度に変換
-double RadToDeg(double n);
+double RadToDeg(double radian);
+
+float RadIn2PI(float radian);
+double RadIn2PI(double radian);
 
 // 線形補間
 float Lerp(float start, float end, float lerp = 0.2f);
@@ -33,25 +36,21 @@ float Lerp(float start, float end, float lerp = 0.2f);
 float LerpRad(float start, float end, float lerp = 0.2f);
 
 struct Color {
+	float r, g, b;
+
 	Color() : r(0), g(0), b(0) {}
 	Color(float r, float g, float b) : r(r), g(g), b(b) {}
 
-	float r, g, b;
-
-	// 正規化
-	void Normalize();
-	// 正規化済み
-	Color Normalized() const;
 	// unsigned int型を返す
 	unsigned int GetColorHex();
 };
 
 // ２次元ベクトル
 struct Vector2 {
+	float x, y;
+
 	Vector2() : x(0), y(0) {}
 	Vector2(float x, float y) : x(x), y(y) {}
-
-	float x, y;
 
 	// 平方和（各要素の２乗の和）の平方根
 	const float Magnitude() const;
@@ -78,6 +77,8 @@ struct Vector2 {
 	Vector2 operator-() const;
 };
 
+using Float2 = Vector2;
+
 // ベクトル同士の加算
 Vector2 operator+(const Vector2& va, const Vector2& vb);
 // ベクトル同士の減算
@@ -100,10 +101,10 @@ Vector2 GetVector2FromAngle(float angle, float length);
 
 // ３次元ベクトル
 struct Vector3 {
+	float x, y, z;
+
 	Vector3() : x(0), y(0), z(0) {}
 	Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
-
-	float x, y, z;
 
 	// 平方和（各要素の２乗の和）の平方根
 	float Magnitude() const;
@@ -126,6 +127,8 @@ struct Vector3 {
 	// 正負反転
 	Vector3 operator-() const;
 };
+
+using Float3 = Vector3;
 
 // ベクトル同士の加算
 Vector3 operator+(const Vector3& va, const Vector3& vb);
@@ -170,3 +173,34 @@ Matrix4x4 RotationMatrixZ(float angle);
 Matrix4x4 TranslationMatrix(const Vector3& v);
 // 平行移動行列
 Matrix4x4 TranslationMatrix(float x, float y, float z);
+
+struct Quaternion {
+	static constexpr float kEpsilonNormalSqrt = 1.0e-15f;
+
+	double w, x, y, z;
+
+	Quaternion() : w(1), x(0), y(0), z(0) {};
+	Quaternion(double w, double x, double y, double z) : w(w), x(x), y(y), z(z) {};
+
+	// オイラー角（ベクトル）から変換
+	Quaternion Euler(const Vector3& radian);
+	// オイラー角（単体の要素）から変換
+	Quaternion Euler(double radian_x, double radian_y, double radian_z);
+
+	// 平方和（各要素の２乗の和）の平方根
+	double Magnitude() const;
+	// 平方和（各要素の２乗の和）
+	double SquareMagnitude() const;
+
+	Vector3 XYZ() const;
+
+	// 正規化
+	void Normalize();
+	// 正規化済み
+	Quaternion Normalized() const;
+
+	Quaternion operator*(const Quaternion& q) const;
+};
+
+// 内積（ドット積）
+double Dot(const Quaternion& qa, const Quaternion& qb);
