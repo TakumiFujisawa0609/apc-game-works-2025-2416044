@@ -109,7 +109,7 @@ bool App::ClassInit() {
 	AudioManager::GetInstance().LoadSE("回転", "Data/Sound/rollrock.wav");
 	AudioManager::GetInstance().LoadSE("トラップ設置", "Data/Sound/AS_817822_ポン（デジタル・ボタン・決定・クリック）.wav");
 	AudioManager::GetInstance().LoadSE("トラップ起動", "Data/Sound/AS_792784_ビン（エラー音、アラート音）.wav");
-	AudioManager::GetInstance().LoadSE("強化トラップ起動", "Data/Sound/AS_459510_SF／UI／ドゥーン／電子.wav", 1.15f);
+	AudioManager::GetInstance().LoadSE("強化トラップ起動", "Data/Sound/AS_459510_SF／UI／ドゥーン／電子.wav", 1.1f);
 	AudioManager::GetInstance().LoadSE("キューブ消滅", "Data/Sound/AS_251915_カットイン／バシュッ／場面転換.wav");
 	
 	// FontManager

@@ -150,6 +150,11 @@ void Block::ChangeState(STATE st, int frame) {
 		matrixPosition_ = { 0.f, position_.y - HALF_BLOCK_SIZE, position_.z - HALF_BLOCK_SIZE };
 		break;
 	case STATE::VANISH:
+		rotation_.x = 0.f;
+
+		// 行列用座標を更新
+		matrixPosition_ = { 0.f, position_.y - HALF_BLOCK_SIZE, position_.z - HALF_BLOCK_SIZE };
+
 		// 状態をロック
 		stateLock_ = true;
 		break;

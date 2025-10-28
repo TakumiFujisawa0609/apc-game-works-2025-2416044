@@ -192,6 +192,8 @@ struct Quaternion {
 	// 平方和（各要素の２乗の和）
 	double SquareMagnitude() const;
 
+	Matrix4x4 ToMatrix() const;
+
 	Vector3 XYZ() const;
 
 	// 正規化
@@ -199,8 +201,17 @@ struct Quaternion {
 	// 正規化済み
 	Quaternion Normalized() const;
 
+	void operator*=(float f);
+	Quaternion operator*(float f) const;
+
+	Quaternion operator+(const Quaternion& q) const;
 	Quaternion operator*(const Quaternion& q) const;
 };
 
 // 内積（ドット積）
 double Dot(const Quaternion& qa, const Quaternion& qb);
+
+Quaternion LookRotation(Vector3 dir);
+Quaternion LookRotation(Vector3 dir, Vector3 up);
+
+Quaternion GetRotation(Matrix4x4 mat);

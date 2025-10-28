@@ -195,22 +195,26 @@ void GameScene::CollisionCube() {
 			if (plPos.z >= c4->GetMatrixPosition().z && c4->GetMatrixPosition().z >= plPrevPos.z &&
 				((plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPos.x) ||
 					(plPrevPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPrevPos.x))) {
+				// キューブの手前側に押し戻す
 				retPos.z = c4->GetMatrixPosition().z - 1;
 			}
 
-			// 奥 → キューブ
-			if (plPos.z <= c4->GetMatrixPosition().z && c4->GetMatrixPosition().z <= plPrevPos.z &&
-				((plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPos.x) ||
-					(plPrevPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPrevPos.x))) {
-				retPos.z = c4->GetMatrixPosition().z + 1;
+			if (!(c4->GetState() == Block::STATE::RISING || c4->GetState() == Block::STATE::WAIT ||
+				c4->GetState() == Block::STATE::STOP || c4->GetState() == Block::STATE::VANISH)) { // 移動中のみ判定
+				// 奥 → キューブ
+				if (plPos.z <= c4->GetMatrixPosition().z && c4->GetMatrixPosition().z <= plPrevPos.z &&
+					((plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPos.x) ||
+						(plPrevPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPrevPos.x))) {
+					// キューブの奥側に押し戻す
+					retPos.z = c4->GetMatrixPosition().z + 1;
+				}
 			}
-
-			if (c4->GetState() == Block::STATE::RISING || c4->GetState() == Block::STATE::WAIT ||
-				c4->GetState() == Block::STATE::STOP || c4->GetState() == Block::STATE::VANISH) { // 停止中のみ判定
+			else { // 停止中のみ判定
 				// 奥 → キューブ
 				if (plPos.z <= c4->GetMatrixPosition().z + Block::BLOCK_SIZE && c4->GetMatrixPosition().z + Block::BLOCK_SIZE <= plPrevPos.z &&
 					((plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPos.x) ||
 						(plPrevPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE >= plPrevPos.x))) {
+					// キューブの奥側に押し戻す
 					retPos.z = c4->GetMatrixPosition().z + Block::BLOCK_SIZE + 1;
 				}
 
@@ -218,6 +222,7 @@ void GameScene::CollisionCube() {
 				if (plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE && c4->GetPosition().x - Block::HALF_BLOCK_SIZE >= plPrevPos.x &&
 					((plPos.z >= c4->GetPosition().z - Block::HALF_BLOCK_SIZE && c4->GetPosition().z + Block::HALF_BLOCK_SIZE >= plPos.z) ||
 						(plPrevPos.z >= c4->GetPosition().z - Block::HALF_BLOCK_SIZE && c4->GetPosition().z + Block::HALF_BLOCK_SIZE >= plPrevPos.z))) {
+					// キューブの左側に押し戻す
 					retPos.x = c4->GetPosition().x - Block::HALF_BLOCK_SIZE - 1;
 				}
 
@@ -225,16 +230,19 @@ void GameScene::CollisionCube() {
 				if (plPos.x <= c4->GetPosition().x + Block::HALF_BLOCK_SIZE && c4->GetPosition().x + Block::HALF_BLOCK_SIZE <= plPrevPos.x &&
 					((plPos.z >= c4->GetPosition().z - Block::HALF_BLOCK_SIZE && c4->GetPosition().z + Block::HALF_BLOCK_SIZE >= plPos.z) ||
 						(plPrevPos.z >= c4->GetPosition().z - Block::HALF_BLOCK_SIZE && c4->GetPosition().z + Block::HALF_BLOCK_SIZE >= plPrevPos.z))) {
+					// キューブの右側に押し戻す
 					retPos.x = c4->GetPosition().x + Block::HALF_BLOCK_SIZE + 1;
 				}
 			}
 		}
 
+		// 上昇中
 		if (plPos.z <= c4->GetPosition().z + Block::HALF_BLOCK_SIZE &&
 			plPos.z >= c4->GetPosition().z - Block::HALF_BLOCK_SIZE &&
 			plPos.x <= c4->GetPosition().x + Block::HALF_BLOCK_SIZE &&
 			plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE &&
 			c4->GetState() == Block::STATE::RISING) {
+			// 転倒
 			player_->Rolling();
 			return;
 		}

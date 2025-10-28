@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <numbers>
 #include "Geometry.h"
@@ -335,16 +336,12 @@ Matrix4x4 TranslationMatrix(float x, float y, float z) {
 	return result;
 }
 
-double Dot(const Quaternion& qa, const Quaternion& qb) {
-	return (qa.w * qb.w + qa.x * qb.x + qa.y * qb.y + qa.z * qb.z);
-}
-
 Quaternion Quaternion::Euler(const Vector3& radian) {
 	return Euler(radian.x, radian.y, radian.z);
 }
 
 Quaternion Quaternion::Euler(double radian_x, double radian_y, double radian_z) {
-	Quaternion ret = Quaternion();
+	Quaternion ret = {};
 
 	radian_x = RadIn2PI(radian_x);
 	radian_y = RadIn2PI(radian_y);
@@ -378,8 +375,33 @@ double Quaternion::SquareMagnitude() const {
 	return w * w + x * x + y * y + z * z;
 }
 
+Matrix4x4 Quaternion::ToMatrix() const {
+	Matrix4x4 mat = {};
+
+	struct XYZW { float x, y, z, w; };
+
+	XYZW fq = { (float)x, (float)y, (float)z, (float)w };
+
+	float sx = fq.x * fq.x * 2.0f;
+	float sy = fq.y * fq.y * 2.0f;
+	float sz = fq.z * fq.z * 2.0f;
+	float cx = fq.y * fq.z * 2.0f;
+	float cy = fq.x * fq.z * 2.0f;
+	float cz = fq.x * fq.y * 2.0f;
+	float wx = fq.w * fq.x * 2.0f;
+	float wy = fq.w * fq.y * 2.0f;
+	float wz = fq.w * fq.z * 2.0f;
+
+	mat.m[0][0] = 1.0f - (sy + sz);	mat.m[0][1] = cz + wz;			mat.m[0][2] = cy - wy;			mat.m[0][3] = 0.0f;
+	mat.m[1][0] = cz - wz;			mat.m[1][1] = 1.0f - (sx + sz);	mat.m[1][2] = cx + wx;			mat.m[1][3] = 0.0f;
+	mat.m[2][0] = cy + wy;			mat.m[2][1] = cx - wx;			mat.m[2][2] = 1.0f - (sx + sy);	mat.m[2][3] = 0.0f;
+	mat.m[3][0] = 0.0f;				mat.m[3][1] = 0.0f;				mat.m[3][2] = 0.0f;				mat.m[3][3] = 1.0f;
+
+	return mat;
+}
+
 Vector3 Quaternion::XYZ() const {
-	return { x, y, z };
+	return { (float)x, (float)y, (float)z };
 }
 
 void Quaternion::Normalize() {
@@ -392,41 +414,174 @@ void Quaternion::Normalize() {
 
 Quaternion Quaternion::Normalized() const {
 	double mag = Magnitude();
-	return Quaternion(w / mag, x / mag, y / mag, z / mag);
+	return { w / mag, x / mag, y / mag, z / mag };
 }
 
-Quaternion Quaternion::operator*(const Quaternion& quat) const
-{
-	Quaternion ret = Quaternion();
+void Quaternion::operator*=(float f) {
+	w *= f;
+	x *= f;
+	y *= f;
+	z *= f;
+}
+
+Quaternion Quaternion::operator*(float f) const {
+	return { w * f, x * f, y * f, z * f };
+}
+
+Quaternion Quaternion::operator+(const Quaternion& q) const {
+	return { w + q.w, x + q.x, y + q.y, z + q.z };
+}
+
+Quaternion Quaternion::operator*(const Quaternion& q) const {
+	Quaternion ret = {};
 	double d1, d2, d3, d4;
 
 	// w‚ÌŒvŽZ 
-	d1 = w * quat.w;
-	d2 = -x * quat.x;
-	d3 = -y * quat.y;
-	d4 = -z * quat.z;
+	d1 = w * q.w;
+	d2 = -x * q.x;
+	d3 = -y * q.y;
+	d4 = -z * q.z;
 	ret.w = d1 + d2 + d3 + d4;
 
 	// x‚ÌŒvŽZ 
-	d1 = w * quat.x;
-	d2 = x * quat.w;
-	d3 = y * quat.z;
-	d4 = -z * quat.y;
+	d1 = w * q.x;
+	d2 = x * q.w;
+	d3 = y * q.z;
+	d4 = -z * q.y;
 	ret.x = d1 + d2 + d3 + d4;
 
 	// y‚ÌŒvŽZ
-	d1 = w * quat.y;
-	d2 = y * quat.w;
-	d3 = z * quat.x;
-	d4 = -x * quat.z;
+	d1 = w * q.y;
+	d2 = y * q.w;
+	d3 = z * q.x;
+	d4 = -x * q.z;
 	ret.y = d1 + d2 + d3 + d4;
 
 	// z‚ÌŒvŽZ
-	d1 = w * quat.z;
-	d2 = z * quat.w;
-	d3 = x * quat.y;
-	d4 = -y * quat.x;
+	d1 = w * q.z;
+	d2 = z * q.w;
+	d3 = x * q.y;
+	d4 = -y * q.x;
 	ret.z = d1 + d2 + d3 + d4;
+
+	return ret;
+}
+
+double Dot(const Quaternion& qa, const Quaternion& qb) {
+	return (qa.w * qb.w + qa.x * qb.x + qa.y * qb.y + qa.z * qb.z);
+}
+
+Quaternion LookRotation(Vector3 dir) {
+	Vector3 up = { 0.0f, 1.0f, 0.0f };
+	return LookRotation(dir, up);
+}
+
+Quaternion LookRotation(Vector3 dir, Vector3 up) {
+	dir.Normalize();
+	Vector3 right = Cross(up, dir).Normalized();
+	up = Cross(dir, right);
+	auto m00 = right.x;
+	auto m01 = right.y;
+	auto m02 = right.z;
+	auto m10 = up.x;
+	auto m11 = up.y;
+	auto m12 = up.z;
+	auto m20 = dir.x;
+	auto m21 = dir.y;
+	auto m22 = dir.z;
+
+
+	float num8 = (m00 + m11) + m22;
+	Quaternion quaternion = {};
+
+	if (num8 > 0.0f) {
+		double num = sqrt(num8 + 1.0);
+		quaternion.w = num * 0.5;
+		num = 0.5 / num;
+		quaternion.x = ((double)m12 - m21) * num;
+		quaternion.y = ((double)m20 - m02) * num;
+		quaternion.z = ((double)m01 - m10) * num;
+		return quaternion.Normalized();
+	}
+
+	if ((m00 >= m11) && (m00 >= m22)) {
+		auto num7 = sqrt(((1.0f + m00) - m11) - m22);
+		auto num4 = 0.5f / num7;
+		quaternion.x = ((double)m12 - m21) * num4;
+		quaternion.y = ((double)m01 + m10) * num4;
+		quaternion.z = ((double)m02 + m20) * num4;
+		quaternion.w = 0.5 * num7;
+		return quaternion.Normalized();
+	}
+
+	if (m11 > m22) {
+		auto num6 = sqrt(((1.0f + m11) - m00) - m22);
+		auto num3 = 0.5f / num6;
+		quaternion.x = ((double)m10 + m01) * num3;
+		quaternion.y = 0.5 * num6;
+		quaternion.z = ((double)m21 + m12) * num3;
+		quaternion.w = ((double)m20 - m02) * num3;
+		return quaternion.Normalized();
+	}
+
+	auto num5 = sqrt(((1.0f + m22) - m00) - m11);
+	auto num2 = 0.5f / num5;
+	quaternion.x = ((double)m20 + m02) * num2;
+	quaternion.y = ((double)m21 + m12) * num2;
+	quaternion.z = 0.5 * num5;
+	quaternion.w = ((double)m01 - m10) * num2;
+	return quaternion.Normalized();
+}
+
+Quaternion GetRotation(Matrix4x4 mat) {
+	Quaternion ret;
+
+	float s;
+	float tr = mat.m[0][0] + mat.m[1][1] + mat.m[2][2] + 1.0f;
+
+	if (tr >= 1.0f) {
+		s = 0.5f / sqrtf(tr);
+		ret.w = 0.25f / s;
+		ret.x = (mat.m[1][2] - mat.m[2][1]) * s;
+		ret.y = (mat.m[2][0] - mat.m[0][2]) * s;
+		ret.z = (mat.m[0][1] - mat.m[1][0]) * s;
+	}
+	else {
+		float max;
+		max = mat.m[1][1] > mat.m[2][2] ? mat.m[1][1] : mat.m[2][2];
+
+		if (max < mat.m[0][0]) {
+			s = sqrtf(mat.m[0][0] - (mat.m[1][1] + mat.m[2][2]) + 1.0f);
+
+			float x = s * 0.5f;
+			s = 0.5f / s;
+			ret.x = x;
+			ret.y = (mat.m[0][1] + mat.m[1][0]) * s;
+			ret.z = (mat.m[2][0] + mat.m[0][2]) * s;
+			ret.w = (mat.m[1][2] - mat.m[2][1]) * s;
+		}
+		else
+			if (max == mat.m[1][1]) {
+				s = sqrtf(mat.m[1][1] - (mat.m[2][2] + mat.m[0][0]) + 1.0f);
+
+				float y = s * 0.5f;
+				s = 0.5f / s;
+				ret.x = (mat.m[0][1] + mat.m[1][0]) * s;
+				ret.y = y;
+				ret.z = (mat.m[1][2] + mat.m[2][1]) * s;
+				ret.w = (mat.m[2][0] - mat.m[0][2]) * s;
+			}
+			else {
+				s = sqrtf(mat.m[2][2] - (mat.m[0][0] + mat.m[1][1]) + 1.0f);
+
+				float z = s * 0.5f;
+				s = 0.5f / s;
+				ret.x = (mat.m[2][0] + mat.m[0][2]) * s;
+				ret.y = (mat.m[1][2] + mat.m[2][1]) * s;
+				ret.z = z;
+				ret.w = (mat.m[0][1] - mat.m[1][0]) * s;
+			}
+	}
 
 	return ret;
 }

@@ -75,6 +75,8 @@ void Trap::ExecuteAdvTrap() {
 	int stSize[2] = {};
 	stage_->GetPlatformSize(stSize[0], stSize[1]);
 
+	bool trapFlg = false;
+
 	for (auto it = traps_.begin(); it != traps_.end();) {
 		TRAP t = (*it);
 		if (t.type != TYPE::ADVANCE || t.depWait != 0 || t.exeWait != -1) {
@@ -105,9 +107,9 @@ void Trap::ExecuteAdvTrap() {
 			nt.exeWait = WAIT_EXECUTE;
 			traps_.emplace_back(nt);
 		}
-
-		AudioManager::GetInstance().PlaySE("強化トラップ起動");
 	}
+
+	if (trapFlg) AudioManager::GetInstance().PlaySE("強化トラップ起動");
 }
 
 void Trap::Reset() { setTrap_ = readyTrap_ = false; }

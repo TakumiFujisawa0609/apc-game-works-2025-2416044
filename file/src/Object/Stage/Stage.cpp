@@ -244,7 +244,7 @@ void Stage::VanishBlock(const Vector2& trap_stage_pos, Trap::TYPE type) {
 		if (cube->GetStageIndex() == trap_stage_pos) {
 			cube->ChangeState(Block::STATE::VANISH);
 
-			AudioManager::GetInstance().PlaySE("キューブ消滅");
+			if (advVanishCount_ == 0) AudioManager::GetInstance().PlaySE("キューブ消滅");
 
 			switch (type) {
 			case Trap::TYPE::NORMAL:

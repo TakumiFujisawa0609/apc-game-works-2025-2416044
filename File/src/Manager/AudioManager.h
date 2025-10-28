@@ -16,8 +16,8 @@ public:
 
 	void PlayBGM(const char* name, bool loop = false);
 	void PlaySE(const char* name, bool loop = false);
-	void LoadBGM(const char* name, const char* file_path, float volume_mult = 1.0f);
-	void LoadSE(const char* name, const char* file_path, float volume_mult = 1.0f);
+	void LoadBGM(const char* name, const char* file_path, float vol_mult = 1.0f);
+	void LoadSE(const char* name, const char* file_path, float vol_mult = 1.0f);
 
 	float GetVolumeBGM() const;
 	void SetVolumeBGM(float);

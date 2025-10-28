@@ -55,20 +55,24 @@ void AudioManager::PlaySE(const char* name, bool loop) {
 	}
 }
 
-void AudioManager::LoadBGM(const char* name, const char* file_path, float volume_mult) {
-	if (bgmList_.find(name) != bgmList_.end()) return;
+void AudioManager::LoadBGM(const char* name, const char* file_path, float vol_mult) {
+	if (bgmList_.count(name) > 0) return;
 
 	int handle = LoadSoundMem(file_path);
-	SetVolumeSoundMem(VolumeMultiplier(volumeBGM_ * volume_mult), handle);
-	bgmList_.emplace(name, DATA(handle, volume_mult));
+
+	bgmList_.emplace(name, DATA(handle, vol_mult));
+
+	SetVolumeSoundMem(VolumeMultiplier(volumeBGM_ * vol_mult), handle);
 }
 
-void AudioManager::LoadSE(const char* name, const char* file_path, float volume_mult) {
-	if (seList_.find(name) != seList_.end()) return;
+void AudioManager::LoadSE(const char* name, const char* file_path, float vol_mult) {
+	if (seList_.count(name) > 0) return;
 
 	int handle = LoadSoundMem(file_path);
-	SetVolumeSoundMem(VolumeMultiplier(volumeSE_ * volume_mult), handle);
-	seList_.emplace(name, DATA(handle, volume_mult));
+
+	seList_.emplace(name, DATA(handle, vol_mult));
+
+	SetVolumeSoundMem(VolumeMultiplier(volumeSE_ * vol_mult), handle);
 }
 
 float AudioManager::GetVolumeBGM() const { return volumeBGM_; }
