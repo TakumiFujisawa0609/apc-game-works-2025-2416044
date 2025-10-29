@@ -6,6 +6,7 @@
 
 // 注意: 全ての関数を正常にコンパイル・動作させるには、C++20以上が必要です
 
+#pragma region 汎用
 int Round(float n) {
 	return n - (int)n >= 0.5f ? (int)n + 1 : (int)n;
 }
@@ -47,23 +48,19 @@ double RadToDeg(double radian) {
 }
 
 float RadIn2PI(float radian) {
-	if (radian >= (float)std::numbers::pi * 2.0f)
-		while (radian < (float)std::numbers::pi * 2.0f)
-			radian -= (float)std::numbers::pi * 2.0f;
-	else if (radian < 0.0f)
-		while (radian >= 0.0f)
-			radian += (float)std::numbers::pi * 2.0f;
+	while (radian >= (float)std::numbers::pi * 2.0f)
+		radian -= (float)std::numbers::pi * 2.0f;
+	while (radian < 0.0f)
+		radian += (float)std::numbers::pi * 2.0f;
 
 	return radian;
 }
 
 double RadIn2PI(double radian) {
-	if (radian >= std::numbers::pi * 2.0)
-		while (radian < std::numbers::pi * 2.0)
-			radian -= std::numbers::pi * 2.0;
-	else if (radian < 0.0)
-		while (radian >= 0.0)
-			radian += std::numbers::pi * 2.0;
+	while (radian >= std::numbers::pi * 2.0)
+		radian -= std::numbers::pi * 2.0;
+	while (radian < 0.0)
+		radian += std::numbers::pi * 2.0;
 
 	return radian;
 }
@@ -96,15 +93,29 @@ float LerpRad(float start, float end, float lerp) {
 
 	return ret;
 }
+#pragma endregion
 
-unsigned int Color::GetColorHex() {
+#pragma region 色
+Color Color::operator+(const Color& c) {
+	Color ret = {};
+
+	ret.r = std::min(std::max(r = c.r, 0.0f), 1.0f);
+	ret.g = std::min(std::max(g = c.g, 0.0f), 1.0f);
+	ret.b = std::min(std::max(b = c.b, 0.0f), 1.0f);
+
+	return ret;
+}
+
+unsigned int Color::GetColorHex() const {
 	unsigned int ret = 0u;
 	ret += (unsigned int)r * 0x10000u;
 	ret += (unsigned int)g * 0x100u;
 	ret += (unsigned int)b;
 	return ret;
 }
+#pragma endregion
 
+#pragma region ２次元ベクトル
 const float Vector2::Magnitude() const {
 	return hypot(x, y);
 }
@@ -180,9 +191,17 @@ float operator%(const Vector2& va, const Vector2& vb) {
 }
 
 Vector2 GetVector2FromAngle(float angle, float length) {
-	return Vector2(cosf(angle), sinf(angle)) * length;
+	return { cosf(angle) * length, sinf(angle) * length };
 }
+#pragma endregion
 
+#pragma region 長方形
+Rect Rect::Expanded(float add_size) const {
+	return { { start.x - add_size, start.y - add_size }, { end.x + add_size, end.y + add_size } };
+}
+#pragma endregion
+
+#pragma region ３次元ベクトル
 float Vector3::Magnitude() const {
 	return sqrt(SquareMagnitude());
 }
@@ -258,7 +277,9 @@ float operator*(const Vector3& va, const Vector3& vb) {
 Vector3 operator%(const Vector3& va, const Vector3& vb) {
 	return Cross(va, vb);
 }
+#pragma endregion
 
+#pragma region ４x４行列
 Matrix4x4 Matrix4x4::operator*(const Matrix4x4& mat) const {
 	Matrix4x4 result = {};
 	for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) for (int k = 0; k < 4; k++) {
@@ -335,29 +356,26 @@ Matrix4x4 TranslationMatrix(float x, float y, float z) {
 	result.m[2][3] = z;
 	return result;
 }
+#pragma endregion
 
-Quaternion Quaternion::Euler(const Vector3& radian) {
-	return Euler(radian.x, radian.y, radian.z);
+#pragma region クォータニオン
+Quaternion Quaternion::Euler(const Vector3& rad) {
+	return Euler(rad.x, rad.y, rad.z);
 }
 
-Quaternion Quaternion::Euler(double radian_x, double radian_y, double radian_z) {
+Quaternion Quaternion::Euler(double rad_x, double rad_y, double rad_z) {
 	Quaternion ret = {};
 
-	radian_x = RadIn2PI(radian_x);
-	radian_y = RadIn2PI(radian_y);
-	radian_z = RadIn2PI(radian_z);
+	rad_x = RadIn2PI(rad_x);
+	rad_y = RadIn2PI(rad_y);
+	rad_z = RadIn2PI(rad_z);
 
-	double cosZ = cos(radian_z / 2.0f);
-	double sinZ = sin(radian_z / 2.0f);
-	double cosX = cos(radian_x / 2.0f);
-	double sinX = sin(radian_x / 2.0f);
-	double cosY = cos(radian_y / 2.0f);
-	double sinY = sin(radian_y / 2.0f);
-
-	//ret.w = cosZ * cosX * cosY + sinZ * sinX * sinY;
-	//ret.x = sinZ * cosX * cosY - cosZ * sinX * sinY;
-	//ret.y = cosZ * sinX * cosY + sinZ * cosX * sinY;
-	//ret.z = cosZ * cosX * sinY - sinZ * sinX * cosY;
+	double cosZ = cos(rad_z / 2.0f);
+	double sinZ = sin(rad_z / 2.0f);
+	double cosX = cos(rad_x / 2.0f);
+	double sinX = sin(rad_x / 2.0f);
+	double cosY = cos(rad_y / 2.0f);
+	double sinY = sin(rad_y / 2.0f);
 
 	ret.w = cosX * cosY * cosZ + sinX * sinY * sinZ;
 	ret.x = sinX * cosY * cosZ + cosX * sinY * sinZ;
@@ -372,7 +390,23 @@ double Quaternion::Magnitude() const {
 }
 
 double Quaternion::SquareMagnitude() const {
-	return w * w + x * x + y * y + z * z;
+	return x * x + y * y + z * z + w * w;
+}
+
+Vector3 Quaternion::ToEuler() const {
+	Vector3 ret;
+
+	double r11 = 2 * (x * z + w * y);
+	double r12 = w * w - x * x - y * y + z * z;
+	double r21 = -2 * (y * z - w * x);
+	double r31 = 2 * (x * y + w * z);
+	double r32 = w * w - x * x + y * y - z * z;
+
+	ret.x = static_cast<float>(asin(r21));
+	ret.y = static_cast<float>(atan2(r11, r12));
+	ret.z = static_cast<float>(atan2(r31, r32));
+
+	return ret;
 }
 
 Matrix4x4 Quaternion::ToMatrix() const {
@@ -417,6 +451,12 @@ Quaternion Quaternion::Normalized() const {
 	return { w / mag, x / mag, y / mag, z / mag };
 }
 
+Quaternion Quaternion::Inversed() const {
+	double n = 1.0f / SquareMagnitude();
+	Quaternion tmp = { w, -x, -y, -z };
+	return { tmp.w * n, tmp.x * n, tmp.y * n, tmp.z * n };
+}
+
 void Quaternion::operator*=(float f) {
 	w *= f;
 	x *= f;
@@ -432,7 +472,7 @@ Quaternion Quaternion::operator+(const Quaternion& q) const {
 	return { w + q.w, x + q.x, y + q.y, z + q.z };
 }
 
-Quaternion Quaternion::operator*(const Quaternion& q) const {
+Quaternion Quaternion::Multiplication(const Quaternion& q) const {
 	Quaternion ret = {};
 	double d1, d2, d3, d4;
 
@@ -467,8 +507,40 @@ Quaternion Quaternion::operator*(const Quaternion& q) const {
 	return ret;
 }
 
+Quaternion Quaternion::operator*(const Quaternion& q) const {
+	return Multiplication(q);
+}
+
 double Dot(const Quaternion& qa, const Quaternion& qb) {
 	return (qa.w * qb.w + qa.x * qb.x + qa.y * qb.y + qa.z * qb.z);
+}
+
+Quaternion AngleAxis(Vector3 axis, double rad) {
+	Quaternion ret = {};
+
+	double norm;
+	double c, s;
+
+	ret.w = 1.0;
+	ret.x = ret.y = ret.z = 0.0;
+
+	norm = (double)axis.x * (double)axis.x + (double)axis.y * (double)axis.y + (double)axis.z * (double)axis.z;
+	if (norm <= 0.0f) return ret;
+
+	norm = 1.0 / sqrt(norm);
+	axis.x = (float)(axis.x * norm);
+	axis.y = (float)(axis.y * norm);
+	axis.z = (float)(axis.z * norm);
+
+	c = cos(0.5f * rad);
+	s = sin(0.5f * rad);
+
+	ret.w = c;
+	ret.x = s * axis.x;
+	ret.y = s * axis.y;
+	ret.z = s * axis.z;
+
+	return ret;
 }
 
 Quaternion LookRotation(Vector3 dir) {
@@ -585,3 +657,4 @@ Quaternion GetRotation(Matrix4x4 mat) {
 
 	return ret;
 }
+#pragma endregion

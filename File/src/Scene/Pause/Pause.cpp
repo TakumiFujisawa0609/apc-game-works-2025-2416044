@@ -1,4 +1,5 @@
 #include <DxLib.h>
+#include "../../Common/Geometry.h"
 #include "../../Manager/InputManager.h"
 #include "Pause.h"
 
@@ -19,4 +20,13 @@ void Pause::Draw() {
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 0x80);
 	DrawFillBox(0, 0, x, y, 0x000000u);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+	Rect rect = { { 200.0f, 200.0f }, { (float)x - 200.0f, (float)y - 200.0f } };
+	DrawBoxAA(rect.start.x, rect.start.y, rect.end.x, rect.end.y, 0x000000u, true);
+
+	rect = rect.Expanded(-8);
+	DrawBoxAA(rect.start.x, rect.start.y, rect.end.x, rect.end.y, 0xffffffu, true);
+
+	rect = rect.Expanded(-8);
+	DrawBoxAA(rect.start.x, rect.start.y, rect.end.x, rect.end.y, 0x000000u, true);
 }

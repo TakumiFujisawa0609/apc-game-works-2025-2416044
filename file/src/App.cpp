@@ -129,16 +129,16 @@ bool App::ClassInit() {
 	InputManager::GetInstance().Init();
 
 	InputManager::GetInstance().AddInputMap("ˆÚ“®ã",
-		InputManager::BUTTONS::DPAD_U, InputManager::BUTTONS::NONE,
+		InputManager::BUTTONS::DPAD_U, InputManager::BUTTONS::LSTICK_U,
 		KEY_INPUT_W, 0x00);
 	InputManager::GetInstance().AddInputMap("ˆÚ“®‰º",
-		InputManager::BUTTONS::DPAD_D, InputManager::BUTTONS::NONE,
+		InputManager::BUTTONS::DPAD_D, InputManager::BUTTONS::LSTICK_D,
 		KEY_INPUT_S, 0x00);
 	InputManager::GetInstance().AddInputMap("ˆÚ“®¶",
-		InputManager::BUTTONS::DPAD_L, InputManager::BUTTONS::NONE,
+		InputManager::BUTTONS::DPAD_L, InputManager::BUTTONS::LSTICK_L,
 		KEY_INPUT_A, 0x00);
 	InputManager::GetInstance().AddInputMap("ˆÚ“®‰E",
-		InputManager::BUTTONS::DPAD_R, InputManager::BUTTONS::NONE,
+		InputManager::BUTTONS::DPAD_R, InputManager::BUTTONS::LSTICK_R,
 		KEY_INPUT_D, 0x00);
 
 	InputManager::GetInstance().AddInputMap("ƒƒi",

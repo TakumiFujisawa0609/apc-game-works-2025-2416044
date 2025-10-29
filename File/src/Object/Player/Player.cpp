@@ -185,10 +185,10 @@ void Player::Move() {
 
 	if (dir.x != 0.0f || dir.z != 0.0f) {
 		dir = VNorm(dir);
-		VECTOR tempAngles = {};
-		tempAngles.y = atan2f(dir.x, dir.z);
+		float tempAngle = 0.0f;
+		tempAngle = atan2f(dir.x, dir.z);
 
-		worldAngles_.y = LerpRad(worldAngles_.y, tempAngles.y, 0.3f);
+		worldAngles_.y = LerpRad(worldAngles_.y, tempAngle, 0.3f);
 
 		animType_ = ANIM_TYPE::RUN;
 	}
