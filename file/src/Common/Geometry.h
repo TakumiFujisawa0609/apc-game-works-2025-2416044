@@ -115,6 +115,7 @@ struct Rect {
 	Rect() : start(0, 0), end(0, 0) {}
 	Rect(Vector2 start, Vector2 end) : start(start), end(end) {}
 
+	void Expand(float add_size);
 	Rect Expanded(float add_size) const;
 };
 #pragma endregion
@@ -150,6 +151,10 @@ struct Vector3 {
 };
 
 using Float3 = Vector3;
+
+Vector3 GetUnitX();
+Vector3 GetUnitY();
+Vector3 GetUnitZ();
 
 // ƒxƒNƒgƒ‹“¯Žm‚Ì‰ÁŽZ
 Vector3 operator+(const Vector3& va, const Vector3& vb);

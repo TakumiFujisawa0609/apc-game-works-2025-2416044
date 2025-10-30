@@ -25,7 +25,7 @@ private:
 	static constexpr double MICRO_TIMER = 1000.0 * 1000.0;
 
 	// 表示FPS用秒間サンプリング回数
-	const unsigned int SHOW_FPS_SAMPLING_NUM_PER_SECOND = 5U;
+	const unsigned int SHOW_FPS_SAMPLING_NUM_PER_SECOND = 30U;
 
 	// 目標FPS
 	const unsigned int TARGET_FPS;

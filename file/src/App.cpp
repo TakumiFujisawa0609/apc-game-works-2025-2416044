@@ -82,6 +82,9 @@ bool App::SystemInit() {
 	// DirectX のバージョン
 	SetUseDirect3DVersion(DX_DIRECT3D_11);
 
+	// 垂直同期を無効化
+	SetWaitVSyncFlag(false);
+
 	// DxLib の初期化
 	if (DxLib_Init() == -1) return false;
 
@@ -116,7 +119,7 @@ bool App::ClassInit() {
 	FontManager::CreateInstance();
 	FontManager::GetInstance().Init();
 
-	FontManager::GetInstance().AddFont("ロゴ", "HG明朝E", 64, 4, DX_FONTTYPE_ANTIALIASING_EDGE);
+	FontManager::GetInstance().AddFont("ロゴ", "HG明朝E", 80, 4, DX_FONTTYPE_ANTIALIASING_EDGE);
 	FontManager::GetInstance().AddFont("汎用", "HGｺﾞｼｯｸE", 48, 5, DX_FONTTYPE_ANTIALIASING_EDGE);
 	FontManager::GetInstance().AddFont("汎用（小）", "HGｺﾞｼｯｸE", 16, 5, DX_FONTTYPE_ANTIALIASING_EDGE);
 	FontManager::GetInstance().AddFont("汎用（大）", "HGｺﾞｼｯｸE", 64, 5, DX_FONTTYPE_ANTIALIASING_EDGE);

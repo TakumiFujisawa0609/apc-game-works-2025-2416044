@@ -196,6 +196,13 @@ Vector2 GetVector2FromAngle(float angle, float length) {
 #pragma endregion
 
 #pragma region ’·•ûŒ`
+void Rect::Expand(float add_size) {
+	start.x -= add_size;
+	start.y -= add_size;
+	end.x += add_size;
+	end.y += add_size;
+}
+
 Rect Rect::Expanded(float add_size) const {
 	return { { start.x - add_size, start.y - add_size }, { end.x + add_size, end.y + add_size } };
 }
@@ -246,6 +253,18 @@ Vector3 Vector3::operator*(float scale) const {
 
 Vector3 Vector3::operator-() const {
 	return { -x, -y, -z };
+}
+
+Vector3 GetUnitX() {
+	return { 1.0f, 0.0f, 0.0f };
+}
+
+Vector3 GetUnitY() {
+	return { 0.0f, 1.0f, 0.0f };
+}
+
+Vector3 GetUnitZ() {
+	return { 0.0f, 0.0f, 1.0f };
 }
 
 Vector3 operator+(const Vector3& va, const Vector3& vb) {

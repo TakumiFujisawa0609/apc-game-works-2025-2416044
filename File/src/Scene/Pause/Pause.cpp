@@ -24,9 +24,9 @@ void Pause::Draw() {
 	Rect rect = { { 200.0f, 200.0f }, { (float)x - 200.0f, (float)y - 200.0f } };
 	DrawBoxAA(rect.start.x, rect.start.y, rect.end.x, rect.end.y, 0x000000u, true);
 
-	rect = rect.Expanded(-8);
+	rect.Expand(-4);
 	DrawBoxAA(rect.start.x, rect.start.y, rect.end.x, rect.end.y, 0xffffffu, true);
 
-	rect = rect.Expanded(-8);
+	rect.Expand(-4);
 	DrawBoxAA(rect.start.x, rect.start.y, rect.end.x, rect.end.y, 0x000000u, true);
 }
