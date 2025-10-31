@@ -3,6 +3,8 @@
 #include "../Stage/Stage.h"
 #include "Trap.h"
 
+bool Trap::triMarkFlag_ = true;
+
 Trap::Trap(Stage* s) : stage_(s) {}
 
 bool Trap::Init() {
@@ -52,6 +54,8 @@ void Trap::Draw() {
 			DrawCube3D(vt1, vt2, t.color, 0xffffff, true);
 		else
 			DrawCube3D(vt1, vt2, COLOR_EXECUTE, 0xffffff, true);
+
+		if (!triMarkFlag_) continue;
 
 		VECTOR vc1 = stage_->ConvertWorldPos((int)t.stagePos.x, (int)t.stagePos.y);
 		vc1.x += Block::HALF_BLOCK_SIZE; vc1.z -= Block::HALF_BLOCK_SIZE;
@@ -113,6 +117,10 @@ void Trap::ExecuteAdvTrap() {
 }
 
 void Trap::Reset() { setTrap_ = readyTrap_ = false; }
+
+bool Trap::GetTriMarkFlag() { return triMarkFlag_; }
+
+void Trap::SetTriMarkFlag(bool b) { triMarkFlag_ = b; }
 
 bool Trap::CheckTrapReady() const { return setTrap_ && readyTrap_; }
 

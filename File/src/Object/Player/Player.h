@@ -37,6 +37,7 @@ public:
 	VECTOR GetMove() const;
 
 	STATE GetState() const;
+	bool IsInvincible() const;
 
 private:
 	// アニメーション速度

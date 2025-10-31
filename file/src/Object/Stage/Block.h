@@ -67,6 +67,7 @@ public:
 
 	bool IsActiveCube() const;
 	bool IsSteppable() const;
+	bool IsRising() const;
 
 	int GetModelHandle() const;
 	void SetModelHandle(int);

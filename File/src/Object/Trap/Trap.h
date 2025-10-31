@@ -38,12 +38,16 @@ public:
 	void ExecuteAdvTrap();
 	void Reset();
 
+	static bool GetTriMarkFlag();
+	static void SetTriMarkFlag(bool);
+
 	bool CheckTrapReady() const;
 	Vector2 GetStagePos() const;
 
 private:
 	Stage* stage_;
 
+	static bool triMarkFlag_;
 	bool setTrap_;
 	bool readyTrap_;
 	int waitTrapExecute_;

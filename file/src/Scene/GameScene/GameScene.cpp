@@ -106,7 +106,10 @@ void GameScene::DrawUI() {
 
 	DrawFormatStringToHandle(48, 48, 0xFFFFFFU, f.handle, "%09u", score_ * 100u);
 
-	if (camera_->GetCameraMode() == Camera::MODE::FIXED_PERFECT) {
+	if (player_->IsInvincible()) {
+		DrawFormatStringToHandle(400, 440, 0xFFFFFFU, fl.handle, "  A g a i n !  ");
+	}
+	else if (camera_->GetCameraMode() == Camera::MODE::FIXED_PERFECT) {
 		DrawFormatStringToHandle(400, 440, 0xFFFFFFU, fl.handle, "P e r f e c t !");
 	}
 
@@ -241,7 +244,7 @@ void GameScene::CollisionCube() {
 			plPos.z >= c4->GetPosition().z - Block::HALF_BLOCK_SIZE &&
 			plPos.x <= c4->GetPosition().x + Block::HALF_BLOCK_SIZE &&
 			plPos.x >= c4->GetPosition().x - Block::HALF_BLOCK_SIZE &&
-			c4->GetState() == Block::STATE::RISING) {
+			c4->IsRising()) {
 			// “]“|
 			player_->Rolling();
 			return;

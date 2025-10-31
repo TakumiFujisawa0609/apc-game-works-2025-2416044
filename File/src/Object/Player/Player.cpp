@@ -62,6 +62,9 @@ void Player::Update() {
 	case STATE::ROLLING:
 		pos_.z -= ROLLING_SPEED;
 
+		// 回転リセット
+		worldAngles_.y = 0.0f;
+
 		if (stateTimer_++ >= 1) {
 			// 通常状態に移行
 			state_ = STATE::NORMAL;
@@ -85,9 +88,6 @@ void Player::Update() {
 	case STATE::OVER:
 		// タイマーリセット
 		stateTimer_ = 0;
-
-		// 回転リセット
-		worldAngles_.x = 0.0f;
 
 		// 高さが一定値より上の間、落下し続ける
 		if (pos_.y > -1500.f) pos_.y -= FALL_SPEED;
@@ -164,6 +164,8 @@ VECTOR Player::GetMove() const {
 Player::STATE Player::GetState() const {
 	return state_;
 }
+
+bool Player::IsInvincible() const { return invincible_; }
 
 void Player::Move() {
 	auto& ins = InputManager::GetInstance();

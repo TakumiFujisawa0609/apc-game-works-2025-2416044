@@ -1,7 +1,9 @@
 #include <DxLib.h>
 #include "../../App.h"
+#include "../../Manager/AudioManager.h"
 #include "../../Manager/FontManager.h"
 #include "../../Manager/InputManager.h"
+#include "../../Object/Trap/Trap.h"
 #include "TitleScene.h"
 
 bool TitleScene::SystemInit() {
@@ -17,6 +19,9 @@ void TitleScene::Update() {
 	case MENU:
 		UpdateMenu();
 		break;
+	case SETTING:
+		UpdateSetting();
+		break;
 	}
 }
 
@@ -29,7 +34,8 @@ void TitleScene::Draw() {
 	auto fg = fIns.GetFontData("汎用").handle;
 	auto fgs = fIns.GetFontData("汎用（小）").handle;
 
-	DrawStringToHandle(x / 2 - 278, 240, "知 性 の 立 方 体", 0xFFFFFFU, fl);
+	DrawStringToHandle(300, 180, "I.       Q.", 0x404040U, fl);
+	DrawStringToHandle(300, 180, "知 性 の 立 方 体", 0xFFFFFFU, fl);
 
 	/*
 	int fy = 16;
@@ -57,10 +63,31 @@ void TitleScene::Draw() {
 		DrawStringToHandle(x / 2 - 278, 640, "PRESS ENTER", 0xFFFFFFU, fg);
 		break;
 	case MENU:
-		size_t i = 0;
-		DrawStringToHandle(MENU_LAYOUT[i++].x, MENU_LAYOUT[i].y, MENU_NAME[i], 0xFFFFFFU, fg);
-		DrawStringToHandle(MENU_LAYOUT[i++].x, MENU_LAYOUT[i].y, MENU_NAME[i], 0xFFFFFFU, fg);
-		DrawStringToHandle(MENU_LAYOUT[i++].x, MENU_LAYOUT[i].y, MENU_NAME[i], 0xFFFFFFU, fg);
+		for (size_t i = 0; i < MENU_LENGTH; i++) {
+			DrawStringToHandle((int)MENU_LAYOUT_X, (int)MENU_LAYOUT_Y[i], MENU_NAME[i], 0xFFFFFFU, fg);
+			if (cursorIndex_ == i) {
+				Rect box = { { MENU_LAYOUT_X, MENU_LAYOUT_Y[i] }, { MENU_LAYOUT_X + MENU_CURSORBOX_X, MENU_LAYOUT_Y[i] + MENU_CURSORBOX_Y } };
+				DrawBoxAA(box.start.x, box.start.y, box.end.x, box.end.y, 0xFF0000U, false);
+			}
+		}
+		break;
+	case SETTING:
+		for (size_t i = 0; i < MENU_LENGTH; i++) {
+			DrawStringToHandle((int)MENU_LAYOUT_X, (int)MENU_LAYOUT_Y[i], SETTING_NAME[i], 0xFFFFFFU, fg);
+			if (cursorIndex_ == i) {
+				Rect box = { { MENU_LAYOUT_X, MENU_LAYOUT_Y[i] }, { MENU_LAYOUT_X + MENU_CURSORBOX_X, MENU_LAYOUT_Y[i] + MENU_CURSORBOX_Y } };
+				DrawBoxAA(box.start.x, box.start.y, box.end.x, box.end.y, 0xFF0000U, false);
+			}
+
+			switch (i) {
+			case 0:
+				DrawFormatStringToHandle(int(MENU_LAYOUT_X + MENU_LAYOUT_X_ADD), (int)MENU_LAYOUT_Y[i], 0xFFFFFFU, fg, "%3d%%", tempVolume_ * 5);
+				break;
+			case 1:
+				DrawStringToHandle(int(MENU_LAYOUT_X + MENU_LAYOUT_X_ADD), (int)MENU_LAYOUT_Y[i], tempTriMarkFlag_ ? "YES" : "NO", 0xFFFFFFU, fg);
+				break;
+			}
+		}
 		break;
 	}
 }
@@ -71,14 +98,96 @@ void TitleScene::UpdateTitle() {
 	if (ins.DownMap("決定"))
 		subScene_ = MENU;
 	if (ins.DownMap("戻る"))
-		App::GetInstance().Exit();
+		App::GetInstance().Quit();
 }
 
 void TitleScene::UpdateMenu() {
 	auto& ins = InputManager::GetInstance();
 
 	if (ins.DownMap("決定"))
-		nextScene_ = SceneBase::SCENE::GAME;
-	if (ins.DownMap("戻る"))
+		switch (cursorIndex_) {
+		case 0:
+			nextScene_ = SceneBase::SCENE::GAME;
+			break;
+		case 1:
+			subScene_ = SETTING;
+			cursorIndex_ = 0;
+			tempVolume_ = int(AudioManager::GetInstance().GetVolumeSE() * 20);
+			tempTriMarkFlag_ = Trap::GetTriMarkFlag();
+			break;
+		case 2:
+			App::GetInstance().Quit();
+			break;
+		}
+
+	if (ins.DownMap("戻る")) {
 		subScene_ = TITLE;
+		cursorIndex_ = 0;
+	}
+
+	if (ins.DownMap("移動下")) {
+		if (++cursorIndex_ >= MENU_LENGTH)
+			cursorIndex_ = 0;
+	}
+	if (ins.DownMap("移動上")) {
+		if (--cursorIndex_ < 0)
+			cursorIndex_ = MENU_LENGTH - 1;
+	}
+}
+
+void TitleScene::UpdateSetting() {
+	auto& ins = InputManager::GetInstance();
+
+	if (ins.DownMap("決定"))
+		switch (cursorIndex_) {
+		case 1:
+			tempTriMarkFlag_ = !(tempTriMarkFlag_);
+			break;
+		case 2:
+			subScene_ = MENU;
+			cursorIndex_ = 0;
+			AudioManager::GetInstance().SetVolumeBGM((float)tempVolume_ / 20);
+			AudioManager::GetInstance().SetVolumeSE((float)tempVolume_ / 20);
+			Trap::SetTriMarkFlag(tempTriMarkFlag_);
+			break;
+		}
+
+	if (ins.DownMap("移動左"))
+		switch (cursorIndex_) {
+		case 0:
+			if (tempVolume_ > 0)
+				tempVolume_--;
+			break;
+		case 1:
+			tempTriMarkFlag_ = !(tempTriMarkFlag_);
+			break;
+		}
+	
+	if (ins.DownMap("移動右"))
+		switch (cursorIndex_) {
+		case 0:
+			if (tempVolume_ < 20)
+				tempVolume_++;
+			break;
+		case 1:
+			tempTriMarkFlag_ = !(tempTriMarkFlag_);
+			break;
+		}
+
+	if (ins.DownMap("戻る")) {
+		subScene_ = MENU;
+		cursorIndex_ = 0;
+		AudioManager::GetInstance().SetVolumeBGM((float)tempVolume_ / 20);
+		AudioManager::GetInstance().SetVolumeSE((float)tempVolume_ / 20);
+		Trap::SetTriMarkFlag(tempTriMarkFlag_);
+	}
+
+	if (ins.DownMap("移動下")) {
+		if (++cursorIndex_ >= MENU_LENGTH)
+			cursorIndex_ = 0;
+	}
+	if (ins.DownMap("移動上")) {
+		if (--cursorIndex_ < 0)
+			cursorIndex_ = MENU_LENGTH - 1;
+	}
 }

@@ -200,6 +200,10 @@ bool Block::IsSteppable() const {
 	return type_ == TYPE::PLATFORM && (state_ == STATE::STOP || state_ == STATE::ALERT);
 }
 
+bool Block::IsRising() const {
+	return state_ == STATE::RISING && stateFrame_ <= RISING_FRAME;
+}
+
 int Block::GetModelHandle() const {
 	return modelHandle_;
 }

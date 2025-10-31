@@ -390,12 +390,15 @@ void Stage::LoadPattern() {
 	while (true) { // 永久ループ
 		std::string num = "";
 
+		// ファイルの番号をインクリメント
+		n++;
+
 		// 例: "01", "10"
 		if (n < 10)
 			// 桁が1つしかないので、先頭に"0"を足す
-			num = "0" + std::to_string(n + 1);
+			num = "0" + std::to_string(n);
 		else
-			num = std::to_string(n + 1);
+			num = std::to_string(n);
 
 		// 例: "Data/Pattern/4x2/01.csv"
 		std::string name = "Data/Pattern/" + size + "/" + num + ".csv";
@@ -405,16 +408,13 @@ void Stage::LoadPattern() {
 
 		// ファイルがなければループを離脱
 		if (!b) break;
-
-		// ファイルの番号をインクリメント
-		n++;
 	}
 
-	int rand = GetRand(n - 1) + 1;
+	int rand = GetRand(--n - 1) + 1;
 	std::string num = "";
 
 	// 例: "01", "10"
-	if (++n < 10)
+	if (rand < 10)
 		// 桁が1つしかないので、先頭に"0"を足す
 		num = "0" + std::to_string(rand);
 	else

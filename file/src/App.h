@@ -11,7 +11,7 @@ public:
 	void GameLoop();
 	bool Release();
 
-	void Exit();
+	void Quit();
 
 private:
 	static App* instance_;

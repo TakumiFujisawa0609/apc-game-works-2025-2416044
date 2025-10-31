@@ -65,7 +65,7 @@ bool App::Release() {
 	return true;
 }
 
-void App::Exit() {
+void App::Quit() {
 	exit_ = true;
 }
 
