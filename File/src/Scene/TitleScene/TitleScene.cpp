@@ -3,6 +3,7 @@
 #include "../../Manager/AudioManager.h"
 #include "../../Manager/FontManager.h"
 #include "../../Manager/InputManager.h"
+#include "../../Object/Stage/Stage.h"
 #include "../../Object/Trap/Trap.h"
 #include "TitleScene.h"
 
@@ -34,7 +35,9 @@ void TitleScene::Draw() {
 	auto fg = fIns.GetFontData("汎用").handle;
 	auto fgs = fIns.GetFontData("汎用（小）").handle;
 
-	DrawStringToHandle(300, 180, "I.       Q.", 0x404040U, fl);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 0x80);
+	DrawStringToHandle(300, 180, "Intelligent Qube", 0x404040U, fl);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0x00);
 	DrawStringToHandle(300, 180, "知 性 の 立 方 体", 0xFFFFFFU, fl);
 
 	/*
@@ -60,7 +63,7 @@ void TitleScene::Draw() {
 
 	switch (subScene_) {
 	case TITLE:
-		DrawStringToHandle(x / 2 - 278, 640, "PRESS ENTER", 0xFFFFFFU, fg);
+		DrawStringToHandle((int)MENU_LAYOUT_X, (int)MENU_LAYOUT_Y[0], "PRESS ENTER", 0xFFFFFFU, fg);
 		break;
 	case MENU:
 		for (size_t i = 0; i < MENU_LENGTH; i++) {
@@ -72,7 +75,7 @@ void TitleScene::Draw() {
 		}
 		break;
 	case SETTING:
-		for (size_t i = 0; i < MENU_LENGTH; i++) {
+		for (size_t i = 0; i < SETTING_LENGTH; i++) {
 			DrawStringToHandle((int)MENU_LAYOUT_X, (int)MENU_LAYOUT_Y[i], SETTING_NAME[i], 0xFFFFFFU, fg);
 			if (cursorIndex_ == i) {
 				Rect box = { { MENU_LAYOUT_X, MENU_LAYOUT_Y[i] }, { MENU_LAYOUT_X + MENU_CURSORBOX_X, MENU_LAYOUT_Y[i] + MENU_CURSORBOX_Y } };
@@ -81,10 +84,16 @@ void TitleScene::Draw() {
 
 			switch (i) {
 			case 0:
-				DrawFormatStringToHandle(int(MENU_LAYOUT_X + MENU_LAYOUT_X_ADD), (int)MENU_LAYOUT_Y[i], 0xFFFFFFU, fg, "%3d%%", tempVolume_ * 5);
+				DrawFormatStringToHandle(int(MENU_LAYOUT_X + MENU_LAYOUT_X_ADD), (int)MENU_LAYOUT_Y[i], 0xFFFFFFU, fg, "%3d%%", tempVolumeBGM_ * 5);
 				break;
 			case 1:
+				DrawFormatStringToHandle(int(MENU_LAYOUT_X + MENU_LAYOUT_X_ADD), (int)MENU_LAYOUT_Y[i], 0xFFFFFFU, fg, "%3d%%", tempVolumeSE_ * 5);
+				break;
+			case 2:
 				DrawStringToHandle(int(MENU_LAYOUT_X + MENU_LAYOUT_X_ADD), (int)MENU_LAYOUT_Y[i], tempTriMarkFlag_ ? "YES" : "NO", 0xFFFFFFU, fg);
+				break;
+			case 3:
+				DrawFormatStringToHandle(int(MENU_LAYOUT_X + MENU_LAYOUT_X_ADD), (int)MENU_LAYOUT_Y[i], 0xFFFFFFU, fg, "%d", tempSpinTimerIndex_ + 1);
 				break;
 			}
 		}
@@ -95,7 +104,7 @@ void TitleScene::Draw() {
 void TitleScene::UpdateTitle() {
 	auto& ins = InputManager::GetInstance();
 
-	if (ins.DownMap("決定"))
+	if (ins.DownMap("決定") || ins.DownMap("ワナ"))
 		subScene_ = MENU;
 	if (ins.DownMap("戻る"))
 		App::GetInstance().Quit();
@@ -104,7 +113,7 @@ void TitleScene::UpdateTitle() {
 void TitleScene::UpdateMenu() {
 	auto& ins = InputManager::GetInstance();
 
-	if (ins.DownMap("決定"))
+	if (ins.DownMap("決定") || ins.DownMap("ワナ"))
 		switch (cursorIndex_) {
 		case 0:
 			nextScene_ = SceneBase::SCENE::GAME;
@@ -112,8 +121,10 @@ void TitleScene::UpdateMenu() {
 		case 1:
 			subScene_ = SETTING;
 			cursorIndex_ = 0;
-			tempVolume_ = int(AudioManager::GetInstance().GetVolumeSE() * 20);
+			tempVolumeBGM_ = int(AudioManager::GetInstance().GetVolumeBGM() * 20);
+			tempVolumeSE_ = int(AudioManager::GetInstance().GetVolumeSE() * 20);
 			tempTriMarkFlag_ = Trap::GetTriMarkFlag();
+			tempSpinTimerIndex_ = Stage::GetSpinFrameIndex();
 			break;
 		case 2:
 			App::GetInstance().Quit();
@@ -138,56 +149,74 @@ void TitleScene::UpdateMenu() {
 void TitleScene::UpdateSetting() {
 	auto& ins = InputManager::GetInstance();
 
-	if (ins.DownMap("決定"))
+	if (ins.DownMap("戻る")) {
+		SettingEnd();
+		return;
+	}
+
+	if (ins.DownMap("決定") || ins.DownMap("ワナ"))
 		switch (cursorIndex_) {
-		case 1:
+		case 2:
 			tempTriMarkFlag_ = !(tempTriMarkFlag_);
 			break;
-		case 2:
-			subScene_ = MENU;
-			cursorIndex_ = 0;
-			AudioManager::GetInstance().SetVolumeBGM((float)tempVolume_ / 20);
-			AudioManager::GetInstance().SetVolumeSE((float)tempVolume_ / 20);
-			Trap::SetTriMarkFlag(tempTriMarkFlag_);
-			break;
+		case 4:
+			SettingEnd();
+			return;
 		}
 
 	if (ins.DownMap("移動左"))
 		switch (cursorIndex_) {
 		case 0:
-			if (tempVolume_ > 0)
-				tempVolume_--;
+			if (tempVolumeBGM_ > 0)
+				tempVolumeBGM_--;
 			break;
 		case 1:
+			if (tempVolumeSE_ > 0)
+				tempVolumeSE_--;
+			break;
+		case 2:
 			tempTriMarkFlag_ = !(tempTriMarkFlag_);
+			break;
+		case 3:
+			if (tempSpinTimerIndex_ > 0)
+				tempSpinTimerIndex_--;
 			break;
 		}
 	
 	if (ins.DownMap("移動右"))
 		switch (cursorIndex_) {
 		case 0:
-			if (tempVolume_ < 20)
-				tempVolume_++;
+			if (tempVolumeBGM_ < 20)
+				tempVolumeBGM_++;
 			break;
 		case 1:
+			if (tempVolumeSE_ < 20)
+				tempVolumeSE_++;
+			break;
+		case 2:
 			tempTriMarkFlag_ = !(tempTriMarkFlag_);
+			break;
+		case 3:
+			if (tempSpinTimerIndex_ < Stage::SPIN_FRAME_MAX - 1)
+				tempSpinTimerIndex_++;
 			break;
 		}
 
-	if (ins.DownMap("戻る")) {
-		subScene_ = MENU;
-		cursorIndex_ = 0;
-		AudioManager::GetInstance().SetVolumeBGM((float)tempVolume_ / 20);
-		AudioManager::GetInstance().SetVolumeSE((float)tempVolume_ / 20);
-		Trap::SetTriMarkFlag(tempTriMarkFlag_);
-	}
-
 	if (ins.DownMap("移動下")) {
-		if (++cursorIndex_ >= MENU_LENGTH)
+		if (++cursorIndex_ >= SETTING_LENGTH)
 			cursorIndex_ = 0;
 	}
 	if (ins.DownMap("移動上")) {
 		if (--cursorIndex_ < 0)
-			cursorIndex_ = MENU_LENGTH - 1;
+			cursorIndex_ = SETTING_LENGTH - 1;
 	}
+}
+
+void TitleScene::SettingEnd() {
+	subScene_ = MENU;
+	cursorIndex_ = 0;
+	AudioManager::GetInstance().SetVolumeBGM((float)tempVolumeBGM_ / 20);
+	AudioManager::GetInstance().SetVolumeSE((float)tempVolumeSE_ / 20);
+	Trap::SetTriMarkFlag(tempTriMarkFlag_);
+	Stage::SetSpinFrameIndex(tempSpinTimerIndex_);
 }

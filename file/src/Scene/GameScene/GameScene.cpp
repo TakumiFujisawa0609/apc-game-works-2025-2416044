@@ -75,7 +75,7 @@ void GameScene::Update() {
 		}
 		else {
 			stage_->SetFastForward(false);
-			camera_->ChangeCameraMode(Camera::MODE::FOLLOW);
+			camera_->ChangeCameraMode(Camera::MODE::FOLLOW2);
 		}
 	}
 }
@@ -150,6 +150,8 @@ void GameScene::Collision() {
 
 	return;
 }
+
+Player* GameScene::GetPlayerPtr() { return player_; }
 
 Camera* GameScene::GetCameraPtr() { return camera_; }
 

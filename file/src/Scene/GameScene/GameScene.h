@@ -31,6 +31,7 @@ public:
 
 	void Collision();
 
+	Player* GetPlayerPtr();
 	Camera* GetCameraPtr();
 	Trap* GetTrapPtr();
 

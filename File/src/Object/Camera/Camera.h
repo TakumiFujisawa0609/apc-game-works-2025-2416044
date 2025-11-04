@@ -7,6 +7,7 @@ class Camera {
 public:
 	enum class MODE {
 		FOLLOW,
+		FOLLOW2,
 		FIXED_PERFECT,
 		FIXED_CLEAR,
 		FIXED_FAST,
@@ -22,8 +23,10 @@ public:
 
 private:
 	static constexpr VECTOR FOLLOW_TARGET_LOCAL_POS = { 0.0f, 0.0f, 800.0f };
+	static constexpr VECTOR FOLLOW_CAMERA_LOCAL_POS = { 0.0f, 450.0f, -900.0f };
 
-	static constexpr VECTOR FOLLOW_CAMERA_LOCAL_POS = { 0.0f, 300.0f, -900.0f };
+	static constexpr VECTOR FOLLOW_TARGET_LOCAL_POS2 = { 0.0f, 0.0f, 350.0f };
+	static constexpr VECTOR FOLLOW_CAMERA_LOCAL_POS2 = { 0.0f, 1400.0f, 150.0f };
 
 	Player* player_;
 
@@ -36,5 +39,6 @@ private:
 	VECTOR prevAngles_;
 
 	void Follow(int platform_size_x, int platform_size_z);
+	void Follow2(int platform_size_x, int platform_size_z);
 	void Fixed(int platform_size_x, int platform_size_z);
 };

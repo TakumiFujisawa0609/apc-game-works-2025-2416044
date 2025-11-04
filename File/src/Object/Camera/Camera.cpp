@@ -18,6 +18,9 @@ void Camera::BeforeDraw(int platform_size_x, int platform_size_z) {
 	case MODE::FOLLOW:
 		Follow(platform_size_x, platform_size_z);
 		break;
+	case MODE::FOLLOW2:
+		Follow2(platform_size_x, platform_size_z);
+		break;
 	case MODE::FIXED_PERFECT:
 	case MODE::FIXED_FAST:
 		Fixed(platform_size_x, platform_size_z);
@@ -48,7 +51,7 @@ void Camera::Follow(int platform_size_x, int platform_size_z) {
 
 	VECTOR newAngles = {};
 	newAngles.y = -DegToRad((playerPos.x - HALF_PLATFORM_X) / HALF_PLATFORM_X * 30.0f);
-	newAngles.x = DegToRad(0.0f + abs(powf(playerPos.z / (platform_size_z * Block::BLOCK_SIZE) * 3.8f, 3)));
+	newAngles.x = DegToRad(-4.0f + abs(powf(playerPos.z / (platform_size_z * Block::BLOCK_SIZE) * 3.8f, 3)));
 
 	prevAngles_ = angles_;
 	// 少しずつカメラを回転
@@ -68,6 +71,39 @@ void Camera::Follow(int platform_size_x, int platform_size_z) {
 	// カメラの移動
 	// 相対座標を回転させて、回転後の相対座標を取得する
 	VECTOR cameraLocalRotPos = VTransform(FOLLOW_CAMERA_LOCAL_POS, mat);
+
+	prevPos_ = pos_;
+	// 相対座標からワールド座標に直して、カメラ座標とする
+	VECTOR newPos = VAdd(playerPos, cameraLocalRotPos);
+	pos_ = GeometryDxLib::VLerp(prevPos_, newPos, 1.f);
+}
+
+void Camera::Follow2(int platform_size_x, int platform_size_z) {
+	VECTOR playerPos = player_->GetPos();
+	const float HALF_PLATFORM_X = platform_size_x * Block::BLOCK_SIZE / 2;
+
+	VECTOR newAngles = {};
+	newAngles.y = -DegToRad((playerPos.x - HALF_PLATFORM_X) / HALF_PLATFORM_X * 30.0f);
+	newAngles.x = DegToRad(-20.0f + abs(powf(playerPos.z / (platform_size_z * Block::BLOCK_SIZE) * 3.2f, 2)));
+
+	prevAngles_ = angles_;
+	// 少しずつカメラを回転
+	angles_ = GeometryDxLib::VLerpRad(prevAngles_, newAngles, 0.12f);
+
+	// カメラの回転行列を作成
+	MATRIX mat = MGetIdent();
+	mat = MMult(mat, MGetRotX(angles_.x));
+	mat = MMult(mat, MGetRotY(angles_.y));
+
+	prevTargetPos_ = targetPos_;
+	// 注視点の移動
+	VECTOR targetLocalRotPos = VTransform(FOLLOW_TARGET_LOCAL_POS2, mat);
+	VECTOR newTargetPos = VAdd(playerPos, targetLocalRotPos);
+	targetPos_ = GeometryDxLib::VLerp(prevTargetPos_, newTargetPos, 1.0f);
+
+	// カメラの移動
+	// 相対座標を回転させて、回転後の相対座標を取得する
+	VECTOR cameraLocalRotPos = VTransform(FOLLOW_CAMERA_LOCAL_POS2, mat);
 
 	prevPos_ = pos_;
 	// 相対座標からワールド座標に直して、カメラ座標とする

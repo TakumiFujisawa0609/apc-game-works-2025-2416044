@@ -12,12 +12,12 @@ class GameScene;
 
 class Stage {
 public:
-	static constexpr int SPIN_FRAME = 36;
-	static constexpr float SPIN_DEGREE = 90.0f / SPIN_FRAME;
-
+	static constexpr int SPIN_FRAME_MAX = 3;
+	static constexpr int SPIN_FRAME[SPIN_FRAME_MAX] = { 36, 30, 24 };
+	const float SPIN_DEGREE;
 	static constexpr float FAST_SPIN_DEGREE = 9.0f;
 
-	static constexpr int SPIN_DELAY_FRAME = 30 * 2 + SPIN_FRAME;
+	const int SPIN_DELAY_FRAME;
 
 	static constexpr int CUBE_WIDTH = 4;
 	static constexpr int CUBE_DEPTH = 3;
@@ -52,6 +52,9 @@ public:
 	int GetPrevPlatformSizeZ() const;
 	std::list<std::list<std::list<Block*>>> GetCubeList() const;
 
+	static int GetSpinFrameIndex();
+	static void SetSpinFrameIndex(int);
+
 	void SetFastForward(bool);
 
 	bool IsSpinning() const;
@@ -79,6 +82,8 @@ private:
 	/// 変数
 	// 外部クラスポインタ
 	GameScene* gameScene_; // GameSceneクラスのポインタ
+
+	static int spinFrameIndex_;
 
 	// ゲーム
 	std::array<int, 3ull> blockModels_;	// ブロック全体のモデルハンドル配列

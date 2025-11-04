@@ -16,7 +16,7 @@ public:
 
 private:
 	static constexpr size_t MENU_LENGTH = 3;
-	static constexpr size_t SETTING_LENGTH = 3;
+	static constexpr size_t SETTING_LENGTH = 5;
 
 	static constexpr const char* MENU_NAME[MENU_LENGTH] = {
 		"ゲーム開始",
@@ -26,13 +26,21 @@ private:
 
 	static constexpr float MENU_LAYOUT_X = 420;
 	static constexpr float MENU_LAYOUT_X_ADD = 360;
+
+	static constexpr float MENU_LAYOUT_Y_BASE = 620;
 	static constexpr float MENU_LAYOUT_Y[] = {
-		640, 700, 760, 820, 880
+		MENU_LAYOUT_Y_BASE + 60 * 0,
+		MENU_LAYOUT_Y_BASE + 60 * 1,
+		MENU_LAYOUT_Y_BASE + 60 * 2,
+		MENU_LAYOUT_Y_BASE + 60 * 3,
+		MENU_LAYOUT_Y_BASE + 60 * 4
 	};
 
 	static constexpr const char* SETTING_NAME[SETTING_LENGTH] = {
-		"音量",
+		"BGM音量",
+		"SE音量",
 		"三角マーカー",
+		"難易度",
 		"戻る"
 	};
 
@@ -41,11 +49,14 @@ private:
 
 	SUB_SCENE subScene_;
 	int cursorIndex_;
-	int tempVolume_;
+	int tempVolumeBGM_;
+	int tempVolumeSE_;
 	bool tempTriMarkFlag_;
+	int tempSpinTimerIndex_;
 
 	void UpdateTitle();
 	void UpdateMenu();
 	void UpdateSetting();
+	void SettingEnd();
 
 };

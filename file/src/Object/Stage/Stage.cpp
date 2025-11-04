@@ -1,15 +1,22 @@
+#include <algorithm>
 #include <iostream>
 #include "../../Common/GeometryDxLib.h"
 #include "../../Manager/AudioManager.h"
 #include "../../Manager/FontManager.h"
 #include "../../Manager/SceneManager.h"
+#include "../../Object/Player/Player.h"
 #include "../../Scene/GameScene/GameScene.h"
 #include "../../Utility/Utility.h"
 #include "../Camera/Camera.h"
 #include "Block.h"
 #include "Stage.h"
 
-Stage::Stage(GameScene* ptr) : gameScene_(ptr) {}
+int Stage::spinFrameIndex_ = 0;
+
+Stage::Stage(GameScene* ptr) :
+	SPIN_DEGREE(90.0f / SPIN_FRAME[spinFrameIndex_]),
+	SPIN_DELAY_FRAME(int(SPIN_FRAME[0] + SPIN_FRAME[spinFrameIndex_] * 1.5f)),
+	gameScene_(ptr) {}
 
 bool Stage::SystemInit() {
 	blockModels_[(size_t)Block::TYPE::NORMAL] = MV1LoadModel("Data/Model/Blocks/Block_Stone.mv1");
@@ -304,6 +311,14 @@ int Stage::GetPrevPlatformSizeZ() const { return prevPlatformDepth_; }
 
 std::list<std::list<std::list<Block*>>> Stage::GetCubeList() const { return cubeList_; }
 
+int Stage::GetSpinFrameIndex() {
+	return spinFrameIndex_;
+}
+
+void Stage::SetSpinFrameIndex(int i) {
+	spinFrameIndex_ = std::clamp(i, 0, SPIN_FRAME_MAX - 1);
+}
+
 void Stage::SetFastForward(bool b) { fastForward_ = b; }
 
 bool Stage::IsSpinning() const { return isSpinning_; }
@@ -462,7 +477,8 @@ void Stage::StopAndFall() {
 
 				// フォービドゥンキューブ以外なら、落下カウントを増やす
 				// ただ、潰されている間は問答無用で落下カウントを増やす（原作準拠の）仕様にするかも
-				if (cube->GetType() != Block::TYPE::FORBIDDEN) {
+				if (cube->GetType() != Block::TYPE::FORBIDDEN ||
+					gameScene_->GetPlayerPtr()->GetState() == Player::STATE::STOMP) {
 					fallCount_++;
 					waveFallCount_++;
 				}
