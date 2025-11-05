@@ -7,8 +7,9 @@ class SceneBase;
 
 class SceneManager {
 public:
-	static void CreateInstance();
-	static SceneManager& GetInstance();
+	static void CreateInstance() { if (instance_ == nullptr) instance_ = new SceneManager; }
+	static SceneManager& GetInstance() { return *instance_; }
+	static void DeleteInstance() { if (instance_ != nullptr) delete instance_; instance_ = nullptr; }
 
 	bool Init();
 	void Update();
@@ -25,13 +26,18 @@ public:
 private:
 	static SceneManager* instance_;
 
+	SceneManager() {}
+	~SceneManager() {}
+
+	SceneManager(const SceneManager&) = delete;
+	SceneManager& operator=(const SceneManager&) = delete;
+	SceneManager(SceneManager&&) = delete;
+	SceneManager& operator=(SceneManager&&) = delete;
+
 	std::list<SceneBase*> sceneList_;
 
 	std::chrono::system_clock::time_point preTime_;
 	float deltaTime_;
-
-	SceneManager() {}
-	~SceneManager() {}
 
 	bool ClassInit();
 	void ParamInit();

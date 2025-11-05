@@ -28,12 +28,13 @@ private:
 	static constexpr float MENU_LAYOUT_X_ADD = 360;
 
 	static constexpr float MENU_LAYOUT_Y_BASE = 620;
+	static constexpr float MENU_LAYOUT_Y_ADD = 60;
 	static constexpr float MENU_LAYOUT_Y[] = {
-		MENU_LAYOUT_Y_BASE + 60 * 0,
-		MENU_LAYOUT_Y_BASE + 60 * 1,
-		MENU_LAYOUT_Y_BASE + 60 * 2,
-		MENU_LAYOUT_Y_BASE + 60 * 3,
-		MENU_LAYOUT_Y_BASE + 60 * 4
+		MENU_LAYOUT_Y_BASE + MENU_LAYOUT_Y_ADD * 0,
+		MENU_LAYOUT_Y_BASE + MENU_LAYOUT_Y_ADD * 1,
+		MENU_LAYOUT_Y_BASE + MENU_LAYOUT_Y_ADD * 2,
+		MENU_LAYOUT_Y_BASE + MENU_LAYOUT_Y_ADD * 3,
+		MENU_LAYOUT_Y_BASE + MENU_LAYOUT_Y_ADD * 4
 	};
 
 	static constexpr const char* SETTING_NAME[SETTING_LENGTH] = {

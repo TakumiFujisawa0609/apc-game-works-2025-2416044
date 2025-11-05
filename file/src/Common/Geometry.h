@@ -44,7 +44,9 @@ struct Color {
 	Color() : r(0), g(0), b(0) {}
 	Color(float r, float g, float b) : r(r), g(g), b(b) {}
 
-	Color operator+(const Color& c);
+	Color operator/(float f);
+
+	Color Add(const Color& c, bool limit = true) const;
 
 	// unsigned intŒ^‚ð•Ô‚·
 	unsigned int GetColorHex() const;
@@ -151,10 +153,6 @@ struct Vector3 {
 };
 
 using Float3 = Vector3;
-
-Vector3 GetUnitX();
-Vector3 GetUnitY();
-Vector3 GetUnitZ();
 
 // ƒxƒNƒgƒ‹“¯Žm‚Ì‰ÁŽZ
 Vector3 operator+(const Vector3& va, const Vector3& vb);

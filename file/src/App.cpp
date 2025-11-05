@@ -10,19 +10,6 @@
 
 App* App::instance_ = nullptr;
 
-App::App() {}
-
-App::~App() {}
-
-void App::CreateInstance() {
-	// instance_ 変数が空ポインタならインスタンスを生成
-	if (instance_ == nullptr) instance_ = new App;
-}
-
-App& App::GetInstance() {
-	return *instance_;
-}
-
 bool App::Init() {
 	// システム初期化
 	if (SystemInit() == false) return false;
@@ -48,14 +35,19 @@ void App::GameLoop() {
 
 bool App::Release() {
 	AudioManager::GetInstance().Release();
+	AudioManager::DeleteInstance();
 
 	FontManager::GetInstance().Release();
+	FontManager::DeleteInstance();
 
 	FPSManager::GetInstance().Release();
+	FPSManager::DeleteInstance();
 
 	InputManager::GetInstance().Release();
+	InputManager::DeleteInstance();
 
 	SceneManager::GetInstance().Release();
+	SceneManager::DeleteInstance();
 
 	// DxLib の解放
 	if (DxLib_End() == -1) return false;

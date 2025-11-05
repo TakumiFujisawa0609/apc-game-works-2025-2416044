@@ -7,7 +7,6 @@ class Camera {
 public:
 	enum class MODE {
 		FOLLOW,
-		FOLLOW2,
 		FIXED_PERFECT,
 		FIXED_CLEAR,
 		FIXED_FAST,
@@ -20,6 +19,8 @@ public:
 	void SetFollowTarget(Player* player);
 	MODE GetCameraMode() const;
 	void ChangeCameraMode(MODE mode);
+	static int GetFollowMode();
+	static void SetFollowMode(int);
 
 private:
 	static constexpr VECTOR FOLLOW_TARGET_LOCAL_POS = { 0.0f, 0.0f, 800.0f };
@@ -37,6 +38,7 @@ private:
 	VECTOR prevTargetPos_;
 	VECTOR angles_;
 	VECTOR prevAngles_;
+	static int followMode_;
 
 	void Follow(int platform_size_x, int platform_size_z);
 	void Follow2(int platform_size_x, int platform_size_z);

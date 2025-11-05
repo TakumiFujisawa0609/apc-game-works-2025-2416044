@@ -8,8 +8,9 @@ public:
 		float volMult = 1.0f;
 	};
 
-	static void CreateInstance();
-	static AudioManager& GetInstance();
+	static void CreateInstance() { if (instance_ == nullptr) instance_ = new AudioManager; }
+	static AudioManager& GetInstance() { return *instance_; }
+	static void DeleteInstance() { if (instance_ != nullptr) delete instance_; instance_ = nullptr; }
 
 	bool Init();
 	bool Release();
@@ -26,6 +27,14 @@ public:
 
 private:
 	static AudioManager* instance_;
+
+	AudioManager() {}
+	~AudioManager() {}
+
+	AudioManager(const AudioManager&) = delete;
+	AudioManager& operator=(const AudioManager&) = delete;
+	AudioManager(AudioManager&&) = delete;
+	AudioManager& operator=(AudioManager&&) = delete;
 
 	std::map<const char*, DATA> bgmList_;
 	std::map<const char*, DATA> seList_;

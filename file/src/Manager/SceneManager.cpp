@@ -6,15 +6,6 @@
 
 SceneManager* SceneManager::instance_ = nullptr;
 
-void SceneManager::CreateInstance() {
-	// instance_ 変数が空ポインタならインスタンスを生成
-	if (instance_ == nullptr) instance_ = new SceneManager;
-}
-
-SceneManager& SceneManager::GetInstance() {
-	return *instance_;
-}
-
 bool SceneManager::Init() {
 	ClassInit();
 	ParamInit();

@@ -4,8 +4,9 @@
 class FPSManager final {
 public:
 	/* ŠÖ” */
-	static void CreateInstance(unsigned int fps = NORMAL_TARGET_FPS);
-	static FPSManager& GetInstance();
+	static void CreateInstance(unsigned int fps = NORMAL_TARGET_FPS) { if (instance_ == nullptr) instance_ = new FPSManager(fps); }
+	static FPSManager& GetInstance() { return *instance_; }
+	static void DeleteInstance() { if (instance_ != nullptr) delete instance_; instance_ = nullptr; }
 
 	// •`‰æˆ—
 	void Draw(bool show_key, int handle = -1);

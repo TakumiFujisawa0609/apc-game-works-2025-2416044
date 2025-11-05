@@ -5,15 +5,6 @@
 
 FPSManager* FPSManager::instance_ = nullptr;
 
-void FPSManager::CreateInstance(unsigned int fps) {
-    // instance_ 変数が空ポインタならインスタンスを生成
-    if (instance_ == nullptr) instance_ = new FPSManager(fps);
-}
-
-FPSManager& FPSManager::GetInstance() {
-	return *instance_;
-}
-
 FPSManager::FPSManager(unsigned int fps) :
     TARGET_FPS(fps), TIME_PER_FRAME(static_cast<int>(MICRO_TIMER / TARGET_FPS)) {
     // 表示FPS
@@ -88,7 +79,6 @@ bool FPSManager::Release() {
     // リストの後片付け
     timeList_.clear();
 
-	delete instance_;
 	return true;
 }
 

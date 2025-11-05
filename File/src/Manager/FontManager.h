@@ -8,8 +8,9 @@ public:
 		int size;
 	};
 
-	static void CreateInstance();
-	static FontManager& GetInstance();
+	static void CreateInstance() { if (instance_ == nullptr) instance_ = new FontManager; }
+	static FontManager& GetInstance() { return *instance_; }
+	static void DeleteInstance() { if (instance_ != nullptr) delete instance_; instance_ = nullptr; }
 
 	bool Init();
 	bool Release();
@@ -19,6 +20,14 @@ public:
 
 private:
 	static FontManager* instance_;
+
+	FontManager() {}
+	~FontManager() {}
+
+	FontManager(const FontManager&) = delete;
+	FontManager& operator=(const FontManager&) = delete;
+	FontManager(FontManager&&) = delete;
+	FontManager& operator=(FontManager&&) = delete;
 
 	std::map<const char*, DATA> fontList_;
 

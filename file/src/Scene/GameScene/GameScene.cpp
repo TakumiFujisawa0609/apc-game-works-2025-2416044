@@ -42,10 +42,8 @@ bool GameScene::GameInit() {
 void GameScene::Update() {
 	auto& ins = InputManager::GetInstance();
 
-	if (ins.DownMap("決定"))
-		nextScene_ = SceneBase::SCENE::PAUSE;
 	if (ins.DownMap("戻る"))
-		nextScene_ = SceneBase::SCENE::TITLE;
+		nextScene_ = SceneBase::SCENE::PAUSE;
 	
 	// マーキング＆マーク起動
 	if (ins.DownMap("ワナ"))
@@ -75,7 +73,7 @@ void GameScene::Update() {
 		}
 		else {
 			stage_->SetFastForward(false);
-			camera_->ChangeCameraMode(Camera::MODE::FOLLOW2);
+			camera_->ChangeCameraMode(Camera::MODE::FOLLOW);
 		}
 	}
 }
@@ -191,8 +189,9 @@ void GameScene::CollisionCube() {
 
 	// キューブ1個ずつ判定する
 	for (auto& c2 : c1) for (auto& c3 : c2) for (auto& c4 : c3) {
-		// キューブが生存していなければ、衝突もしない
-		if (!c4->IsAlive()) continue;
+		// キューブが生存していなければ衝突しない、
+		// キューブが地面より下であれば衝突しない
+		if (!c4->IsAlive() && !c4->IsRising()) continue;
 
 		// プレイヤーが移動していなければ、判定できない
 		if (!GeometryDxLib::VEquals(plPos, plPrevPos)) {

@@ -5,14 +5,6 @@
 
 AudioManager* AudioManager::instance_ = nullptr;
 
-void AudioManager::CreateInstance() {
-	if (instance_ == nullptr) instance_ = new AudioManager;
-}
-
-AudioManager& AudioManager::GetInstance() {
-	return *instance_;
-}
-
 bool AudioManager::Init() {
 	volumeBGM_ = 0.6f;
 	volumeSE_ = 0.8f;
@@ -28,9 +20,6 @@ bool AudioManager::Release() {
 	for (auto& se : seList_)
 		DeleteSoundMem(se.second.handle);
 	seList_.clear();
-
-	// インスタンスの削除
-	delete instance_;
 
 	return true;
 }

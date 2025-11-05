@@ -67,8 +67,9 @@ public:
 		std::array<int, MAP_INDEX_MAX> keyMap;
 	};
 
-	static void CreateInstance();
-	static InputManager& GetInstance();
+	static void CreateInstance() { if (instance_ == nullptr) instance_ = new InputManager; }
+	static InputManager& GetInstance() { return *instance_; }
+	static void DeleteInstance() { if (instance_ != nullptr) delete instance_; instance_ = nullptr; }
 
 	bool Init();
 	void Update();
@@ -97,9 +98,17 @@ public:
 	bool UpKey(int DxLib_KEYcode) const;
 
 private:
-	static constexpr double XINPUT_STICK_MULT = 1000.0 / (short)MAXSHORT;
-
 	static InputManager* instance_;
+
+	InputManager() {}
+	~InputManager() {}
+
+	InputManager(const InputManager&) = delete;
+	InputManager& operator=(const InputManager&) = delete;
+	InputManager(InputManager&&) = delete;
+	InputManager& operator=(InputManager&&) = delete;
+
+	static constexpr double XINPUT_STICK_MULT = 1000.0 / (short)MAXSHORT;
 
 	std::map<const char*, INPUT_MAP> inputMap_;
 	std::array<int, (size_t)BUTTONS::END> nowButton_;
@@ -107,9 +116,6 @@ private:
 
 	std::array<char, 256ULL> nowKey_;
 	std::array<char, 256ULL> prevKey_;
-
-	InputManager() {}
-	~InputManager() {}
 
 	void GetKeyInput();
 	void GetPadInput(int pad_num);

@@ -3,14 +3,6 @@
 
 FontManager* FontManager::instance_ = nullptr;
 
-void FontManager::CreateInstance() {
-	if (instance_ == nullptr) instance_ = new FontManager;
-}
-
-FontManager& FontManager::GetInstance() {
-	return *instance_;
-}
-
 bool FontManager::Init() {
 	return true;
 }

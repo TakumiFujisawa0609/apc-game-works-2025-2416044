@@ -5,6 +5,8 @@
 #include "../Stage/Block.h"
 #include "Camera.h"
 
+int Camera::followMode_ = 1;
+
 bool Camera::Init() {
 	SetCameraNearFar(1.f, 50000.f);
 
@@ -16,10 +18,14 @@ bool Camera::Init() {
 void Camera::BeforeDraw(int platform_size_x, int platform_size_z) {
 	if (!SceneManager::GetInstance().IsPause()) switch (mode_) {
 	case MODE::FOLLOW:
-		Follow(platform_size_x, platform_size_z);
-		break;
-	case MODE::FOLLOW2:
-		Follow2(platform_size_x, platform_size_z);
+		switch (followMode_) {
+		default: case 1:
+			Follow(platform_size_x, platform_size_z);
+			break;
+		case 2:
+			Follow2(platform_size_x, platform_size_z);
+			break;
+		}
 		break;
 	case MODE::FIXED_PERFECT:
 	case MODE::FIXED_FAST:
@@ -44,6 +50,10 @@ void Camera::SetFollowTarget(Player* player) { player_ = player; }
 Camera::MODE Camera::GetCameraMode() const { return mode_; }
 
 void Camera::ChangeCameraMode(MODE mode) { mode_ = mode; }
+
+int Camera::GetFollowMode() { return followMode_; }
+
+void Camera::SetFollowMode(int i) { followMode_ = i; }
 
 void Camera::Follow(int platform_size_x, int platform_size_z) {
 	VECTOR playerPos = player_->GetPos();

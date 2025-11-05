@@ -96,14 +96,24 @@ float LerpRad(float start, float end, float lerp) {
 #pragma endregion
 
 #pragma region êF
-Color Color::operator+(const Color& c) {
+Color Color::Add(const Color& c, bool limit) const {
 	Color ret = {};
 
-	ret.r = std::min(std::max(r = c.r, 0.0f), 1.0f);
-	ret.g = std::min(std::max(g = c.g, 0.0f), 1.0f);
-	ret.b = std::min(std::max(b = c.b, 0.0f), 1.0f);
+	ret.r = r + c.r;
+	ret.g = g + c.g;
+	ret.b = b + c.b;
+
+	if (limit) {
+		ret.r = std::clamp(ret.r, 0.0f, 255.0f);
+		ret.g = std::clamp(ret.g, 0.0f, 255.0f);
+		ret.b = std::clamp(ret.b, 0.0f, 255.0f);
+	}
 
 	return ret;
+}
+
+Color Color::operator/(float f) {
+	return { r / f, g / f, b / f };
 }
 
 unsigned int Color::GetColorHex() const {
@@ -253,18 +263,6 @@ Vector3 Vector3::operator*(float scale) const {
 
 Vector3 Vector3::operator-() const {
 	return { -x, -y, -z };
-}
-
-Vector3 GetUnitX() {
-	return { 1.0f, 0.0f, 0.0f };
-}
-
-Vector3 GetUnitY() {
-	return { 0.0f, 1.0f, 0.0f };
-}
-
-Vector3 GetUnitZ() {
-	return { 0.0f, 0.0f, 1.0f };
 }
 
 Vector3 operator+(const Vector3& va, const Vector3& vb) {
