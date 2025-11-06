@@ -255,13 +255,13 @@ struct Quaternion {
 double Dot(const Quaternion& qa, const Quaternion& qb);
 
 // 指定した軸を指定した角度回転させる、Quaternionを生成
-// @param axis 軸（正方向のみ1、それ以外は0のベクトル）
-// @param rad 角度
+// @param axis 軸（ゼロベクトルを元に、指定したい軸だけ 1.0F を入れる）
+// @param rad ラジアン角
 Quaternion AngleAxis(Vector3 axis, double rad);
 
-// ３次元ベクトルから、Quaternionに変換
+// 移動方向（３次元ベクトル）から、Quaternionに変換
 Quaternion LookRotation(Vector3 dir);
-// ３次元ベクトルから、Quaternionに変換
+// 移動方向（３次元ベクトル）から、Quaternionに変換
 Quaternion LookRotation(Vector3 dir, Vector3 up);
 
 // 行列から、Quaternionに変換
