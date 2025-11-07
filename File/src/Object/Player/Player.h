@@ -22,6 +22,8 @@ public:
 		RUN = 11,
 	};
 
+	static constexpr float FALL_FINISH_Y = -8000.0f;
+
 	bool SystemInit();
 	bool GameInit(int stage_width, int stage_depth);
 	void Update();
@@ -57,7 +59,7 @@ private:
 	// –³“Gó‘Ô‚ÌŠÔ
 	static constexpr int INVINCIBLE_TIME = 120;
 	// —‰º‘¬“x
-	static constexpr float FALL_SPEED = 50.0f;
+	static constexpr float FALL_SPEED = 40.0f;
 
 	AnimationController* animControll_;
 

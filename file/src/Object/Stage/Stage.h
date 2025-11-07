@@ -59,6 +59,7 @@ public:
 
 	bool IsSpinning() const;
 	bool IsVanishing() const;
+	int IsClear() const;
 
 private:
 	/// 定数
@@ -120,6 +121,7 @@ private:
 	int perfectCamTimer_;	// カメラ用パーフェクトタイマー
 	bool isSpinning_;		// 回転中フラグ
 	bool fastForward_;		// 高速進行フラグ
+	int isClear_;			//
 
 	/// 関数
 	void SetUpCube();	// キューブの準備

@@ -58,6 +58,7 @@ bool Stage::GameInit() {
 	nextwave_ = false;
 	isSpinning_ = false;
 	fastForward_ = false;
+	isClear_ = 0;
 
 	fallCount_ = 0;
 	waveFallCount_ = 0;
@@ -71,6 +72,8 @@ bool Stage::GameInit() {
 }
 
 void Stage::Update() {
+	if (isClear_) return;
+
 	if (!isSpinning_) { // ‰ñ“]I—¹Œã‚Ìˆ—
 		UpdateStop();
 	}
@@ -84,7 +87,7 @@ void Stage::Update() {
 
 	if (fallCount_ >= blockWidth_) {
 		fallCount_ -= blockWidth_;
-		
+
 		for (auto rit = platformList_.rbegin(); rit != platformList_.rend(); rit++) {
 			if ((*rit)->GetState() == Block::STATE::NONE) {
 				(*rit)->ChangeState(Block::STATE::ALERT);
@@ -343,18 +346,28 @@ bool Stage::IsVanishing() const {
 	return ret;
 }
 
+int Stage::IsClear() const {
+	return isClear_;
+}
+
 void Stage::SetUpCube() {
 	gameStart_ = false;
 
-	if (++phase_ == 1) {
+	if (phase_ == 1) {
+		isClear_++;
+		return;
+	}
+
+	phase_++;
+
+	if (phase_ == 1) {
 		extraTimer_ = EXTRA_TIMER_FIRST_PHASE;
 	}
 	else {
 		extraTimer_ = EXTRA_TIMER_NEW_PHASE;
 	}
 
-	if (phase_ != 1 && phase_ % 2 == 1) wave_++;
-	if (phase_ == 4) cubeDepth_++;
+	if (phase_ == 3) cubeDepth_++;
 
 	unsigned int add = 0;
 

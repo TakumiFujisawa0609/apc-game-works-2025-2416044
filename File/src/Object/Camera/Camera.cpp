@@ -29,7 +29,10 @@ void Camera::BeforeDraw(int platform_size_x, int platform_size_z) {
 		break;
 	case MODE::FIXED_PERFECT:
 	case MODE::FIXED_FAST:
-		Fixed(platform_size_x, platform_size_z);
+		FixedFast(platform_size_x, platform_size_z);
+		break;
+	case MODE::FIXED_OVER:
+		FixedOver();
 		break;
 	}
 
@@ -121,7 +124,7 @@ void Camera::Follow2(int platform_size_x, int platform_size_z) {
 	pos_ = GeometryDxLib::VLerp(prevPos_, newPos, 1.f);
 }
 
-void Camera::Fixed(int platform_size_x, int platform_size_z) {
+void Camera::FixedFast(int platform_size_x, int platform_size_z) {
 	VECTOR newAngles = {};
 	newAngles.x = DegToRad(8.0f);
 	newAngles.y = atan2f((float)-platform_size_x, (float)platform_size_z);
@@ -146,4 +149,23 @@ void Camera::Fixed(int platform_size_x, int platform_size_z) {
 
 	VECTOR newPos = VTransform(CAMERA_LOCAL_POS, mat);
 	pos_ = GeometryDxLib::VLerp(prevPos_, newPos, 0.12f);
+}
+
+void Camera::FixedOver() {
+	VECTOR playerPos = player_->GetPos();
+
+	angles_ = {};
+
+	if (playerPos.y > Player::FALL_FINISH_Y * 0.3f) {
+		targetPos_ = VAdd(playerPos, FIXED_OVER_TARGET_LOCAL_POS);
+
+		pos_ = VAdd(playerPos, FIXED_OVER_CAMERA_LOCAL_POS);
+	}
+	else {
+		targetPos_ = VAdd(playerPos, FIXED_OVER_TARGET_LOCAL_POS2);
+		
+		VECTOR tempPos = VAdd(playerPos, FIXED_OVER_CAMERA_LOCAL_POS2);
+
+		pos_ = { tempPos.x, Player::FALL_FINISH_Y * 0.75f, tempPos.z };
+	}
 }

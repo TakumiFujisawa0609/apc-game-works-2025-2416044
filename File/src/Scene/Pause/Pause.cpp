@@ -98,6 +98,12 @@ void Pause::Draw() {
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 0x80);
 	DrawFillBox(0, 0, x, y, 0x000000u);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+}
+
+void Pause::DrawUI() {
+	// ウインドウサイズ取得
+	int x, y;
+	GetWindowSize(&x, &y);
 
 	Rect rect = { { 200.0f, 200.0f }, { (float)x - 200.0f, (float)y - 200.0f } };
 	DrawBoxAA(rect.start.x, rect.start.y, rect.end.x, rect.end.y, 0x000000u, true);

@@ -43,7 +43,10 @@ void GameScene::Update() {
 	auto& ins = InputManager::GetInstance();
 
 	if (ins.DownMap("戻る"))
-		nextScene_ = SceneBase::SCENE::PAUSE;
+		if (player_->GetState() != Player::STATE::OVER)
+			nextScene_ = SceneBase::SCENE::PAUSE;
+		else
+			nextScene_ = SceneBase::SCENE::TITLE;
 	
 	// マーキング＆マーク起動
 	if (ins.DownMap("ワナ"))
@@ -61,7 +64,10 @@ void GameScene::Update() {
 
 	Collision();
 
-	if (camera_->GetCameraMode() != Camera::MODE::FIXED_PERFECT) {
+	if (player_->GetState() == Player::STATE::OVER) {
+		camera_->ChangeCameraMode(Camera::MODE::FIXED_OVER);
+	}
+	else if (camera_->GetCameraMode() != Camera::MODE::FIXED_PERFECT) {
 		// 高速進行＆視点
 		if (player_->GetState() == Player::STATE::STOMP || ins.NowMap("高速送り")) {
 			if (!stage_->IsVanishing())
@@ -96,28 +102,35 @@ void GameScene::DrawUI() {
 	int x, y;
 	GetWindowSize(&x, &y);
 
-	stage_->DrawUI();
-
 	// フォント取得
 	auto f = FontManager::GetInstance().GetFontData("汎用");
 	auto fl = FontManager::GetInstance().GetFontData("汎用（大）");
 
-	DrawFormatStringToHandle(48, 48, 0xFFFFFFU, f.handle, "%09u", score_ * 100u);
+	if (player_->GetState() != Player::STATE::OVER)
+		stage_->DrawUI();
+
+	if (player_->GetState() != Player::STATE::OVER)
+		DrawFormatStringToHandle(48, 48, 0xFFFFFFU, f.handle, "%09u", score_ * 100u);
 
 	if (player_->IsInvincible()) {
-		DrawFormatStringToHandle(400, 440, 0xFFFFFFU, fl.handle, "  A g a i n !  ");
+		DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "  A g a i n !  ");
 	}
 	else if (camera_->GetCameraMode() == Camera::MODE::FIXED_PERFECT) {
-		DrawFormatStringToHandle(400, 440, 0xFFFFFFU, fl.handle, "P e r f e c t !");
+		DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "P e r f e c t !");
 	}
 
 	auto cubes = stage_->GetCubeList().size();
-	if (player_->GetState() == Player::STATE::OVER) {
-		DrawString(x / 3, y / 3, "GAME OVER", 0xFFFFFFU);
+	if (player_->GetPos().y == Player::FALL_FINISH_Y) {
+		DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "G A M E O V E R");
 	}
-	else if (cubes == 0) {
-		DrawString(x / 3, y / 3, "GAME CLEAR", 0xFFFFFFU);
+	else if (stage_->IsClear()) {
+		DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "   C L E A R   ");
 	}
+
+#ifdef _DEBUG
+	Vector2 center = { x / 2.0f, y / 2.0f };
+	DrawCircleAA(center.x, center.y, 3.0f, 12, 0x00FFFFU, true);
+#endif
 }
 
 bool GameScene::Release() {

@@ -6,6 +6,7 @@ public:
 	bool SystemInit() override;
 	void Update() override;
 	void Draw() override;
+	void DrawUI() override;
 	bool Release() override;
 
 private:

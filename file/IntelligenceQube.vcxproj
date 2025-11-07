@@ -39,6 +39,7 @@
     <ClCompile Include="src\Object\Trap\Trap.cpp" />
     <ClCompile Include="src\Utility\Utility.cpp" />
     <ClCompile Include="src\Scene\TitleScene\TitleScene.cpp" />
+    <ClCompile Include="src\Common\Text.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Manager\FontManager.h" />
@@ -60,6 +61,7 @@
     <ClInclude Include="src\Object\Trap\Trap.h" />
     <ClInclude Include="src\Utility\Utility.h" />
     <ClInclude Include="src\Scene\TitleScene\TitleScene.h" />
+    <ClInclude Include="src\Common\Text.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

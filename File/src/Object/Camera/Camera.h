@@ -29,6 +29,11 @@ private:
 	static constexpr VECTOR FOLLOW_TARGET_LOCAL_POS2 = { 0.0f, 0.0f, 350.0f };
 	static constexpr VECTOR FOLLOW_CAMERA_LOCAL_POS2 = { 0.0f, 1400.0f, 150.0f };
 
+	static constexpr VECTOR FIXED_OVER_TARGET_LOCAL_POS = { 0.0f, 150.0f, 0.0f };
+	static constexpr VECTOR FIXED_OVER_CAMERA_LOCAL_POS = { 300.0f, 300.0f, -400.0f };
+	static constexpr VECTOR FIXED_OVER_TARGET_LOCAL_POS2 = { -400.0f, 0.0f, 600.0f };
+	static constexpr VECTOR FIXED_OVER_CAMERA_LOCAL_POS2 = { 400.0f, 0.0f, -600.0f };
+
 	Player* player_;
 
 	MODE mode_;
@@ -42,5 +47,6 @@ private:
 
 	void Follow(int platform_size_x, int platform_size_z);
 	void Follow2(int platform_size_x, int platform_size_z);
-	void Fixed(int platform_size_x, int platform_size_z);
+	void FixedFast(int platform_size_x, int platform_size_z);
+	void FixedOver();
 };

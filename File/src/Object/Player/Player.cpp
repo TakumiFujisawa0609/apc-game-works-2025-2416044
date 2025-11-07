@@ -53,11 +53,13 @@ void Player::Update() {
 	// ステートメント
 	switch (state_) {
 	case STATE::NORMAL:
+		// タイマーリセット
+		stateTimer_ = 0;
+
 		// 移動処理
 		Move();
 
-		// タイマーリセット
-		stateTimer_ = 0;
+		animControll_->Play(static_cast<int>(animType_));
 		break;
 	case STATE::ROLLING:
 		pos_.z -= ROLLING_SPEED;
@@ -72,6 +74,9 @@ void Player::Update() {
 			// タイマーリセット
 			stateTimer_ = 0;
 		}
+
+		animType_ = ANIM_TYPE::DEATH;
+		animControll_->Play(static_cast<int>(animType_), false);
 		break;
 	case STATE::STOMP:
 		if (stateTimer_++ >= STATE_STOMP_TIME) {
@@ -84,13 +89,33 @@ void Player::Update() {
 			// タイマーリセット
 			stateTimer_ = 0;
 		}
+
+		animType_ = ANIM_TYPE::DEATH;
+		animControll_->Play(static_cast<int>(animType_), false);
 		break;
 	case STATE::OVER:
 		// タイマーリセット
 		stateTimer_ = 0;
 
 		// 高さが一定値より上の間、落下し続ける
-		if (pos_.y > -1500.f) pos_.y -= FALL_SPEED;
+		if (pos_.y > FALL_FINISH_Y) {
+			auto speed = FALL_SPEED;
+
+			if (pos_.y <= FALL_FINISH_Y * 0.95f) {
+				speed /= 2.0f;
+			}
+			if (pos_.y <= FALL_FINISH_Y * 0.975f) {
+				speed /= 2.0f;
+			}
+			if (pos_.y <= FALL_FINISH_Y * 0.99f) {
+				speed /= 2.0f;
+			}
+
+			pos_.y -= speed;
+		}
+
+		animType_ = ANIM_TYPE::DEATH;
+		animControll_->Play(static_cast<int>(animType_), false);
 		break;
 	}
 
@@ -99,7 +124,6 @@ void Player::Update() {
 	MV1SetRotationMatrix(modelId_, GeometryDxLib::Multiplication(LOCAL_ANGLES, worldAngles_));
 
 	// アニメーション
-	animControll_->Play(static_cast<int>(animType_));
 	animControll_->Update();
 }
 
@@ -111,6 +135,10 @@ void Player::Draw() {
 	if (invincible_ % 2 == 1) return;
 
 	MV1DrawModel(modelId_);
+
+#ifdef _DEBUG
+	DrawFormatString(10, 10, 0xFFFFFFU, "プレイヤー座標: (%.2f, %.2f, %.2f)", pos_.x, pos_.y, pos_.z);
+#endif
 }
 
 bool Player::Release() {
@@ -127,25 +155,16 @@ void Player::Stomp() {
 
 	state_ = STATE::STOMP;
 	stateTimer_ = 0;
-
-	animType_ = ANIM_TYPE::DEATH;
-	animControll_->Play(static_cast<int>(animType_), false);
 }
 
 void Player::Rolling() {
 	state_ = STATE::ROLLING;
 	stateTimer_ = 0;
-
-	animType_ = ANIM_TYPE::DEATH;
-	animControll_->Play(static_cast<int>(animType_), false);
 }
 
 void Player::Over() {
 	state_ = STATE::OVER;
 	stateTimer_ = 0;
-
-	animType_ = ANIM_TYPE::DEATH;
-	animControll_->Play(static_cast<int>(animType_), false);
 }
 
 VECTOR Player::GetPos() const {
