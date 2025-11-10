@@ -7,6 +7,7 @@ Block::Block(int width) : WIDTH(width) {
 	modelHandle_ = -1;
 	type_ = TYPE::PLATFORM;
 	state_ = STATE::NONE;
+	isAlive_ = true;
 	stateLock_ = false;
 	stateFrame_ = 0U;
 }

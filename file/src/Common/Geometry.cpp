@@ -579,7 +579,6 @@ Quaternion LookRotation(Vector3 dir, Vector3 up) {
 	auto m21 = dir.y;
 	auto m22 = dir.z;
 
-
 	float num8 = (m00 + m11) + m22;
 	Quaternion quaternion = {};
 

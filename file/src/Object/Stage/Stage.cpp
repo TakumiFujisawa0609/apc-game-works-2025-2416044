@@ -20,8 +20,13 @@ Stage::Stage(GameScene* ptr) :
 
 bool Stage::SystemInit() {
 	blockModels_[(size_t)Block::TYPE::NORMAL] = MV1LoadModel("Data/Model/Blocks/Block_Stone.mv1");
+	if (blockModels_[(size_t)Block::TYPE::NORMAL] == -1) return false;
+
 	blockModels_[(size_t)Block::TYPE::ADVANTAGE] = MV1LoadModel("Data/Model/Blocks/Block_Blank.mv1");
+	if (blockModels_[(size_t)Block::TYPE::ADVANTAGE] == -1) return false;
+
 	blockModels_[(size_t)Block::TYPE::FORBIDDEN] = MV1LoadModel("Data/Model/Blocks/Block_Crate.mv1");
+	if (blockModels_[(size_t)Block::TYPE::FORBIDDEN] == -1) return false;
 
 	return true;
 }
@@ -353,7 +358,14 @@ int Stage::IsClear() const {
 void Stage::SetUpCube() {
 	gameStart_ = false;
 
-	if (phase_ == 1) {
+	// nフェーズ目にクリア
+	int clrNum = 4;
+
+#ifdef _DEBUG
+	clrNum = 1;
+#endif
+
+	if (phase_ == clrNum) {
 		isClear_++;
 		return;
 	}

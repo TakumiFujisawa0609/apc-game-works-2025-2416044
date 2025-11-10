@@ -237,33 +237,36 @@ struct Quaternion {
 	// 正規化済み
 	Quaternion Normalized() const;
 
-	// 逆Quaternion化済み
+	// 逆クォータニオン化済み
 	Quaternion Inversed() const;
 
+	// スカラー倍
 	void operator*=(float f);
+	// スカラー倍クォータニオン
 	Quaternion operator*(float f) const;
 
+	// クォータニオンの直接加算
 	Quaternion operator+(const Quaternion& q) const;
 
-	// Quaternionの合成
+	// クォータニオンの合成
 	Quaternion Multiplication(const Quaternion& q) const;
-	// Quaternionの合成
+	// クォータニオンの合成
 	Quaternion operator*(const Quaternion& q) const;
 };
 
 // 内積（ドット積）
 double Dot(const Quaternion& qa, const Quaternion& qb);
 
-// 指定した軸を指定した角度回転させる、Quaternionを生成
-// @param axis 軸（ゼロベクトルを元に、指定したい軸だけ 1.0F を入れる）
+// 指定した軸を指定した角度回転させる、クォータニオンを生成
+// @param axis 軸（ゼロベクトルを元に、指定したい軸だけ 1.0f を入れる）
 // @param rad ラジアン角
 Quaternion AngleAxis(Vector3 axis, double rad);
 
-// 移動方向（３次元ベクトル）から、Quaternionに変換
+// 移動方向（３次元ベクトル）から、クォータニオンに変換
 Quaternion LookRotation(Vector3 dir);
-// 移動方向（３次元ベクトル）から、Quaternionに変換
+// 移動方向（３次元ベクトル）から、クォータニオンに変換
 Quaternion LookRotation(Vector3 dir, Vector3 up);
 
-// 行列から、Quaternionに変換
+// 行列から、クォータニオンに変換
 Quaternion GetRotation(Matrix4x4 mat);
 #pragma endregion
