@@ -50,10 +50,8 @@ bool App::Release() {
 	SceneManager::DeleteInstance();
 
 	// DxLib の解放
-	if (DxLib_End() == -1) return false;
+	DxLib_End();
 
-	// インスタンスの削除
-	delete instance_;
 	return true;
 }
 
@@ -73,9 +71,6 @@ bool App::SystemInit() {
 
 	// DirectX のバージョン
 	SetUseDirect3DVersion(DX_DIRECT3D_11);
-
-	// 垂直同期を無効化
-	SetWaitVSyncFlag(false);
 
 	// DxLib の初期化
 	if (DxLib_Init() == -1) return false;
@@ -162,6 +157,9 @@ bool App::ClassInit() {
 void App::Update() {
 	InputManager::GetInstance().Update();
 
+	FPSManager::GetInstance().Update(
+		InputManager::GetInstance().DownKey(KEY_INPUT_INSERT));
+
 	SceneManager::GetInstance().Update();
 }
 
@@ -173,7 +171,6 @@ void App::Draw() {
 	SetDrawScreen(DX_SCREEN_BACK);
 
 	FPSManager::GetInstance().Draw(
-		InputManager::GetInstance().NowKey(KEY_INPUT_INSERT),
 		FontManager::GetInstance().GetFontData("汎用（小）").handle);
 
 	SceneManager::GetInstance().Draw();

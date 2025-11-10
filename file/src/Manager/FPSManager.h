@@ -1,66 +1,65 @@
 #pragma once
+#include <chrono>
 #include <list>
 
 class FPSManager final {
 public:
-	/* 関数 */
-	static void CreateInstance(unsigned int fps = NORMAL_TARGET_FPS) { if (instance_ == nullptr) instance_ = new FPSManager(fps); }
+	// シングルトン
+	static void CreateInstance(unsigned int fps = STANDARD_FPS) { if (instance_ == nullptr) instance_ = new FPSManager(fps); }
 	static FPSManager& GetInstance() { return *instance_; }
 	static void DeleteInstance() { if (instance_ != nullptr) delete instance_; instance_ = nullptr; }
 
-	// 描画処理
-	void Draw(bool show_key, int handle = -1);
+	// 更新
+	void Update(bool show_key);
 
-	// 待機処理
+	// 描画
+	void Draw(int handle = -1);
+
+	// 待機
 	void CheckWait();
 
-	// 解放処理
+	// 解放
 	bool Release();
 
+	// デルタタイム取得（外部クラス向け）
+	double GetDeltaTime();
+
 private:
-	/* 定数 */
-	// 基本目標FPS
-	static constexpr unsigned int NORMAL_TARGET_FPS = 60U;
-
-	// マイクロ秒タイマーの時間単位
-	static constexpr double MICRO_TIMER = 1000.0 * 1000.0;
-
-	// 表示FPS用秒間サンプリング回数
-	const unsigned int SHOW_FPS_SAMPLING_NUM_PER_SECOND = 30U;
-
-	// 目標FPS
-	const unsigned int TARGET_FPS;
-
-	// フレーム毎の時間単位
-	const long long TIME_PER_FRAME;
-
-	/* 変数 */
 	// インスタンス
 	static FPSManager* instance_;
 
+	// シングルトン
+	FPSManager(const FPSManager&) = delete;
+	FPSManager& operator=(const FPSManager&) = delete;
+	FPSManager(FPSManager&&) = delete;
+	FPSManager& operator=(FPSManager&&) = delete;
+
+	// 標準目標FPS
+	static constexpr unsigned int STANDARD_FPS = 60U;
+	// 最大目標FPS
+	static constexpr unsigned int MAX_FPS = 1200U;
+
+	// 目標FPS
+	const unsigned int TARGET_FPS;
+	// フレーム毎の理想時間
+	const double IDEAL_FRAME_SECOND;
+
 	// タイマー記録用リスト
-	std::list<long long> timeList_;
+	std::list<double> timeList_;
+	// 直前フレームの時間
+	std::chrono::high_resolution_clock::time_point prevTime_;
 
 	// 表示FPS
 	float showFPS_;
-
-	// 記録回数カウンタ
-	unsigned int registerCount_;
-
-	// FPS表示フラグ
+	// 表示FPS可視化フラグ
 	bool showFlag_;
 
-	// 表示キーの前フレームの入力状態
-	bool showKey_;
-
-	/* 関数 */
 	// コンストラクタ
 	FPSManager(unsigned int fps);
-
 	// デストラクタ
 	~FPSManager();
 
 	// 時間記録処理
-	void RegisterTime(const LONGLONG now_time);
+	void RegisterTime(const double delta_time);
 
 };

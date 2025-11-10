@@ -112,19 +112,19 @@ void GameScene::DrawUI() {
 	if (player_->GetState() != Player::STATE::OVER)
 		DrawFormatStringToHandle(48, 48, 0xFFFFFFU, f.handle, "%09u", score_ * 100u);
 
-	if (player_->IsInvincible()) {
-		DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "  A g a i n !  ");
-	}
-	else if (camera_->GetCameraMode() == Camera::MODE::FIXED_PERFECT) {
-		DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "P e r f e c t !");
-	}
-
-	auto cubes = stage_->GetCubeList().size();
 	if (player_->GetPos().y == Player::FALL_FINISH_Y) {
 		DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "G A M E O V E R");
 	}
-	else if (stage_->IsClear()) {
+	else if (player_->GetState() != Player::STATE::OVER && stage_->IsClear()) {
 		DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "   C L E A R   ");
+	}
+	else {
+		if (player_->IsInvincible()) {
+			DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "  A g a i n !  ");
+		}
+		else if (camera_->GetCameraMode() == Camera::MODE::FIXED_PERFECT) {
+			DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "P e r f e c t !");
+		}
 	}
 
 #ifdef _DEBUG

@@ -6,88 +6,88 @@
 FPSManager* FPSManager::instance_ = nullptr;
 
 FPSManager::FPSManager(unsigned int fps) :
-    TARGET_FPS(fps), TIME_PER_FRAME(static_cast<int>(MICRO_TIMER / TARGET_FPS)) {
-    // 表示FPS
-    showFPS_ = 0.0F;
-    showFlag_ = showKey_ = false;
+    TARGET_FPS(fps),
+    IDEAL_FRAME_SECOND(1.0 / TARGET_FPS),
+    timeList_(),
+    prevTime_(),
+    showFPS_(0.0F),
+    showFlag_(false) {
+    // 垂直同期を無効化
+    SetWaitVSyncFlag(false);
 }
 
 FPSManager::~FPSManager() {}
 
-void FPSManager::Draw(bool show_key, int handle) {
-    if (registerCount_ >= TARGET_FPS / SHOW_FPS_SAMPLING_NUM_PER_SECOND) { // 記録カウンターがサンプリング間隔に達する
-        // リストの逆イテレータを取得
-        auto rit = timeList_.rbegin();
+void FPSManager::Update(bool show_key) {
+    if (show_key) showFlag_ = !(showFlag_);
+}
 
-        // リスト末尾（直前）の時間を取得
-        long long nowFps = *rit;
-
-        // 逆イテレータを1つ進める
-        rit++;
-
-        // リスト末尾から2番目（1フレーム前）の時間を取得
-        long long prevFps = *rit;
-
-        // FPSを算出
-        showFPS_ = TIME_PER_FRAME * TARGET_FPS / static_cast<float>(nowFps - prevFps);
-
-        // カウンタをリセット
-        registerCount_ -= TARGET_FPS / SHOW_FPS_SAMPLING_NUM_PER_SECOND;
-    }
-
-    // FPS表示フラグの管理
-    if (!showKey_ && show_key) {
-        showFlag_ = !(showFlag_);
-    }
-    showKey_ = show_key;
-
-    // FPSを表示
-    if (showFlag_) {
-        if (handle == -1) {
-            DrawFormatString(10, 10, 0xFFFFFFU, "FPS: %.2f", showFPS_);
-        }
-        else {
-            DrawFormatStringToHandle(10, 10, 0xFFFFFFU, handle, "FPS: %.2f", showFPS_);
-        }
-    }
+void FPSManager::Draw(int handle) {
+    if (showFlag_)
+        DrawFormatStringToHandle(10, 10, 0xFFFFFFU, handle, "FPS: %.2f", showFPS_);
 }
 
 void FPSManager::CheckWait() {
-	// リストが空の場合は大きく飛ばす
-    if (!timeList_.empty()) {
-        // リストの末尾（直前）の時間
-        long long prevTime = timeList_.back();
+    // 現在時間
+    auto nowTime = std::chrono::high_resolution_clock::now();
 
-        // 今回の時間
-        long long nowTime = GetNowHiPerformanceCount();
+    // 前回からの経過時間
+    std::chrono::duration<double> delta = nowTime - prevTime_;
 
-        // 実際にかかった時間
-        long long tookTime = nowTime - prevTime;
+    // 経過時間(秒)
+    double deltaTime = delta.count();
 
-        // 実際にかかった時間が、本来の経過時間より少ない場合
-        if (tookTime < TIME_PER_FRAME) {
-            // ウェイト
-            WaitTimer(static_cast<int>((TIME_PER_FRAME - tookTime) / 1000.0));
+    // 経過時間が理想時間よりも短ければ待機
+    if (deltaTime < IDEAL_FRAME_SECOND)
+    {
+
+        // 待つべき時間(ミリ秒)
+        double waitMiliSecond = (IDEAL_FRAME_SECOND - deltaTime) * 1000.0;
+
+        // Sleepで待ち時間分を待機
+        if (waitMiliSecond >= 1.0)
+        {
+            // 指定ミリ秒数待つ(DxLib関数)
+            WaitTimer(static_cast<int>(waitMiliSecond));
+
         }
+
+        // 指定時間になるまでbusyになるが待つ
+        while (deltaTime < IDEAL_FRAME_SECOND)
+        {
+            // 再計測
+            nowTime = std::chrono::high_resolution_clock::now();
+            delta = nowTime - prevTime_;
+            deltaTime = delta.count();
+        }
+
     }
 
-    // 今回の時間を記録する
-    RegisterTime(GetNowHiPerformanceCount());
+    // 前回時間を更新
+    prevTime_ = nowTime;
+
+    // FPS計測(指定された最新フレーム数分の平均）
+    RegisterTime(deltaTime);
+
+    // 合計時間
+    double total = 0.0;
+    for (double time : timeList_) total += time;
+
+    // 平均FPS
+    showFPS_ = static_cast<float>(timeList_.size() / total);
 }  
 
 bool FPSManager::Release() {
-    // リストの後片付け
     timeList_.clear();
 
-	return true;
+    return true;
 }
 
-void FPSManager::RegisterTime(const LONGLONG now_time) {
-    // 現在のタイマー内時間をリスト上に記録
-    timeList_.push_back(now_time);
+double FPSManager::GetDeltaTime() { return IDEAL_FRAME_SECOND; }
 
-    registerCount_++;
+void FPSManager::RegisterTime(const double delta_time) {
+    timeList_.emplace_back(delta_time);
 
-    // リスト長が最大値を超えたら、その分だけ古い記録を弾く
-    while (timeList_.size() > static_cast<int>(TARGET_FPS)) timeList_.pop_front();
+    while (timeList_.size() > TARGET_FPS)
+        timeList_.erase(timeList_.begin());
 }

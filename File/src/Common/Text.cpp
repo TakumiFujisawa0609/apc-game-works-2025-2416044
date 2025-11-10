@@ -3,7 +3,6 @@
 #include "Text.h"
 
 std::wstring StringToWideString(std::string str) {
-	// Windows API
 	int wchars_num = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
 	if (wchars_num == 0) return L"";
 	std::vector<wchar_t> wstr(wchars_num);
@@ -12,7 +11,6 @@ std::wstring StringToWideString(std::string str) {
 }
 
 std::string WideStringToString(std::wstring wstr) {
-	// Windows API
 	int str_len = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
 	if (str_len == 0) return "";
 	std::vector<char> str(str_len);
@@ -25,7 +23,7 @@ void WideText::Update() {
 		timer++;
 	}
 	else if (wait * text.size() <= timer) {
-		timer = wait * text.size();
+		timer = wait * (unsigned int)text.size();
 	}
 }
 
