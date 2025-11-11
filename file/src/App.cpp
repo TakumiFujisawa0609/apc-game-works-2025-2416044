@@ -111,7 +111,7 @@ bool App::ClassInit() {
 
 	FontManager::GetInstance().AddFont("ロゴ", "HG明朝E", 80, 4, DX_FONTTYPE_ANTIALIASING_EDGE);
 	FontManager::GetInstance().AddFont("汎用", "HGｺﾞｼｯｸE", 48, 5, DX_FONTTYPE_ANTIALIASING_EDGE);
-	FontManager::GetInstance().AddFont("汎用（小）", "HGｺﾞｼｯｸE", 16, 5, DX_FONTTYPE_ANTIALIASING_EDGE);
+	FontManager::GetInstance().AddFont("汎用（小）", "HGｺﾞｼｯｸE", 32, 5, DX_FONTTYPE_ANTIALIASING_EDGE);
 	FontManager::GetInstance().AddFont("汎用（大）", "HGｺﾞｼｯｸE", 64, 5, DX_FONTTYPE_ANTIALIASING_EDGE);
 
 	// FPSManager
@@ -123,29 +123,33 @@ bool App::ClassInit() {
 
 	InputManager::GetInstance().AddInputMap("移動上",
 		InputManager::BUTTONS::DPAD_U, InputManager::BUTTONS::LSTICK_U,
-		KEY_INPUT_W, 0x00);
+		KEY_INPUT_W, KEY_INPUT_UP);
 	InputManager::GetInstance().AddInputMap("移動下",
 		InputManager::BUTTONS::DPAD_D, InputManager::BUTTONS::LSTICK_D,
-		KEY_INPUT_S, 0x00);
+		KEY_INPUT_S, KEY_INPUT_DOWN);
 	InputManager::GetInstance().AddInputMap("移動左",
 		InputManager::BUTTONS::DPAD_L, InputManager::BUTTONS::LSTICK_L,
-		KEY_INPUT_A, 0x00);
+		KEY_INPUT_A, KEY_INPUT_LEFT);
 	InputManager::GetInstance().AddInputMap("移動右",
 		InputManager::BUTTONS::DPAD_R, InputManager::BUTTONS::LSTICK_R,
-		KEY_INPUT_D, 0x00);
+		KEY_INPUT_D, KEY_INPUT_RIGHT);
 
-	InputManager::GetInstance().AddInputMap("決定",
+	InputManager::GetInstance().AddInputMap("ワナ",
 		InputManager::BUTTONS::BUTTON_0, InputManager::BUTTONS::NONE,
-		KEY_INPUT_SPACE, KEY_INPUT_RETURN);
+		KEY_INPUT_J, KEY_INPUT_C);
 	InputManager::GetInstance().AddInputMap("スーパーワナ",
 		InputManager::BUTTONS::BUTTON_2, InputManager::BUTTONS::NONE,
-		KEY_INPUT_J, 0x00);
+		KEY_INPUT_K, KEY_INPUT_X);
 	InputManager::GetInstance().AddInputMap("高速送り",
 		InputManager::BUTTONS::BUTTON_3, InputManager::BUTTONS::NONE,
-		KEY_INPUT_L, 0x00);
+		KEY_INPUT_L, KEY_INPUT_Z);
 	InputManager::GetInstance().AddInputMap("ポーズ",
 		InputManager::BUTTONS::BUTTON_6, InputManager::BUTTONS::BUTTON_7,
 		KEY_INPUT_BACK, KEY_INPUT_ESCAPE);
+
+	InputManager::GetInstance().AddInputMap("決定",
+		InputManager::BUTTONS::BUTTON_7, InputManager::BUTTONS::NONE,
+		KEY_INPUT_RETURN, 0x00);
 	InputManager::GetInstance().AddInputMap("戻る",
 		InputManager::BUTTONS::BUTTON_1, InputManager::BUTTONS::NONE,
 		KEY_INPUT_BACK, KEY_INPUT_ESCAPE);

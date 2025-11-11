@@ -16,6 +16,9 @@ public:
 	void Draw() override;
 
 private:
+	static constexpr float LOGO_X = 290;
+	static constexpr float LOGO_Y = 180;
+
 	static constexpr float ENTER_X = 500;
 	static constexpr float ENTER_Y = 620;
 
@@ -44,14 +47,44 @@ private:
 		MENU_Y + MENU_Y_ADD * 4
 	};
 
-	static constexpr const char* GUIDE_NAME_KEY[] = {
-		"  キーボード",
-		"   W/A/S/D",
-		"SPACE, ENTER",
-		"三角マーカー",
-		"難易度",
-		"戻る"
+	static constexpr size_t GUIDE_LENGTH = 8;
+	static constexpr const char* GUIDE_NAME_MAP[GUIDE_LENGTH] = {
+		"  操作方法  ",
+		"    移動    ",
+		" 決定／ワナ ",
+		"ｽｰﾊﾟｰﾜﾅ 起動",
+		"   早送り   ",
+		"   ポーズ   ",
+		"    決定    ",
+		"    戻る    "
 	};
+	static constexpr const char* GUIDE_NAME_KEY[GUIDE_LENGTH] = {
+		" キーボード  ",
+		"W/A/S/D, ｶｰｿﾙ",
+		"    J, C     ",
+		"    K, X     ",
+		"    L, Z     ",
+		"  ESC, BACK  ",
+		"    ENTER    ",
+		"  ESC, BACK  "
+	};
+	static constexpr const char* GUIDE_NAME_PAD[GUIDE_LENGTH] = {
+		" ゲームパッド  ",
+		"左ｽﾃｨｯｸ, 十字ｷｰ",
+		"    Aボタン    ",
+		"    Xボタン    ",
+		"    Yボタン    ",
+		"  ｽﾀｰﾄ, ｾﾚｸﾄ   ",
+		"     ｽﾀｰﾄ      ",
+		"    Bボタン    "
+	};
+
+	static constexpr float MENU_X_GUIDE = 480;
+	static constexpr float MENU_X_GUIDE_L = 10;
+	static constexpr float MENU_X_GUIDE_R = 880;
+
+	static constexpr float MENU_Y_GUIDE = 450;
+	static constexpr float MENU_Y_GUIDE_ADD = 48;
 
 	static constexpr const char* SETTING_NAME[SETTING_LENGTH] = {
 		"BGM音量",

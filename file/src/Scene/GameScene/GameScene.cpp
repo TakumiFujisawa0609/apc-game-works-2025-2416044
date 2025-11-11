@@ -50,7 +50,7 @@ void GameScene::Update() {
 	
 	if (player_->GetState() != Player::STATE::OVER) {
 		// マーキング＆マーク起動
-		if (ins.DownMap("決定"))
+		if (ins.DownMap("ワナ"))
 			trap_->SetTrap(player_->GetPos());
 
 		// アドバンスドマーク起動

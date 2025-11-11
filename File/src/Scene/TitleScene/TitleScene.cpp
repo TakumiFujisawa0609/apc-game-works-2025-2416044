@@ -17,6 +17,9 @@ void TitleScene::Update() {
 	case TITLE:
 		UpdateTitle();
 		break;
+	case GUIDE:
+		UpdateGuide();
+		break;
 	case MENU:
 		UpdateMenu();
 		break;
@@ -35,13 +38,16 @@ void TitleScene::Draw() {
 	auto fg = fIns.GetFontData("汎用").handle;
 
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 0x80);
-	DrawStringToHandle(300, 180, "Intelligent Qube", 0x404040U, fl);
+	DrawStringToHandle(LOGO_X, LOGO_Y, "Intelligent Qube", 0x404040U, fl);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0x00);
-	DrawStringToHandle(300, 180, "知 性 の 立 方 体", 0xFFFFFFU, fl);
+	DrawStringToHandle(LOGO_X, LOGO_Y, "知 性 の 立 方 体", 0xFFFFFFU, fl);
 
 	switch (subScene_) {
 	case TITLE:
 		DrawStringToHandle((int)ENTER_X, (int)ENTER_Y, TITLE_START_NAME, 0xFFFFFFU, fg);
+		break;
+	case GUIDE:
+		DrawGuide();
 		break;
 	case MENU:
 		DrawMenu();
@@ -64,13 +70,13 @@ void TitleScene::UpdateTitle() {
 void TitleScene::UpdateMenu() {
 	auto& ins = InputManager::GetInstance();
 
-	if (ins.DownMap("決定"))
+	if (ins.DownMap("決定") || ins.DownMap("ワナ"))
 		switch (cursorIndex_) {
 		case 0:
 			nextScene_ = SceneBase::SCENE::GAME;
 			break;
 		case 1:
-			//subScene_ = GUIDE;
+			subScene_ = GUIDE;
 			break;
 		case 2:
 			subScene_ = SETTING;
@@ -102,7 +108,7 @@ void TitleScene::UpdateMenu() {
 
 void TitleScene::UpdateGuide() {
 	auto& ins = InputManager::GetInstance();
-	if (ins.DownMap("決定")) {
+	if (ins.DownMap("決定") || ins.DownMap("ワナ") || ins.DownMap("戻る")) {
 		subScene_ = MENU;
 	}
 }
@@ -115,7 +121,7 @@ void TitleScene::UpdateSetting() {
 		return;
 	}
 
-	if (ins.DownMap("決定")) switch (cursorIndex_) {
+	if (ins.DownMap("決定") || ins.DownMap("ワナ")) switch (cursorIndex_) {
 	case 2:
 		tempTriMarkFlag_ = !(tempTriMarkFlag_);
 		break;
@@ -196,27 +202,13 @@ void TitleScene::DrawMenu() {
 }
 
 void TitleScene::DrawGuide() {
-	auto fg = FontManager::GetInstance().GetFontData("汎用（小）").handle;
+	auto fg = FontManager::GetInstance().GetFontData("汎用").handle;
 
-	 /*
-	DrawStringToHandle(10, y - fy - 150, "操作", 0xFFFFFFU, fg);
-	DrawStringToHandle(10, y - fy - 130, "W,A,S,D: 移動", 0xFFFFFFU, fg);
-	DrawStringToHandle(10, y - fy - 110, "J      : ワナの設置／起動", 0xFFFFFFU, fg);
-	DrawStringToHandle(10, y - fy - 90, "K      : スーパーワナの起動", 0xFFFFFFU, fg);
-	DrawStringToHandle(10, y - fy - 70, "L      : 早送り", 0xFFFFFFU, fg);
-	DrawStringToHandle(10, y - fy - 50, "ENTER  : ゲーム開始／離脱", 0xFFFFFFU, fg);
-	DrawStringToHandle(10, y - fy - 30, "BACK   : ゲーム中ポーズ切替", 0xFFFFFFU, fg);
-	DrawStringToHandle(10, y - fy - 10, "ESCAPE : ゲーム終了", 0xFFFFFFU, fg);
-
-	DrawStringToHandle(760, y - fy - 150, "ワナの種類", 0xFFFFFFU, fg);
-	DrawStringToHandle(760, y - fy - 130, "ワナ   : 設置場所の上にある立方体を消す", 0xFFFFFFU, fg);
-	DrawStringToHandle(760, y - fy - 110, "ｽｰﾊﾟｰﾜﾅ: 設置場所とその周囲の上にある立方体を消す", 0xFFFFFFU, fg);
-
-	DrawStringToHandle(760, y - fy - 70, "立方体の種類", 0xFFFFFFU, fg);
-	DrawStringToHandle(760, y - fy - 50, "灰: 消すべき種類。特殊な効果は無い", 0xFFFFFFU, fg);
-	DrawStringToHandle(760, y - fy - 30, "紫: 消すべき種類。消した地点にスーパーワナが設置される", 0xFFFFFFU, fg);
-	DrawStringToHandle(760, y - fy - 10, "茶: 消すべきでない種類。消すと手前側の足場が1列崩れる", 0xFFFFFFU, fg);
-	*/
+	for (int i = 0; i < GUIDE_LENGTH; i++) {
+		DrawStringToHandle(int(MENU_X_GUIDE_L), int(MENU_Y_GUIDE + MENU_Y_GUIDE_ADD * i), GUIDE_NAME_KEY[i], 0xFFFFFFU, fg);
+		DrawStringToHandle(int(MENU_X_GUIDE), int(MENU_Y_GUIDE + MENU_Y_GUIDE_ADD * i), GUIDE_NAME_MAP[i], 0xFFFFFFU, fg);
+		DrawStringToHandle(int(MENU_X_GUIDE_R), int(MENU_Y_GUIDE + MENU_Y_GUIDE_ADD * i), GUIDE_NAME_PAD[i], 0xFFFFFFU, fg);
+	}
 }
 
 void TitleScene::DrawSetting() {

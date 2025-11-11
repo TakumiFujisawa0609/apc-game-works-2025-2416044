@@ -19,7 +19,7 @@ bool Pause::SystemInit() {
 void Pause::Update() {
 	auto& ins = InputManager::GetInstance();
 
-	if (ins.DownMap("Œˆ’è")) switch (cursorIndex_) {
+	if (ins.DownMap("Œˆ’è") || ins.DownMap("ƒƒi")) switch (cursorIndex_) {
 	case 0:
 		nextScene_ = SceneBase::SCENE::GAME;
 		break;
