@@ -33,72 +33,21 @@ void TitleScene::Draw() {
 	auto& fIns = FontManager::GetInstance();
 	auto fl = fIns.GetFontData("ロゴ").handle;
 	auto fg = fIns.GetFontData("汎用").handle;
-	auto fgs = fIns.GetFontData("汎用（小）").handle;
 
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 0x80);
 	DrawStringToHandle(300, 180, "Intelligent Qube", 0x404040U, fl);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0x00);
 	DrawStringToHandle(300, 180, "知 性 の 立 方 体", 0xFFFFFFU, fl);
 
-	/*
-	int fy = 16;
-	DrawStringToHandle(10, y - fy - 150, "操作", 0xFFFFFFU, fs);
-	DrawStringToHandle(10, y - fy - 130, "W,A,S,D: 移動", 0xFFFFFFU, fs);
-	DrawStringToHandle(10, y - fy - 110, "J      : ワナの設置／起動", 0xFFFFFFU, fs);
-	DrawStringToHandle(10, y - fy - 90, "K      : スーパーワナの起動", 0xFFFFFFU, fs);
-	DrawStringToHandle(10, y - fy - 70, "L      : 早送り", 0xFFFFFFU, fs);
-	DrawStringToHandle(10, y - fy - 50, "ENTER  : ゲーム開始／離脱", 0xFFFFFFU, fs);
-	DrawStringToHandle(10, y - fy - 30, "BACK   : ゲーム中ポーズ切替", 0xFFFFFFU, fs);
-	DrawStringToHandle(10, y - fy - 10, "ESCAPE : ゲーム終了", 0xFFFFFFU, fs);
-
-	DrawStringToHandle(760, y - fy - 150, "ワナの種類", 0xFFFFFFU, fs);
-	DrawStringToHandle(760, y - fy - 130, "ワナ   : 設置場所の上にある立方体を消す", 0xFFFFFFU, fs);
-	DrawStringToHandle(760, y - fy - 110, "ｽｰﾊﾟｰﾜﾅ: 設置場所とその周囲の上にある立方体を消す", 0xFFFFFFU, fs);
-
-	DrawStringToHandle(760, y - fy - 70, "立方体の種類", 0xFFFFFFU, fs);
-	DrawStringToHandle(760, y - fy - 50, "灰: 消すべき種類。特殊な効果は無い", 0xFFFFFFU, fs);
-	DrawStringToHandle(760, y - fy - 30, "紫: 消すべき種類。消した地点にスーパーワナが設置される", 0xFFFFFFU, fs);
-	DrawStringToHandle(760, y - fy - 10, "茶: 消すべきでない種類。消すと手前側の足場が1列崩れる", 0xFFFFFFU, fs);
-	*/
-
 	switch (subScene_) {
 	case TITLE:
-		DrawStringToHandle((int)MENU_LAYOUT_X, (int)MENU_LAYOUT_Y[0], "PRESS ENTER", 0xFFFFFFU, fg);
+		DrawStringToHandle((int)ENTER_X, (int)ENTER_Y, TITLE_START_NAME, 0xFFFFFFU, fg);
 		break;
 	case MENU:
-		for (size_t i = 0; i < MENU_LENGTH; i++) {
-			DrawStringToHandle((int)MENU_LAYOUT_X, (int)MENU_LAYOUT_Y[i], MENU_NAME[i], 0xFFFFFFU, fg);
-
-			if (cursorIndex_ == i) {
-				Rect box = { { MENU_LAYOUT_X, MENU_LAYOUT_Y[i] }, { MENU_LAYOUT_X + MENU_CURSORBOX_X, MENU_LAYOUT_Y[i] + MENU_CURSORBOX_Y } };
-				DrawBoxAA(box.start.x, box.start.y, box.end.x, box.end.y, 0xFF0000U, false);
-			}
-		}
+		DrawMenu();
 		break;
 	case SETTING:
-		for (size_t i = 0; i < SETTING_LENGTH; i++) {
-			DrawStringToHandle((int)MENU_LAYOUT_X, (int)MENU_LAYOUT_Y[i], SETTING_NAME[i], 0xFFFFFFU, fg);
-
-			if (cursorIndex_ == i) {
-				Rect box = { { MENU_LAYOUT_X, MENU_LAYOUT_Y[i] }, { MENU_LAYOUT_X + MENU_CURSORBOX_X, MENU_LAYOUT_Y[i] + MENU_CURSORBOX_Y } };
-				DrawBoxAA(box.start.x, box.start.y, box.end.x, box.end.y, 0xFF0000U, false);
-			}
-
-			switch (i) {
-			case 0:
-				DrawFormatStringToHandle(int(MENU_LAYOUT_X + MENU_LAYOUT_X_ADD), (int)MENU_LAYOUT_Y[i], 0xFFFFFFU, fg, "%3d%%", tempVolumeBGM_ * 5);
-				break;
-			case 1:
-				DrawFormatStringToHandle(int(MENU_LAYOUT_X + MENU_LAYOUT_X_ADD), (int)MENU_LAYOUT_Y[i], 0xFFFFFFU, fg, "%3d%%", tempVolumeSE_ * 5);
-				break;
-			case 2:
-				DrawStringToHandle(int(MENU_LAYOUT_X + MENU_LAYOUT_X_ADD), (int)MENU_LAYOUT_Y[i], tempTriMarkFlag_ ? "YES" : "NO", 0xFFFFFFU, fg);
-				break;
-			case 3:
-				DrawFormatStringToHandle(int(MENU_LAYOUT_X + MENU_LAYOUT_X_ADD), (int)MENU_LAYOUT_Y[i], 0xFFFFFFU, fg, "%d", tempSpinTimerIndex_ + 1);
-				break;
-			}
-		}
+		DrawSetting();
 		break;
 	}
 }
@@ -115,12 +64,15 @@ void TitleScene::UpdateTitle() {
 void TitleScene::UpdateMenu() {
 	auto& ins = InputManager::GetInstance();
 
-	if (ins.DownMap("決定") || ins.DownMap("ワナ"))
+	if (ins.DownMap("決定"))
 		switch (cursorIndex_) {
 		case 0:
 			nextScene_ = SceneBase::SCENE::GAME;
 			break;
 		case 1:
+			//subScene_ = GUIDE;
+			break;
+		case 2:
 			subScene_ = SETTING;
 			cursorIndex_ = 0;
 			tempVolumeBGM_ = int(AudioManager::GetInstance().GetVolumeBGM() * 20);
@@ -128,7 +80,7 @@ void TitleScene::UpdateMenu() {
 			tempTriMarkFlag_ = Trap::GetTriMarkFlag();
 			tempSpinTimerIndex_ = Stage::GetSpinFrameIndex();
 			break;
-		case 2:
+		case 3:
 			App::GetInstance().Quit();
 			break;
 		}
@@ -148,6 +100,13 @@ void TitleScene::UpdateMenu() {
 	}
 }
 
+void TitleScene::UpdateGuide() {
+	auto& ins = InputManager::GetInstance();
+	if (ins.DownMap("決定")) {
+		subScene_ = MENU;
+	}
+}
+
 void TitleScene::UpdateSetting() {
 	auto& ins = InputManager::GetInstance();
 
@@ -156,7 +115,7 @@ void TitleScene::UpdateSetting() {
 		return;
 	}
 
-	if (ins.DownMap("決定") || ins.DownMap("ワナ")) switch (cursorIndex_) {
+	if (ins.DownMap("決定")) switch (cursorIndex_) {
 	case 2:
 		tempTriMarkFlag_ = !(tempTriMarkFlag_);
 		break;
@@ -220,6 +179,71 @@ void TitleScene::UpdateSetting() {
 	if (ins.DownMap("移動上")) {
 		if (--cursorIndex_ < 0)
 			cursorIndex_ = SETTING_LENGTH - 1;
+	}
+}
+
+void TitleScene::DrawMenu() {
+	auto fg = FontManager::GetInstance().GetFontData("汎用").handle;
+
+	for (size_t i = 0; i < MENU_LENGTH; i++) {
+		DrawStringToHandle((int)MENU_X, (int)MENU_LAYOUT_Y[i], MENU_NAME[i], 0xFFFFFFU, fg);
+
+		if (cursorIndex_ == i) {
+			Rect box = { { MENU_X, MENU_LAYOUT_Y[i] }, { MENU_X + MENU_CURSORBOX_X, MENU_LAYOUT_Y[i] + MENU_CURSORBOX_Y } };
+			DrawBoxAA(box.start.x, box.start.y, box.end.x, box.end.y, 0xFF0000U, false);
+		}
+	}
+}
+
+void TitleScene::DrawGuide() {
+	auto fg = FontManager::GetInstance().GetFontData("汎用（小）").handle;
+
+	 /*
+	DrawStringToHandle(10, y - fy - 150, "操作", 0xFFFFFFU, fg);
+	DrawStringToHandle(10, y - fy - 130, "W,A,S,D: 移動", 0xFFFFFFU, fg);
+	DrawStringToHandle(10, y - fy - 110, "J      : ワナの設置／起動", 0xFFFFFFU, fg);
+	DrawStringToHandle(10, y - fy - 90, "K      : スーパーワナの起動", 0xFFFFFFU, fg);
+	DrawStringToHandle(10, y - fy - 70, "L      : 早送り", 0xFFFFFFU, fg);
+	DrawStringToHandle(10, y - fy - 50, "ENTER  : ゲーム開始／離脱", 0xFFFFFFU, fg);
+	DrawStringToHandle(10, y - fy - 30, "BACK   : ゲーム中ポーズ切替", 0xFFFFFFU, fg);
+	DrawStringToHandle(10, y - fy - 10, "ESCAPE : ゲーム終了", 0xFFFFFFU, fg);
+
+	DrawStringToHandle(760, y - fy - 150, "ワナの種類", 0xFFFFFFU, fg);
+	DrawStringToHandle(760, y - fy - 130, "ワナ   : 設置場所の上にある立方体を消す", 0xFFFFFFU, fg);
+	DrawStringToHandle(760, y - fy - 110, "ｽｰﾊﾟｰﾜﾅ: 設置場所とその周囲の上にある立方体を消す", 0xFFFFFFU, fg);
+
+	DrawStringToHandle(760, y - fy - 70, "立方体の種類", 0xFFFFFFU, fg);
+	DrawStringToHandle(760, y - fy - 50, "灰: 消すべき種類。特殊な効果は無い", 0xFFFFFFU, fg);
+	DrawStringToHandle(760, y - fy - 30, "紫: 消すべき種類。消した地点にスーパーワナが設置される", 0xFFFFFFU, fg);
+	DrawStringToHandle(760, y - fy - 10, "茶: 消すべきでない種類。消すと手前側の足場が1列崩れる", 0xFFFFFFU, fg);
+	*/
+}
+
+void TitleScene::DrawSetting() {
+	auto fg = FontManager::GetInstance().GetFontData("汎用").handle;
+
+	for (size_t i = 0; i < SETTING_LENGTH; i++) {
+		DrawStringToHandle((int)MENU_X_SETTING, (int)MENU_LAYOUT_Y[i], SETTING_NAME[i], 0xFFFFFFU, fg);
+
+		if (cursorIndex_ == i) {
+			Rect box = { { MENU_X_SETTING, MENU_LAYOUT_Y[i] }, { MENU_X_SETTING + MENU_CURSORBOX_X, MENU_LAYOUT_Y[i] + MENU_CURSORBOX_Y } };
+			DrawBoxAA(box.start.x, box.start.y, box.end.x, box.end.y, 0xFF0000U, false);
+		}
+
+		switch (i) {
+		case 0:
+			DrawFormatStringToHandle(int(MENU_X_SETTING + MENU_X_ADD), (int)MENU_LAYOUT_Y[i], 0xFFFFFFU, fg, "%3d%%", tempVolumeBGM_ * 5);
+			break;
+		case 1:
+			DrawFormatStringToHandle(int(MENU_X_SETTING + MENU_X_ADD), (int)MENU_LAYOUT_Y[i], 0xFFFFFFU, fg, "%3d%%", tempVolumeSE_ * 5);
+			break;
+		case 2:
+			DrawStringToHandle(int(MENU_X_SETTING + MENU_X_ADD), (int)MENU_LAYOUT_Y[i], tempTriMarkFlag_ ? "YES" : "NO", 0xFFFFFFU, fg);
+			break;
+		case 3:
+			DrawFormatStringToHandle(int(MENU_X_SETTING + MENU_X_ADD), (int)MENU_LAYOUT_Y[i], 0xFFFFFFU, fg, "%d", tempSpinTimerIndex_ + 1);
+			break;
+		}
 	}
 }
 

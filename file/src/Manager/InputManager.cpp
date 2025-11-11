@@ -177,9 +177,9 @@ void InputManager::GetPadInput(int pad_num) {
 		else if (xIn.ThumbLX > 0)
 			nowButton_[(int)BUTTONS::LSTICK_R] = (int)abs(xIn.ThumbLX * XINPUT_STICK_MULT);
 		// YŽ²
-		if (xIn.ThumbLY < 0)
+		if (xIn.ThumbLY > 0)
 			nowButton_[(int)BUTTONS::LSTICK_U] = (int)abs(xIn.ThumbLY * XINPUT_STICK_MULT);
-		else if (xIn.ThumbLY > 0)
+		else if (xIn.ThumbLY < 0)
 			nowButton_[(int)BUTTONS::LSTICK_D] = (int)abs(xIn.ThumbLY * XINPUT_STICK_MULT);
 	}
 

@@ -1,18 +1,25 @@
 #pragma once
 #include <string>
 
-std::wstring StringToWideString(std::string);
-std::string WideStringToString(std::wstring);
-
-struct WideText {
+class WideText {
 public:
-	std::wstring text = L"";
-	unsigned int wait = 0;
+	std::wstring text_ = L"";
+	unsigned int wait_ = 0;
+
+	WideText() {}
+	WideText(std::wstring text, unsigned int wait) : text_(text), wait_(wait) {}
+
+	~WideText() {}
 
 	void Update();
 	std::wstring Get() const;
 
+	static std::wstring StringToWideString(std::string);
+
+	static std::string WideStringToString(std::wstring);
+	std::string WideStringToString();
+
 private:
-	unsigned int timer = 0;
+	unsigned int timer_ = 0;
 
 };

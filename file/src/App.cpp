@@ -1,6 +1,7 @@
 #include <DxLib.h>
 #include <random>
 #include <stdio.h>
+#include "Common/Geometry.h"
 #include "Manager/AudioManager.h"
 #include "Manager/FontManager.h"
 #include "Manager/FPSManager.h"
@@ -101,6 +102,8 @@ bool App::ClassInit() {
 	AudioManager::GetInstance().LoadSE("トラップ起動", "Data/Sound/AS_792784_ビン（エラー音、アラート音）.wav");
 	AudioManager::GetInstance().LoadSE("強化トラップ起動", "Data/Sound/AS_459510_SF／UI／ドゥーン／電子.wav", 1.1f);
 	AudioManager::GetInstance().LoadSE("キューブ消滅", "Data/Sound/AS_251915_カットイン／バシュッ／場面転換.wav");
+	AudioManager::GetInstance().LoadSE("足場崩壊", "Data/Sound/AS_857401_ビル崩壊_崩れる音.wav", 1.15f);
+	AudioManager::GetInstance().LoadSE("パーフェクト", "Data/Sound/AS_1239388_perfect（低音）.wav");
 	
 	// FontManager
 	FontManager::CreateInstance();
@@ -131,20 +134,20 @@ bool App::ClassInit() {
 		InputManager::BUTTONS::DPAD_R, InputManager::BUTTONS::LSTICK_R,
 		KEY_INPUT_D, 0x00);
 
-	InputManager::GetInstance().AddInputMap("ワナ",
+	InputManager::GetInstance().AddInputMap("決定",
 		InputManager::BUTTONS::BUTTON_0, InputManager::BUTTONS::NONE,
-		KEY_INPUT_J, 0x00);
+		KEY_INPUT_SPACE, KEY_INPUT_RETURN);
 	InputManager::GetInstance().AddInputMap("スーパーワナ",
 		InputManager::BUTTONS::BUTTON_2, InputManager::BUTTONS::NONE,
-		KEY_INPUT_K, 0x00);
+		KEY_INPUT_J, 0x00);
 	InputManager::GetInstance().AddInputMap("高速送り",
 		InputManager::BUTTONS::BUTTON_3, InputManager::BUTTONS::NONE,
 		KEY_INPUT_L, 0x00);
-	InputManager::GetInstance().AddInputMap("決定",
-		InputManager::BUTTONS::BUTTON_7, InputManager::BUTTONS::NONE,
-		KEY_INPUT_RETURN, 0x00);
+	InputManager::GetInstance().AddInputMap("ポーズ",
+		InputManager::BUTTONS::BUTTON_6, InputManager::BUTTONS::BUTTON_7,
+		KEY_INPUT_BACK, KEY_INPUT_ESCAPE);
 	InputManager::GetInstance().AddInputMap("戻る",
-		InputManager::BUTTONS::BUTTON_6, InputManager::BUTTONS::NONE,
+		InputManager::BUTTONS::BUTTON_1, InputManager::BUTTONS::NONE,
 		KEY_INPUT_BACK, KEY_INPUT_ESCAPE);
 
 	// SceneManager
@@ -174,6 +177,11 @@ void App::Draw() {
 		FontManager::GetInstance().GetFontData("汎用（小）").handle);
 
 	SceneManager::GetInstance().Draw();
+
+#ifdef _DEBUG
+	Vector2 center = { 1280 / 2.0f, 960 / 2.0f };
+	DrawCircleAA(center.x, center.y, 3.0f, 12, 0x00FFFFU, true);
+#endif
 
 	// 裏画面を表画面に転写
 	ScreenFlip();

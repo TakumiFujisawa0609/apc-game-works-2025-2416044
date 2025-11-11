@@ -19,7 +19,7 @@ bool Pause::SystemInit() {
 void Pause::Update() {
 	auto& ins = InputManager::GetInstance();
 
-	if (ins.DownMap("Œˆ’è") || ins.DownMap("ƒƒi")) switch (cursorIndex_) {
+	if (ins.DownMap("Œˆ’è")) switch (cursorIndex_) {
 	case 0:
 		nextScene_ = SceneBase::SCENE::GAME;
 		break;
@@ -117,22 +117,22 @@ void Pause::DrawUI() {
 	auto fm = FontManager::GetInstance().GetFontData("”Ä—p");
 
 	for (int i = 0; i < MENU_LENGTH; i++) {
-		DrawFormatStringToHandle(int(MENU_LAYOUT_X), int(MENU_LAYOUT_Y[i]), 0xFFFFFFU, fm.handle, MENU_NAME[i]);
+		DrawFormatStringToHandle(int(MENU_X), int(MENU_LAYOUT_Y[i]), 0xFFFFFFU, fm.handle, MENU_NAME[i]);
 
 		if (cursorIndex_ == i) {
-			Rect box = { { MENU_LAYOUT_X, MENU_LAYOUT_Y[i] }, { MENU_LAYOUT_X + MENU_CURSORBOX_X, MENU_LAYOUT_Y[i] + MENU_CURSORBOX_Y } };
+			Rect box = { { MENU_X, MENU_LAYOUT_Y[i] }, { MENU_X + MENU_CURSORBOX_X, MENU_LAYOUT_Y[i] + MENU_CURSORBOX_Y } };
 			DrawBoxAA(box.start.x, box.start.y, box.end.x, box.end.y, 0xFF0000U, false);
 		}
 
 		switch (i) {
 		case 1:
-			DrawFormatStringToHandle(int(MENU_LAYOUT_X + MENU_LAYOUT_X_ADD), int(MENU_LAYOUT_Y[i]), 0xFFFFFFU, fm.handle, "%3d%%", tempVolumeBGM_ * 5);
+			DrawFormatStringToHandle(int(MENU_X + MENU_X_ADD), int(MENU_LAYOUT_Y[i]), 0xFFFFFFU, fm.handle, "%3d%%", tempVolumeBGM_ * 5);
 			break;
 		case 2:
-			DrawFormatStringToHandle(int(MENU_LAYOUT_X + MENU_LAYOUT_X_ADD), int(MENU_LAYOUT_Y[i]), 0xFFFFFFU, fm.handle, "%3d%%", tempVolumeSE_ * 5);
+			DrawFormatStringToHandle(int(MENU_X + MENU_X_ADD), int(MENU_LAYOUT_Y[i]), 0xFFFFFFU, fm.handle, "%3d%%", tempVolumeSE_ * 5);
 			break;
 		case 3:
-			DrawFormatStringToHandle(int(MENU_LAYOUT_X + MENU_LAYOUT_X_ADD), int(MENU_LAYOUT_Y[i]), 0xFFFFFFU, fm.handle, "%d", tempCameraFollowMode_);
+			DrawFormatStringToHandle(int(MENU_X + MENU_X_ADD), int(MENU_LAYOUT_Y[i]), 0xFFFFFFU, fm.handle, "%d", tempCameraFollowMode_);
 			break;
 		}
 	}

@@ -44,6 +44,20 @@ void AudioManager::PlaySE(const char* name, bool loop) {
 	}
 }
 
+void AudioManager::StopBGM(const char* name) {
+	auto it = bgmList_.find(name);
+	if (it != bgmList_.end()) {
+		StopSoundMem((*it).second.handle);
+	}
+}
+
+void AudioManager::StopSE(const char* name) {
+	auto it = seList_.find(name);
+	if (it != seList_.end()) {
+		StopSoundMem((*it).second.handle);
+	}
+}
+
 void AudioManager::LoadBGM(const char* name, const char* file_path, float vol_mult) {
 	if (bgmList_.count(name) > 0) return;
 

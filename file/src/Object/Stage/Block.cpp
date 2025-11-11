@@ -1,5 +1,6 @@
 #include <algorithm>
 #include "../../Common/GeometryDxLib.h"
+#include "../../Manager/AudioManager.h"
 #include "Stage.h"
 #include "Block.h"
 
@@ -18,7 +19,11 @@ void Block::Update() {
 		if (--stateFrame_ == 0) state_ = STATE::WAIT;
 		break;
 	case STATE::ADD:
-		if (--stateFrame_ == 0) state_ = STATE::NONE;
+		if (--stateFrame_ == 0) {
+			state_ = STATE::NONE;
+
+			AudioManager::GetInstance().PlaySE("‰ñ“]");
+		}
 		break;
 	case STATE::STOP:
 	case STATE::SPIN:

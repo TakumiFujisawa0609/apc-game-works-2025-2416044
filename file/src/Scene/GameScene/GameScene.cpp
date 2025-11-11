@@ -42,25 +42,29 @@ bool GameScene::GameInit() {
 void GameScene::Update() {
 	auto& ins = InputManager::GetInstance();
 
-	if (ins.DownMap("戻る"))
+	if (ins.DownMap("ポーズ"))
 		if (player_->GetState() != Player::STATE::OVER)
 			nextScene_ = SceneBase::SCENE::PAUSE;
 		else
 			nextScene_ = SceneBase::SCENE::TITLE;
 	
-	// マーキング＆マーク起動
-	if (ins.DownMap("ワナ"))
-		trap_->SetTrap(player_->GetPos());
+	if (player_->GetState() != Player::STATE::OVER) {
+		// マーキング＆マーク起動
+		if (ins.DownMap("決定"))
+			trap_->SetTrap(player_->GetPos());
 
-	// アドバンスドマーク起動
-	if (ins.DownMap("スーパーワナ"))
-		trap_->ExecuteAdvTrap();
+		// アドバンスドマーク起動
+		if (ins.DownMap("スーパーワナ"))
+			trap_->ExecuteAdvTrap();
+	}
 
-	// マーク更新
-	trap_->Update();
+	if (player_->GetPos().y > Player::FALL_FINISH_Y) {
+		// マーク更新
+		trap_->Update();
 
-	stage_->Update();
-	player_->Update();
+		stage_->Update();
+		player_->Update();
+	}
 
 	Collision();
 
@@ -126,11 +130,6 @@ void GameScene::DrawUI() {
 			DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "P e r f e c t !");
 		}
 	}
-
-#ifdef _DEBUG
-	Vector2 center = { x / 2.0f, y / 2.0f };
-	DrawCircleAA(center.x, center.y, 3.0f, 12, 0x00FFFFU, true);
-#endif
 }
 
 bool GameScene::Release() {

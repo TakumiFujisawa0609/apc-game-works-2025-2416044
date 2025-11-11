@@ -191,10 +191,12 @@ void Player::Move() {
 
 	VECTOR dir = {};
 
+	/*
 	dir.z -= ins.NowButton(InputManager::BUTTONS::LSTICK_U) / 1000.0f;
 	dir.z += ins.NowButton(InputManager::BUTTONS::LSTICK_D) / 1000.0f;
 	dir.x -= ins.NowButton(InputManager::BUTTONS::LSTICK_L) / 1000.0f;
 	dir.x += ins.NowButton(InputManager::BUTTONS::LSTICK_R) / 1000.0f;
+	*/
 
 	if (ins.NowMap("à⁄ìÆè„")) dir.z += 1.0f;
 	if (ins.NowMap("à⁄ìÆâ∫")) dir.z -= 1.0f;

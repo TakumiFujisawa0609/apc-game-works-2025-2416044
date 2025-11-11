@@ -60,6 +60,26 @@ public:
 		END
 	};
 
+	enum class TAGS {
+		NONE,
+
+		CONFIG,
+		START,
+		PAUSE,
+
+		ATTACK_1,
+		ATTACK_2,
+		ATTACK_3,
+		DASH,
+		JUMP,
+		MOVE_BACK,
+		MOVE_DOWN,
+		MOVE_FRONT,
+		MOVE_LEFT,
+		MOVE_RIGHT,
+		MOVE_UP,
+	};
+
 	static constexpr size_t MAP_INDEX_MAX = 2ULL;
 
 	struct INPUT_MAP {

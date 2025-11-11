@@ -89,6 +89,7 @@ void Trap::ExecuteAdvTrap() {
 		}
 
 		it = traps_.erase(it);
+		if (!trapFlg) trapFlg = true;
 
 		for (int x = -1; x < 2; x++) for (int y = -1; y < 2; y++) {
 			bool contFlag = false;

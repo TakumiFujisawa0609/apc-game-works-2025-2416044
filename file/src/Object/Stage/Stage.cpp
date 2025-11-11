@@ -96,6 +96,7 @@ void Stage::Update() {
 		for (auto rit = platformList_.rbegin(); rit != platformList_.rend(); rit++) {
 			if ((*rit)->GetState() == Block::STATE::NONE) {
 				(*rit)->ChangeState(Block::STATE::ALERT);
+				AudioManager::GetInstance().PlaySE("足場崩壊");
 				break;
 			}
 		}
@@ -613,6 +614,7 @@ void Stage::PerfectProc() {
 	}
 
 	perfectCamTimer_ = PERFECT_CAM_TIMER;
+	AudioManager::GetInstance().PlaySE("パーフェクト");
 }
 
 void Stage::UpdateStop() {
