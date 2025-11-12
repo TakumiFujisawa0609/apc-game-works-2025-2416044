@@ -1,5 +1,6 @@
 #include <algorithm>
 #include "../../Common/GeometryDxLib.h"
+#include "../../Common/MathUtil.h"
 #include "../../Manager/InputManager.h"
 #include "../Common/AnimationController.h"
 #include "../Stage/Block.h"
@@ -211,7 +212,7 @@ void Player::Move() {
 		float tempAngle = 0.0f;
 		tempAngle = atan2f(dir.x, dir.z);
 
-		worldAngles_.y = LerpRad(worldAngles_.y, tempAngle, 0.3f);
+		worldAngles_.y = MathUtil::LerpRad(worldAngles_.y, tempAngle, 0.3f);
 
 		animType_ = ANIM_TYPE::RUN;
 	}

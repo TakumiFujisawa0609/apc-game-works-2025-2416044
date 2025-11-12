@@ -6,6 +6,11 @@
 
 class InputManager {
 public:
+	/// シングルトン
+	static void CreateInstance() { if (instance_ == nullptr) instance_ = new InputManager; }
+	static InputManager& GetInstance() { return *instance_; }
+	static void DeleteInstance() { if (instance_ != nullptr) delete instance_; instance_ = nullptr; }
+
 	enum class BUTTONS {
 		NONE,
 
@@ -87,10 +92,6 @@ public:
 		std::array<int, MAP_INDEX_MAX> keyMap;
 	};
 
-	static void CreateInstance() { if (instance_ == nullptr) instance_ = new InputManager; }
-	static InputManager& GetInstance() { return *instance_; }
-	static void DeleteInstance() { if (instance_ != nullptr) delete instance_; instance_ = nullptr; }
-
 	bool Init();
 	void Update();
 	bool Release();
@@ -118,6 +119,7 @@ public:
 	bool UpKey(int DxLib_KEYcode) const;
 
 private:
+	/// シングルトン
 	static InputManager* instance_;
 
 	InputManager() {}
@@ -128,7 +130,7 @@ private:
 	InputManager(InputManager&&) = delete;
 	InputManager& operator=(InputManager&&) = delete;
 
-	static constexpr double XINPUT_STICK_MULT = 1000.0 / (short)MAXSHORT;
+	static constexpr double XINPUT_STICK_MULT = 1000.0 / (short)0x7fff;
 
 	std::map<const char*, INPUT_MAP> inputMap_;
 	std::array<int, (size_t)BUTTONS::END> nowButton_;

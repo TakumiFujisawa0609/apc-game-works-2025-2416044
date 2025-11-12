@@ -143,17 +143,16 @@ void InputManager::GetKeyInput() {
 }
 
 void InputManager::GetPadInput(int pad_num) {
-	int n = GetJoypadButtonNum(pad_num);
-
 	// DirectInput
 	DINPUT_JOYSTATE dIn = {};
 	GetJoypadDirectInputState(pad_num, &dIn);
 
-	bool xFlg = CheckJoypadXInput(pad_num) ? true : false;
 	// XInput（XBOX対応コントローラー専用）
 	XINPUT_STATE xIn = {};
+	bool xFlg = CheckJoypadXInput(pad_num) ? true : false;
 	if (xFlg) GetJoypadXInputState(pad_num, &xIn);
 
+	// 更新
 	prevButton_ = nowButton_;
 	nowButton_ = {};
 
@@ -217,22 +216,24 @@ void InputManager::GetPadInput(int pad_num) {
 		/*
 		// POVは、出力に弧度×100のunsigned int型1つを用いているため
 		// 取り出した値を100で割った後、弧度からラジアンに変換すると良い
-		float rad = DegToRad((float)dIn.POV[0] / 100.0F);
+		double rad = DegToRad(static_cast<double>(dIn.POV[0]) / 100.0);
 		// 計算時の誤差に対するマージン
-		float margin = 0.01F;
+		double margin = 0.01;
 
 		// 本来はx = cos、y = sinだが、0が上から始まるので
 		// cosとsinを入れ替えた方が良い
+		double sinRet = sin(rad);
+		double cosRet = cos(rad);
 
 		// X軸
-		if (sinf(rad) < margin)
+		if (sinRet < margin)
 			nowButton_[(int)BUTTONS::DPAD_L] = 1;
-		else if (sinf(rad) > margin)
+		else if (sinRet > margin)
 			nowButton_[(int)BUTTONS::DPAD_R] = 1;
 		// Y軸
-		if (cosf(rad) > margin)
+		if (cosRet > margin)
 			nowButton_[(int)BUTTONS::DPAD_U] = 1;
-		else if (cosf(rad) < margin)
+		else if (cosRet < margin)
 			nowButton_[(int)BUTTONS::DPAD_D] = 1;
 		*/
 
@@ -285,5 +286,31 @@ void InputManager::GetPadInput(int pad_num) {
 		nowButton_[(int)BUTTONS::BUTTON_13] = xIn.RightTrigger;
 	}
 
-	int debug = 0;
+	/*
+	// Buttons（ボタン）
+	if (!xFlg) { // DirectInput
+		// 最大32ボタン
+		for (int index = 0; index < _countof(DINPUT_JOYSTATE::Buttons); index++) {
+			int buttonIndex = index + (int)BUTTONS::BUTTON_0;
+			nowButton_[buttonIndex] = dIn.Buttons[index];
+		}
+	}
+	else { // XInput
+		int index, buttonIndex;
+
+		// 4方向ハットスイッチ＋12ボタン、ボタンのみ取り出す
+		for (index = 4; index < _countof(XINPUT_STATE::Buttons); index++) {
+			buttonIndex = (index - 4) + (int)BUTTONS::BUTTON_0;
+			nowButton_[buttonIndex] = dIn.Buttons[index];
+		}
+
+		// トリガーを余った領域に割り当て
+		// ボタン12
+		buttonIndex = (int)BUTTONS::BUTTON_12;
+		nowButton_[buttonIndex] = int(xIn.LeftTrigger);
+		// ボタン13
+		buttonIndex = (int)BUTTONS::BUTTON_13;
+		nowButton_[buttonIndex] = int(xIn.RightTrigger);
+	}
+	*/
 }

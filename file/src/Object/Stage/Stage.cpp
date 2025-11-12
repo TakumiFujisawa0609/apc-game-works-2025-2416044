@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <iostream>
 #include "../../Common/GeometryDxLib.h"
+#include "../../Common/MathUtil.h"
 #include "../../Manager/AudioManager.h"
 #include "../../Manager/FontManager.h"
 #include "../../Manager/SceneManager.h"
@@ -39,7 +40,7 @@ bool Stage::GameInit() {
 	phase_ = 0;
 	stage_ = 1;
 
-	platformDepth_ = RoundDown(cubeDepth_ * wave_ * PLATFORM_DEPTH_MULT);
+	platformDepth_ = MathUtil::RoundDown(cubeDepth_ * wave_ * PLATFORM_DEPTH_MULT);
 
 	for (int pd = 0; pd < platformDepth_; ++pd) {
 		auto& ptr = platformList_.emplace_back();

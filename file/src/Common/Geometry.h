@@ -2,41 +2,6 @@
 
 // 注意: 全ての関数を正常にコンパイル・動作させるには、C++20以上が必要です
 
-#pragma region 汎用
-// 四捨五入
-int Round(float n);
-// 四捨五入
-int Round(double n);
-
-// 端数切り捨て
-int RoundDown(float n);
-// 端数切り捨て
-int RoundDown(double n);
-
-// 端数切り上げ
-int RoundUp(float n);
-// 端数切り上げ
-int RoundUp(double n);
-
-// 弧度からラジアンに変換
-float DegToRad(float degree);
-// 弧度からラジアンに変換
-double DegToRad(double degree);
-
-// ラジアンから弧度に変換
-float RadToDeg(float radian);
-// ラジアンから弧度に変換
-double RadToDeg(double radian);
-
-float RadIn2PI(float radian);
-double RadIn2PI(double radian);
-
-// 線形補間
-float Lerp(float start, float end, float lerp = 0.2f);
-// 線形補間（ラジアン）
-float LerpRad(float start, float end, float lerp = 0.2f);
-#pragma endregion
-
 #pragma region 色
 struct Color {
 	float r, g, b;

@@ -2,97 +2,12 @@
 #include <array>
 #include <cmath>
 #include <numbers>
+#include "MathUtil.h"
 #include "Geometry.h"
 
 // 注意: 全ての関数を正常にコンパイル・動作させるには、C++20以上が必要です
 
 #pragma region 汎用
-int Round(float n) {
-	return n - (int)n >= 0.5f ? (int)n + 1 : (int)n;
-}
-
-int Round(double n) {
-	return n - (int)n >= 0.5 ? (int)n + 1 : (int)n;
-}
-
-int RoundDown(float n) {
-	return (int)n;
-}
-
-int RoundDown(double n) {
-	return (int)n;
-}
-
-int RoundUp(float n) {
-	return n - (int)n > 0.0f ? (int)n + 1 : (int)n;
-}
-
-int RoundUp(double n) {
-	return n - (int)n > 0.0 ? (int)n + 1 : (int)n;
-}
-
-float DegToRad(float degree) {
-	return degree * (float)std::numbers::pi / 180.0f;
-}
-
-double DegToRad(double degree) {
-	return degree * std::numbers::pi / 180.0;
-}
-
-float RadToDeg(float radian) {
-	return radian / (float)std::numbers::pi * 180.0f;
-}
-
-double RadToDeg(double radian) {
-	return radian / std::numbers::pi * 180.0;
-}
-
-float RadIn2PI(float radian) {
-	while (radian >= (float)std::numbers::pi * 2.0f)
-		radian -= (float)std::numbers::pi * 2.0f;
-	while (radian < 0.0f)
-		radian += (float)std::numbers::pi * 2.0f;
-
-	return radian;
-}
-
-double RadIn2PI(double radian) {
-	while (radian >= std::numbers::pi * 2.0)
-		radian -= std::numbers::pi * 2.0;
-	while (radian < 0.0)
-		radian += std::numbers::pi * 2.0;
-
-	return radian;
-}
-
-float Lerp(float start, float end, float lerp) {
-	lerp = std::min(std::max(lerp, 0.0f), 1.0f);
-
-	return start + (end - start) * lerp;
-}
-
-float LerpRad(float start, float end, float lerp) {
-	lerp = std::min(std::max(lerp, 0.0f), 1.0f);
-
-	float ret = 0.0f;
-	float diff = end - start;
-
-	if (diff < -(float)std::numbers::pi) {
-		end += (float)std::numbers::pi * 2.0f;
-		ret = Lerp(start, end, lerp);
-		while (ret >= (float)std::numbers::pi * 2.0f) ret -= (float)std::numbers::pi * 2.0f;
-	}
-	else if (diff > (float)std::numbers::pi) {
-		end -= (float)std::numbers::pi * 2.0f;
-		ret = Lerp(start, end, lerp);
-		while (ret < 0.0f) ret += (float)std::numbers::pi * 2.0f;
-	}
-	else {
-		ret = Lerp(start, end, lerp);
-	}
-
-	return ret;
-}
 #pragma endregion
 
 #pragma region 色
@@ -383,9 +298,9 @@ Quaternion Quaternion::Euler(const Vector3& rad) {
 Quaternion Quaternion::Euler(double rad_x, double rad_y, double rad_z) {
 	Quaternion ret = {};
 
-	rad_x = RadIn2PI(rad_x);
-	rad_y = RadIn2PI(rad_y);
-	rad_z = RadIn2PI(rad_z);
+	rad_x = MathUtil::RadIn2PI(rad_x);
+	rad_y = MathUtil::RadIn2PI(rad_y);
+	rad_z = MathUtil::RadIn2PI(rad_z);
 
 	double cosZ = cos(rad_z / 2.0f);
 	double sinZ = sin(rad_z / 2.0f);

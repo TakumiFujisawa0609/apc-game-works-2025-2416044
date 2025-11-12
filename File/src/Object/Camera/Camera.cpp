@@ -1,5 +1,6 @@
 #include <cmath>
 #include "../../Common/GeometryDxLib.h"
+#include "../../Common/MathUtil.h"
 #include "../../Manager/SceneManager.h"
 #include "../Player/Player.h"
 #include "../Stage/Block.h"
@@ -63,8 +64,8 @@ void Camera::Follow(int platform_size_x, int platform_size_z) {
 	const float HALF_PLATFORM_X = platform_size_x * Block::BLOCK_SIZE / 2;
 
 	VECTOR newAngles = {};
-	newAngles.y = -DegToRad((playerPos.x - HALF_PLATFORM_X) / HALF_PLATFORM_X * 30.0f);
-	newAngles.x = DegToRad(-4.0f + abs(powf(playerPos.z / (platform_size_z * Block::BLOCK_SIZE) * 3.8f, 3)));
+	newAngles.y = -MathUtil::DegToRad((playerPos.x - HALF_PLATFORM_X) / HALF_PLATFORM_X * 30.0f);
+	newAngles.x = MathUtil::DegToRad(-4.0f + abs(powf(playerPos.z / (platform_size_z * Block::BLOCK_SIZE) * 3.8f, 3)));
 
 	prevAngles_ = angles_;
 	// è≠ÇµÇ∏Ç¬ÉJÉÅÉâÇâÒì]
@@ -96,8 +97,8 @@ void Camera::Follow2(int platform_size_x, int platform_size_z) {
 	const float HALF_PLATFORM_X = platform_size_x * Block::BLOCK_SIZE / 2;
 
 	VECTOR newAngles = {};
-	newAngles.y = -DegToRad((playerPos.x - HALF_PLATFORM_X) / HALF_PLATFORM_X * 30.0f);
-	newAngles.x = DegToRad(-20.0f + abs(powf(playerPos.z / (platform_size_z * Block::BLOCK_SIZE) * 3.2f, 2)));
+	newAngles.y = -MathUtil::DegToRad((playerPos.x - HALF_PLATFORM_X) / HALF_PLATFORM_X * 30.0f);
+	newAngles.x = MathUtil::DegToRad(-20.0f + abs(powf(playerPos.z / (platform_size_z * Block::BLOCK_SIZE) * 3.2f, 2)));
 
 	prevAngles_ = angles_;
 	// è≠ÇµÇ∏Ç¬ÉJÉÅÉâÇâÒì]
@@ -126,7 +127,7 @@ void Camera::Follow2(int platform_size_x, int platform_size_z) {
 
 void Camera::FixedFast(int platform_size_x, int platform_size_z) {
 	VECTOR newAngles = {};
-	newAngles.x = DegToRad(8.0f);
+	newAngles.x = MathUtil::DegToRad(8.0f);
 	newAngles.y = atan2f((float)-platform_size_x, (float)platform_size_z);
 
 	prevAngles_ = angles_;

@@ -1,4 +1,5 @@
 #include "../../Common/GeometryDxLib.h"
+#include "../../Common/MathUtil.h"
 #include "../../Manager/FontManager.h"
 #include "../../Manager/InputManager.h"
 #include "../../Object/Camera/Camera.h"
@@ -306,7 +307,7 @@ void GameScene::CollisionStomp() {
 		// キューブが生存していなければ、衝突もしない
 		if (!c4->IsAlive()) continue;
 
-		if (c4->GetRotation().x < DegToRad(Stage::STOMP_DEGREE_THRESHOLD) &&
+		if (c4->GetRotation().x < MathUtil::DegToRad(Stage::STOMP_DEGREE_THRESHOLD) &&
 			plPos.z <= c4->GetMatrixPosition().z &&
 			plPos.z >= c4->GetMatrixPosition().z - Block::BLOCK_SIZE &&
 			plPos.x <= c4->GetPosition().x + Block::HALF_BLOCK_SIZE &&

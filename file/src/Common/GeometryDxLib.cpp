@@ -1,3 +1,4 @@
+#include "MathUtil.h"
 #include "GeometryDxLib.h"
 
 FLOAT2 GeometryDxLib::Vector2ToFLOAT2(const Vector2& v) {
@@ -66,9 +67,9 @@ VECTOR GeometryDxLib::VLerpRad(const VECTOR& In1, const VECTOR& In2, float lerp)
 	VECTOR v = {};
 
 	if (lerp <= 1.0f) {
-		v.x = LerpRad(In1.x, In2.x, lerp);
-		v.y = LerpRad(In1.y, In2.y, lerp);
-		v.z = LerpRad(In1.z, In2.z, lerp);
+		v.x = MathUtil::LerpRad(In1.x, In2.x, lerp);
+		v.y = MathUtil::LerpRad(In1.y, In2.y, lerp);
+		v.z = MathUtil::LerpRad(In1.z, In2.z, lerp);
 	}
 
 	return v;
