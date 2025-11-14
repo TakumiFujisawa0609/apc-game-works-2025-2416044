@@ -29,7 +29,8 @@ public:
 
 	static constexpr float STOMP_DEGREE_THRESHOLD = -70.0f;
 
-	static constexpr int CUBE_PATTERN_MAX = 5;
+	static constexpr int CLEAR_WAIT_TIMER = 300;	// クリア演出前の待機時間
+	static constexpr int CLEAR_AFTER_WAIT_TIMER = 300;	// クリア演出後の待機時間
 
 	Stage(GameScene*);
 	~Stage() {}
@@ -60,6 +61,7 @@ public:
 	bool IsSpinning() const;
 	bool IsVanishing() const;
 	int IsClear() const;
+	int IsEnd() const;
 
 private:
 	/// 定数
@@ -69,8 +71,8 @@ private:
 	static constexpr unsigned int SCORE_LIST_MAX = _countof(SCORE_LIST);
 
 	static constexpr unsigned int FONT_COLOR_NORMAL = 0xffffffu;	// 色：白
-	static constexpr unsigned int FONT_COLOR_LESS_STEP = 0x8080ffu;	// 色：薄青
-	static constexpr unsigned int FONT_COLOR_MORE_STEP = 0xff8080u;	// 色：薄赤
+	static constexpr unsigned int FONT_COLOR_LESS_STEP = 0x8080ffu;	// 色：青
+	static constexpr unsigned int FONT_COLOR_MORE_STEP = 0xff8080u;	// 色：赤
 
 	static constexpr float PLATFORM_DEPTH_MULT = 2.7f;	// 初期配置のキューブの奥行きに対する、足場の奥行きの倍率
 
@@ -122,19 +124,21 @@ private:
 	bool isSpinning_;		// 回転中フラグ
 	bool fastForward_;		// 高速進行フラグ
 	int isClear_;			//
+	int isClearEnd_;		//
 
 	/// 関数
 	void SetUpCube();	// キューブの準備
 	void LoadPattern();	// キューブパターン読み込み
+
+	void UpdateStop();	// 停止中の更新処理
+	void UpdateSpin();	// 回転中の更新処理
 
 	void StartWave();	// ウェーブ開始
 	void StopAndFall();	// 停止と落下
 	bool KeepStop();	// 停止状態の維持
 	void NextWave();	// 次のウェーブに移行
 	void PerfectProc();	// パーフェクト時処理
-
-	void UpdateStop();	// 停止中の更新処理
-	void UpdateSpin();	// 回転中の更新処理
+	void ClearProc();	// クリア時処理
 
 	bool ReleaseWave();	// 現在のウェーブのみを解放
 

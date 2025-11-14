@@ -8,13 +8,13 @@ public:
 	enum class MODE {
 		FOLLOW,
 		FIXED_PERFECT,
-		FIXED_CLEAR,
 		FIXED_FAST,
+		FIXED_CLEAR,
 		FIXED_OVER,
 	};
 
 	bool Init();
-	void BeforeDraw(int platform_size_x, int platform_size_z);
+	void BeforeDraw(int platform_size_x, int platform_size_z, int timer = -1);
 
 	void SetFollowTarget(Player* player);
 	MODE GetCameraMode() const;
@@ -48,5 +48,6 @@ private:
 	void Follow(int platform_size_x, int platform_size_z);
 	void Follow2(int platform_size_x, int platform_size_z);
 	void FixedFast(int platform_size_x, int platform_size_z);
+	void FixedClear(int platform_size_x, int platform_size_z, int timer);
 	void FixedOver();
 };

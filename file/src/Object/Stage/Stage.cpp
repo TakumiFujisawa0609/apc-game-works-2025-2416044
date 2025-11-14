@@ -65,6 +65,7 @@ bool Stage::GameInit() {
 	isSpinning_ = false;
 	fastForward_ = false;
 	isClear_ = 0;
+	isClearEnd_ = 0;
 
 	fallCount_ = 0;
 	waveFallCount_ = 0;
@@ -78,7 +79,11 @@ bool Stage::GameInit() {
 }
 
 void Stage::Update() {
-	if (isClear_) return;
+	if (isClear_) {
+		ClearProc();
+
+		return;
+	}
 
 	if (!isSpinning_) { // 回転終了後の処理
 		UpdateStop();
@@ -353,9 +358,9 @@ bool Stage::IsVanishing() const {
 	return ret;
 }
 
-int Stage::IsClear() const {
-	return isClear_;
-}
+int Stage::IsClear() const { return isClear_; }
+
+int Stage::IsEnd() const { return isClearEnd_; }
 
 void Stage::SetUpCube() {
 	gameStart_ = false;
@@ -466,6 +471,115 @@ void Stage::LoadPattern() {
 	std::string name = "Data/Pattern/" + size + "/" + num + ".csv";
 
 	Utility::LoadCSV(name.c_str(), cubePattern_);
+}
+
+
+void Stage::UpdateStop() {
+	// 停止・落下処理
+	StopAndFall();
+
+	// 足止め処理
+	auto stopFlag = KeepStop();
+
+	// ウェーブ移行処理
+	NextWave();
+
+	// タイマー処理
+	if (fastForward_) spinTimer_ = 0;
+
+	if (spinTimer_ > 0) spinTimer_--;
+	else if (extraTimer_ > 0) extraTimer_--;
+
+	// 最終的な判断
+	if ((!stopFlag || nextwave_) && waveEndDelay_ <= 0 && extraTimer_ <= 0 && spinTimer_ <= 0 && !IsVanishing()) {
+		// 次のウェーブに移行する
+		if (nextwave_) {
+			// ウェーブ内のデータを解放
+			ReleaseWave();
+
+			// 次回の処理に向けて、フラグは折っておく
+			nextwave_ = false;
+		}
+
+		if (cubeList_.size() > 0) {
+			// 次の回転を開始
+			isSpinning_ = true;
+
+			// ウェーブ開始処理
+			StartWave();
+		}
+		else {
+			// フェーズ進行処理
+			SetUpCube();
+		}
+	}
+}
+
+void Stage::UpdateSpin() {
+	if (!gameStart_) gameStart_ = true;
+
+	// 例外スローの防止＋α
+	if (cubeList_.size() == 0) {
+		isSpinning_ = false;
+		return;
+	}
+
+	// スピンタイマー
+	++spinTimer_;
+
+	// 歩数を追加する？
+	auto step = false;
+
+	// 現在のウェーブのリスト
+	auto& waveList = cubeList_.back();
+
+	// リストを隅々まで処理
+	for (auto& subList : waveList) for (auto& cube : subList) {
+		// 既に消えているか消失中の場合、処理の必要が無いのでスキップ
+		if (!cube->IsAlive() ||
+			cube->GetState() == Block::STATE::VANISH || cube->GetState() == Block::STATE::FALL) continue;
+
+		// 衝突判定用（回転中は、キューブ後方の下辺の衝突判定が消える）
+		cube->ChangeState(Block::STATE::SPIN);
+
+		// キューブの回転量
+		auto cubeRot = cube->GetRotation();
+
+		// 追加される回転量（弧度ベース）
+		float deg = -SPIN_DEGREE;
+		// 高速状態なら、より大きく回転させる
+		if (fastForward_) deg = -FAST_SPIN_DEGREE;
+		// 回転量をラジアンに変換
+		float nextRot = DX_PI_F / 180.f * deg;
+
+		// 合計回転量が-90度をオーバーしないよう、追加される回転量を調整
+		if (cubeRot.x + nextRot < -DX_PI_F / 2.f)
+			nextRot = -DX_PI_F / 2.f - cubeRot.x;
+
+		// 行列計算（座標への平行移動×回転×原点への平行移動）
+		Matrix4x4 mat = TranslationMatrix(cube->GetMatrixPosition()) * RotationMatrixX(nextRot) * TranslationMatrix(-cube->GetMatrixPosition());
+
+		// キューブの座標を更新
+		cube->SetPosition(mat * cube->GetPosition());
+
+		// キューブの回転を更新
+		cubeRot.x += nextRot;
+		cube->SetRotation(cubeRot);
+
+		// キューブの回転量が-90度になったら回転処理を停止
+		if (cubeRot.x <= -DX_PI_F / 2.f) {
+			auto idx = cube->GetStageIndex();
+			cube->SetStageIndex({ idx.x, idx.y + 1 });
+			if (isSpinning_) {
+				isSpinning_ = false;
+				AudioManager::GetInstance().PlaySE("回転");
+			}
+			if (cube->GetType() != Block::TYPE::FORBIDDEN)
+				step = true;
+		}
+	}
+
+	if (step) AddStep();
 }
 
 void Stage::StartWave() {
@@ -608,120 +722,45 @@ void Stage::PerfectProc() {
 
 	if (stepCount_ <= stepQuota_.back()) {
 		gameScene_->AddScore(stage_ * phase_ * 100);
-		gameScene_->AddIQ(1);
+		gameScene_->AddIQ(3);
 	}
 	else {
 		gameScene_->AddScore(stage_ * phase_ * 50);
+		gameScene_->AddIQ(1);
 	}
 
 	perfectCamTimer_ = PERFECT_CAM_TIMER;
 	AudioManager::GetInstance().PlaySE("パーフェクト");
 }
 
-void Stage::UpdateStop() {
-	// 停止・落下処理
-	StopAndFall();
-
-	// 足止め処理
-	auto stopFlag = KeepStop();
-
-	// ウェーブ移行処理
-	NextWave();
-
-	// タイマー処理
-	if (fastForward_) spinTimer_ = 0;
-
-	if (spinTimer_ > 0) spinTimer_--;
-	else if (extraTimer_ > 0) extraTimer_--;
-
-	// 最終的な判断
-	if ((!stopFlag || nextwave_) && waveEndDelay_ <= 0 && extraTimer_ <= 0 && spinTimer_ <= 0 && !IsVanishing()) {
-		// 次のウェーブに移行する
-		if (nextwave_) {
-			// ウェーブ内のデータを解放
-			ReleaseWave();
-
-			// 次回の処理に向けて、フラグは折っておく
-			nextwave_ = false;
-		}
-
-		if (cubeList_.size() > 0) {
-			// 次の回転を開始
-			isSpinning_ = true;
-
-			// ウェーブ開始処理
-			StartWave();
-		}
-		else {
-			// フェーズ進行処理
-			SetUpCube();
-		}
-	}
-}
-
-void Stage::UpdateSpin() {
-	if (!gameStart_) gameStart_ = true;
-
-	// 例外スローの防止＋α
-	if (cubeList_.size() == 0) {
-		isSpinning_ = false;
+void Stage::ClearProc() {
+	if (isClearEnd_) {
+		isClearEnd_++;
 		return;
 	}
 
-	// スピンタイマー
-	++spinTimer_;
+	if (++isClear_ < CLEAR_WAIT_TIMER) return;
 
-	// 歩数を追加する？
-	auto step = false;
+	auto time = isClear_ - CLEAR_WAIT_TIMER;
+	time /= 5;
 
-	// 現在のウェーブのリスト
-	auto& waveList = cubeList_.back();
-
-	// リストを隅々まで処理
-	for (auto& subList : waveList) for (auto& cube : subList) {
-		// 既に消えているか消失中の場合、処理の必要が無いのでスキップ
-		if (!cube->IsAlive() ||
-			cube->GetState() == Block::STATE::VANISH || cube->GetState() == Block::STATE::FALL) continue;
-
-		// 衝突判定用（回転中は、キューブ後方の下辺の衝突判定が消える）
-		cube->ChangeState(Block::STATE::SPIN);
-
-		// キューブの回転量
-		auto cubeRot = cube->GetRotation();
-
-		// 追加される回転量（弧度ベース）
-		float deg = -SPIN_DEGREE;
-		// 高速状態なら、より大きく回転させる
-		if (fastForward_) deg = -FAST_SPIN_DEGREE;
-		// 回転量をラジアンに変換
-		float nextRot = DX_PI_F / 180.f * deg;
-
-		// 合計回転量が-90度をオーバーしないよう、追加される回転量を調整
-		if (cubeRot.x + nextRot < -DX_PI_F / 2.f)
-			nextRot = -DX_PI_F / 2.f - cubeRot.x;
-
-		// 行列計算（座標への平行移動×回転×原点への平行移動）
-		Matrix4x4 mat = TranslationMatrix(cube->GetMatrixPosition()) * RotationMatrixX(nextRot) * TranslationMatrix(-cube->GetMatrixPosition());
-
-		// キューブの座標を更新
-		cube->SetPosition(mat * cube->GetPosition());
-
-		// キューブの回転を更新
-		cubeRot.x += nextRot;
-		cube->SetRotation(cubeRot);
-
-		// キューブの回転量が-90度になったら回転処理を停止
-		if (cubeRot.x <= -DX_PI_F / 2.f) {
-			auto idx = cube->GetStageIndex();
-			cube->SetStageIndex({ idx.x, idx.y + 1 });
-			if (isSpinning_) {
-				isSpinning_ = false;
-				AudioManager::GetInstance().PlaySE("回転");
-			}
-			if (cube->GetType() != Block::TYPE::FORBIDDEN)
-				step = true;
-		}
+	int count = 0;
+	auto rit = platformList_.rbegin();
+	for (; rit != platformList_.rend(); rit++, count++) {
+		if (count >= time) break;
+	}
+	if (rit == platformList_.rend()) {
+		isClearEnd_++;
+		return;
 	}
 
-	if (step) AddStep();
+	auto platform = (*rit)->GetPosition();
+	(*rit)->SetPosition({ platform.x, platform.y, platform.z - Block::BLOCK_SIZE / 5 });
+
+	auto player = gameScene_->GetPlayerPtr()->GetPos();
+	if (player.z >= platform.z - Block::HALF_BLOCK_SIZE &&
+		player.z <= platform.z + Block::HALF_BLOCK_SIZE) {
+		gameScene_->GetPlayerPtr()->SetPos({ player.x, player.y, player.z - Block::BLOCK_SIZE / 5 });
+	}
+
 }

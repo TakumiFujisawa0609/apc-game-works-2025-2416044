@@ -43,33 +43,42 @@ bool GameScene::GameInit() {
 void GameScene::Update() {
 	auto& ins = InputManager::GetInstance();
 
-	if (ins.DownMap("ポーズ"))
-		if (player_->GetState() != Player::STATE::OVER)
-			nextScene_ = SceneBase::SCENE::PAUSE;
-		else
+	if (!stage_->IsClear()) {
+		if (ins.DownMap("ポーズ"))
+			if (player_->GetState() != Player::STATE::OVER)
+				nextScene_ = SceneBase::SCENE::PAUSE;
+			else
+				nextScene_ = SceneBase::SCENE::TITLE;
+
+		if (player_->GetState() != Player::STATE::OVER) {
+			// マーキング＆マーク起動
+			if (ins.DownMap("ワナ"))
+				trap_->SetTrap(player_->GetPos());
+
+			// アドバンスドマーク起動
+			if (ins.DownMap("スーパーワナ"))
+				trap_->ExecuteAdvTrap();
+		}
+
+		if (player_->GetPos().y > Player::FALL_FINISH_Y) {
+			// マーク更新
+			trap_->Update();
+
+			stage_->Update();
+			player_->Update();
+		}
+
+		Collision();
+	}
+	else if (stage_->IsEnd()) {
+		if (ins.DownMap("ポーズ"))
 			nextScene_ = SceneBase::SCENE::TITLE;
-	
-	if (player_->GetState() != Player::STATE::OVER) {
-		// マーキング＆マーク起動
-		if (ins.DownMap("ワナ"))
-			trap_->SetTrap(player_->GetPos());
-
-		// アドバンスドマーク起動
-		if (ins.DownMap("スーパーワナ"))
-			trap_->ExecuteAdvTrap();
 	}
 
-	if (player_->GetPos().y > Player::FALL_FINISH_Y) {
-		// マーク更新
-		trap_->Update();
-
-		stage_->Update();
-		player_->Update();
+	if (stage_->IsClear()) {
+		camera_->ChangeCameraMode(Camera::MODE::FIXED_OVER);
 	}
-
-	Collision();
-
-	if (player_->GetState() == Player::STATE::OVER) {
+	else if (player_->GetState() == Player::STATE::OVER) {
 		camera_->ChangeCameraMode(Camera::MODE::FIXED_OVER);
 	}
 	else if (camera_->GetCameraMode() != Camera::MODE::FIXED_PERFECT) {
@@ -93,7 +102,10 @@ void GameScene::Draw() {
 	int px, pz;
 	stage_->GetPlatformSize(px, pz);
 
-	camera_->BeforeDraw(px, pz);
+	if (stage_->IsClear() && !stage_->IsEnd())
+		camera_->BeforeDraw(px, pz, stage_->IsClear());
+	else
+		camera_->BeforeDraw(px, pz);
 
 	stage_->Draw();
 

@@ -16,7 +16,7 @@ bool Camera::Init() {
 	return false;
 }
 
-void Camera::BeforeDraw(int platform_size_x, int platform_size_z) {
+void Camera::BeforeDraw(int platform_size_x, int platform_size_z, int timer) {
 	if (!SceneManager::GetInstance().IsPause()) switch (mode_) {
 	case MODE::FOLLOW:
 		switch (followMode_) {
@@ -31,6 +31,9 @@ void Camera::BeforeDraw(int platform_size_x, int platform_size_z) {
 	case MODE::FIXED_PERFECT:
 	case MODE::FIXED_FAST:
 		FixedFast(platform_size_x, platform_size_z);
+		break;
+	case MODE::FIXED_CLEAR:
+		FixedClear(platform_size_x, platform_size_z, timer);
 		break;
 	case MODE::FIXED_OVER:
 		FixedOver();
@@ -150,6 +153,28 @@ void Camera::FixedFast(int platform_size_x, int platform_size_z) {
 
 	VECTOR newPos = VTransform(CAMERA_LOCAL_POS, mat);
 	pos_ = GeometryDxLib::VLerp(prevPos_, newPos, 0.12f);
+}
+
+void Camera::FixedClear(int platform_size_x, int platform_size_z, int timer) {
+	if (timer == -1) return;
+
+	angles_ = {};
+
+	if (timer < 300) {
+		prevTargetPos_ = targetPos_;
+		// ’Ž‹“_‚ÌˆÚ“®
+		VECTOR newTargetPos = { Block::BLOCK_SIZE * platform_size_x, 0.0f, -Block::BLOCK_SIZE * platform_size_z };
+		targetPos_ = GeometryDxLib::VLerp(prevTargetPos_, newTargetPos, 0.12f);
+	}
+	else {
+		timer -= 300;
+
+		prevTargetPos_ = targetPos_;
+		// ’Ž‹“_‚ÌˆÚ“®
+		VECTOR newTargetPos = { Block::BLOCK_SIZE * platform_size_x, 0.0f, -Block::BLOCK_SIZE * platform_size_z + Block::BLOCK_SIZE / 5 * timer };
+		targetPos_ = GeometryDxLib::VLerp(prevTargetPos_, newTargetPos, 0.12f);
+	}
+
 }
 
 void Camera::FixedOver() {
