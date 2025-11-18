@@ -49,26 +49,33 @@ void GameScene::Update() {
 				nextScene_ = SceneBase::SCENE::PAUSE;
 			else
 				nextScene_ = SceneBase::SCENE::TITLE;
+	}
 
-		if (player_->GetState() != Player::STATE::OVER) {
-			// マーキング＆マーク起動
-			if (ins.DownMap("ワナ"))
-				trap_->SetTrap(player_->GetPos());
+	if (!stage_->IsClear() ||
+		player_->GetState() != Player::STATE::OVER) {
+		// マーキング＆マーク起動
+		if (ins.DownMap("ワナ"))
+			trap_->SetTrap(player_->GetPos());
 
-			// アドバンスドマーク起動
-			if (ins.DownMap("スーパーワナ"))
-				trap_->ExecuteAdvTrap();
-		}
+		// アドバンスドマーク起動
+		if (ins.DownMap("スーパーワナ"))
+			trap_->ExecuteAdvTrap();
+	}
 
-		if (player_->GetPos().y > Player::FALL_FINISH_Y) {
+	if (player_->GetPos().y > Player::FALL_FINISH_Y) {
+		stage_->Update();
+
+		if (!stage_->IsClear()) {
+			player_->Update();
+
 			// マーク更新
 			trap_->Update();
 
-			stage_->Update();
-			player_->Update();
+			Collision();
 		}
-
-		Collision();
+		else {
+			trap_->Reset();
+		}
 	}
 	else if (stage_->IsEnd()) {
 		if (ins.DownMap("ポーズ"))

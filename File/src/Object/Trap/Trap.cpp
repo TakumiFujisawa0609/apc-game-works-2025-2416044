@@ -117,7 +117,7 @@ void Trap::ExecuteAdvTrap() {
 	if (trapFlg) AudioManager::GetInstance().PlaySE("強化トラップ起動");
 }
 
-void Trap::Reset() { setTrap_ = readyTrap_ = false; }
+void Trap::Reset() { traps_.clear(); }
 
 bool Trap::GetTriMarkFlag() { return triMarkFlag_; }
 

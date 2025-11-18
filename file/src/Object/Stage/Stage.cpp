@@ -734,7 +734,8 @@ void Stage::PerfectProc() {
 }
 
 void Stage::ClearProc() {
-	if (isClearEnd_) {
+	if (gameScene_->GetPlayerPtr()->GetState() != Player::STATE::OVER &&
+		isClearEnd_) {
 		isClearEnd_++;
 		return;
 	}
@@ -742,7 +743,7 @@ void Stage::ClearProc() {
 	if (++isClear_ < CLEAR_WAIT_TIMER) return;
 
 	auto time = isClear_ - CLEAR_WAIT_TIMER;
-	time /= 5;
+	time /= CLEAR_PLATFORM_MOVE_TIMER;
 
 	int count = 0;
 	auto rit = platformList_.rbegin();
@@ -755,12 +756,15 @@ void Stage::ClearProc() {
 	}
 
 	auto platform = (*rit)->GetPosition();
-	(*rit)->SetPosition({ platform.x, platform.y, platform.z - Block::BLOCK_SIZE / 5 });
+	(*rit)->SetPosition({ platform.x, platform.y, platform.z - Block::BLOCK_SIZE / CLEAR_PLATFORM_MOVE_TIMER });
 
 	auto player = gameScene_->GetPlayerPtr()->GetPos();
 	if (player.z >= platform.z - Block::HALF_BLOCK_SIZE &&
 		player.z <= platform.z + Block::HALF_BLOCK_SIZE) {
-		gameScene_->GetPlayerPtr()->SetPos({ player.x, player.y, player.z - Block::BLOCK_SIZE / 5 });
+		gameScene_->GetPlayerPtr()->SetPos({ player.x, player.y, player.z - Block::BLOCK_SIZE / CLEAR_PLATFORM_MOVE_TIMER });
 	}
 
+	if (time == CLEAR_PLATFORM_MOVE_TIMER - 1) {
+		AudioManager::GetInstance().PlaySE("‰ñ“]");
+	}
 }
