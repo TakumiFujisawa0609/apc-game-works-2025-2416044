@@ -23,6 +23,7 @@
     <ClCompile Include="src\Manager\FontManager.cpp" />
     <ClCompile Include="src\Common\Text.cpp" />
     <ClCompile Include="src\Common\MathUtil.cpp" />
+    <ClCompile Include="src\Object\Common\Fader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\App.h" />
@@ -46,5 +47,6 @@
     <ClInclude Include="src\Manager\FontManager.h" />
     <ClInclude Include="src\Common\Text.h" />
     <ClInclude Include="src\Common\MathUtil.h" />
+    <ClInclude Include="src\Object\Common\Fader.h" />
   </ItemGroup>
 </Project>

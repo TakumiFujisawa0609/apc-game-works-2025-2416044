@@ -326,6 +326,8 @@ int Stage::GetPrevPlatformSizeZ() const { return prevPlatformDepth_; }
 
 std::list<std::list<std::list<Block*>>> Stage::GetCubeList() const { return cubeList_; }
 
+int Stage::GetPhase() const { return phase_; }
+
 int Stage::GetSpinFrameIndex() {
 	return spinFrameIndex_;
 }
@@ -378,6 +380,7 @@ void Stage::SetUpCube() {
 	}
 
 	phase_++;
+	gameScene_->GetTrapPtr()->Reset();
 
 	if (phase_ == 1) {
 		extraTimer_ = EXTRA_TIMER_FIRST_PHASE;
@@ -721,11 +724,11 @@ void Stage::PerfectProc() {
 	ptr->ChangeState(Block::STATE::ADD);
 
 	if (stepCount_ <= stepQuota_.back()) {
-		gameScene_->AddScore(stage_ * phase_ * 100);
+		gameScene_->AddScore(stage_ * phase_ * 10);
 		gameScene_->AddIQ(3);
 	}
 	else {
-		gameScene_->AddScore(stage_ * phase_ * 50);
+		gameScene_->AddScore(stage_ * phase_ * 5);
 		gameScene_->AddIQ(1);
 	}
 
@@ -744,10 +747,10 @@ void Stage::ClearProc() {
 
 	auto time = isClear_ - CLEAR_WAIT_TIMER;
 	time /= CLEAR_PLATFORM_MOVE_TIMER;
+	auto time2 = isClear_ % CLEAR_PLATFORM_MOVE_TIMER;
 
-	int count = 0;
 	auto rit = platformList_.rbegin();
-	for (; rit != platformList_.rend(); rit++, count++) {
+	for (int count = 0; rit != platformList_.rend(); rit++, count++) {
 		if (count >= time) break;
 	}
 	if (rit == platformList_.rend()) {
@@ -764,7 +767,9 @@ void Stage::ClearProc() {
 		gameScene_->GetPlayerPtr()->SetPos({ player.x, player.y, player.z - Block::BLOCK_SIZE / CLEAR_PLATFORM_MOVE_TIMER });
 	}
 
-	if (time == CLEAR_PLATFORM_MOVE_TIMER - 1) {
+	if (time2 == CLEAR_PLATFORM_MOVE_TIMER - 1) {
 		AudioManager::GetInstance().PlaySE("‰ñ“]");
+		gameScene_->AddScore(10);
+		gameScene_->AddIQ(1);
 	}
 }

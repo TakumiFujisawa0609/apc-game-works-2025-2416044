@@ -33,6 +33,8 @@ public:
 	static constexpr int CLEAR_PLATFORM_MOVE_TIMER = 20;	// 
 	static constexpr int CLEAR_AFTER_WAIT_TIMER = 300;		// クリア演出後の待機時間
 
+	static constexpr int WAVE_MAX = 4;
+
 	Stage(GameScene*);
 	~Stage() {}
 
@@ -53,6 +55,7 @@ public:
 	void GetPlatformSize(int& x, int& z) const;
 	int GetPrevPlatformSizeZ() const;
 	std::list<std::list<std::list<Block*>>> GetCubeList() const;
+	int GetPhase() const;
 
 	static int GetSpinFrameIndex();
 	static void SetSpinFrameIndex(int);

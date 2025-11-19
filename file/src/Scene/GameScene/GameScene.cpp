@@ -77,13 +77,13 @@ void GameScene::Update() {
 			trap_->Reset();
 		}
 	}
-	else if (stage_->IsEnd()) {
-		if (ins.DownMap("ポーズ"))
+	if (stage_->IsEnd()) {
+		if (ins.DownMap("決定") || ins.DownMap("ワナ") || ins.DownMap("ポーズ"))
 			nextScene_ = SceneBase::SCENE::TITLE;
 	}
 
 	if (stage_->IsClear()) {
-		camera_->ChangeCameraMode(Camera::MODE::FIXED_OVER);
+		camera_->ChangeCameraMode(Camera::MODE::FIXED_CLEAR);
 	}
 	else if (player_->GetState() == Player::STATE::OVER) {
 		camera_->ChangeCameraMode(Camera::MODE::FIXED_OVER);
@@ -109,7 +109,7 @@ void GameScene::Draw() {
 	int px, pz;
 	stage_->GetPlatformSize(px, pz);
 
-	if (stage_->IsClear() && !stage_->IsEnd())
+	if (camera_->GetCameraMode() == Camera::MODE::FIXED_CLEAR)
 		camera_->BeforeDraw(px, pz, stage_->IsClear());
 	else
 		camera_->BeforeDraw(px, pz);
@@ -130,17 +130,31 @@ void GameScene::DrawUI() {
 	auto f = FontManager::GetInstance().GetFontData("汎用");
 	auto fl = FontManager::GetInstance().GetFontData("汎用（大）");
 
-	if (player_->GetState() != Player::STATE::OVER)
+	if (player_->GetState() != Player::STATE::OVER) {
 		stage_->DrawUI();
 
-	if (player_->GetState() != Player::STATE::OVER)
 		DrawFormatStringToHandle(48, 48, 0xFFFFFFU, f.handle, "%09u", score_ * 100u);
+
+		std::string waveStr = "";
+		for (int i = 1; i <= Stage::WAVE_MAX; i++) {
+			if (i <= stage_->GetPhase()) waveStr += "■";
+			else waveStr += "□";
+		}
+		DrawFormatStringToHandle(48, 120, 0xFFFFFFU, f.handle, "[1] %s", waveStr.c_str());
+	}
 
 	if (player_->GetPos().y == Player::FALL_FINISH_Y) {
 		DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "G A M E O V E R");
 	}
 	else if (player_->GetState() != Player::STATE::OVER && stage_->IsClear()) {
-		DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "   C L E A R   ");
+		auto counter = stage_->IsClear();
+		if (counter >= Stage::CLEAR_WAIT_TIMER) {
+			counter -= Stage::CLEAR_WAIT_TIMER;
+			DrawFormatStringToHandle(385, 415, 0xFFFFFFU, fl.handle, "  CLEAR BONUS  ");
+			DrawFormatStringToHandle(385, 485, 0xFFFFFFU, fl.handle, "     %5d", counter / Stage::CLEAR_PLATFORM_MOVE_TIMER * 1000);
+		}
+		else
+			DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "   C L E A R   ");
 	}
 	else {
 		if (player_->IsInvincible()) {

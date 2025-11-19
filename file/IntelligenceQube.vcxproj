@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Object\Common\Fader.cpp" />
     <ClCompile Include="src\Common\MathUtil.cpp" />
     <ClCompile Include="src\Manager\FontManager.cpp" />
     <ClCompile Include="src\Manager\AudioManager.cpp" />
@@ -43,6 +44,7 @@
     <ClCompile Include="src\Common\Text.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Object\Common\Fader.h" />
     <ClInclude Include="src\Common\MathUtil.h" />
     <ClInclude Include="src\Manager\FontManager.h" />
     <ClInclude Include="src\Manager\AudioManager.h" />

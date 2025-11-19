@@ -4,6 +4,7 @@
 #include "../../Manager/SceneManager.h"
 #include "../Player/Player.h"
 #include "../Stage/Block.h"
+#include "../Stage/Stage.h"
 #include "Camera.h"
 
 int Camera::followMode_ = 1;
@@ -158,21 +159,33 @@ void Camera::FixedFast(int platform_size_x, int platform_size_z) {
 void Camera::FixedClear(int platform_size_x, int platform_size_z, int timer) {
 	if (timer == -1) return;
 
-	angles_ = {};
+	VECTOR newAngles = {};
+	angles_ = GeometryDxLib::VLerpRad(prevAngles_, newAngles, 0.18f);
 
 	if (timer < 300) {
 		prevTargetPos_ = targetPos_;
 		// 注視点の移動
 		VECTOR newTargetPos = { Block::BLOCK_SIZE * platform_size_x, 0.0f, -Block::BLOCK_SIZE * platform_size_z };
 		targetPos_ = GeometryDxLib::VLerp(prevTargetPos_, newTargetPos, 0.12f);
+
+
+		prevPos_ = pos_;
+		// カメラの移動
+		VECTOR newPos = { newTargetPos.x + 600.0f, newTargetPos.y + 300.0f, newTargetPos.z - 400.0f };
+		pos_ = GeometryDxLib::VLerp(prevPos_, newPos, 0.12f);
 	}
 	else {
 		timer -= 300;
 
 		prevTargetPos_ = targetPos_;
 		// 注視点の移動
-		VECTOR newTargetPos = { Block::BLOCK_SIZE * platform_size_x, 0.0f, -Block::BLOCK_SIZE * platform_size_z + Block::BLOCK_SIZE / 5 * timer };
+		VECTOR newTargetPos = { Block::BLOCK_SIZE * platform_size_x, 0.0f, -Block::BLOCK_SIZE * platform_size_z + Block::BLOCK_SIZE / Stage::CLEAR_PLATFORM_MOVE_TIMER * timer };
 		targetPos_ = GeometryDxLib::VLerp(prevTargetPos_, newTargetPos, 0.12f);
+
+		prevPos_ = pos_;
+		// カメラの移動
+		VECTOR newPos = { newTargetPos.x + 600.0f, newTargetPos.y + 300.0f, newTargetPos.z - 400.0f };
+		pos_ = GeometryDxLib::VLerp(prevPos_, newPos, 0.12f);
 	}
 
 }
