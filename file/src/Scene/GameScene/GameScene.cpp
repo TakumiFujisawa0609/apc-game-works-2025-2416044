@@ -51,7 +51,7 @@ void GameScene::Update() {
 				nextScene_ = SceneBase::SCENE::TITLE;
 	}
 
-	if (!stage_->IsClear() ||
+	if (!stage_->IsClear() &&
 		player_->GetState() != Player::STATE::OVER) {
 		// マーキング＆マーク起動
 		if (ins.DownMap("ワナ"))
@@ -74,6 +74,7 @@ void GameScene::Update() {
 			Collision();
 		}
 		else {
+			player_->UpdateClear();
 			trap_->Reset();
 		}
 	}

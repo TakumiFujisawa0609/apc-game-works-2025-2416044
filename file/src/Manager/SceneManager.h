@@ -4,6 +4,7 @@
 #include "../Scene/SceneBase.h"
 
 class SceneBase;
+class Fader;
 
 class SceneManager {
 public:
@@ -35,6 +36,7 @@ private:
 	SceneManager& operator=(SceneManager&&) = delete;
 
 	std::list<SceneBase*> sceneList_;
+	Fader* fader_;
 
 	std::chrono::system_clock::time_point preTime_;
 	float deltaTime_;
@@ -42,9 +44,12 @@ private:
 	bool ClassInit();
 	void ParamInit();
 
-	SceneBase* ChangeScene(SceneBase::SCENE);
+	void ChangeScene(SceneBase::SCENE);
+	bool Fade();
+	void DoChangeScene(SceneBase::SCENE);
 
 	bool isPause_;
 	bool prevPause_;
+	SceneBase::SCENE waitSceneId_;
 
 };

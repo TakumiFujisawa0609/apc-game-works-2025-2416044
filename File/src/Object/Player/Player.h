@@ -27,6 +27,7 @@ public:
 	bool SystemInit();
 	bool GameInit(int stage_width, int stage_depth);
 	void Update();
+	void UpdateClear();
 	void Draw();
 	bool Release();
 

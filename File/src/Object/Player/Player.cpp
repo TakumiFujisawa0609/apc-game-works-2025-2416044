@@ -128,6 +128,16 @@ void Player::Update() {
 	animControll_->Update();
 }
 
+void Player::UpdateClear() {
+	state_ = STATE::NORMAL;
+	invincible_ = 0;
+
+	animType_ = ANIM_TYPE::IDLE;
+	animControll_->Play(static_cast<int>(animType_));
+
+	animControll_->Update();
+}
+
 void Player::Draw() {
 	VECTOR footPos = pos_;
 	footPos.y += 2.f;
