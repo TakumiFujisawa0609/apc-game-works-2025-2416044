@@ -84,6 +84,8 @@ void SceneManager::ReleaseScene() {
 
 std::list<SceneBase*> SceneManager::GetSceneList() { return sceneList_; }
 
+Fader* SceneManager::GetFaderPtr() { return fader_; }
+
 float SceneManager::GetDeltaTime() const { return deltaTime_; }
 
 bool SceneManager::IsPause() const { return isPause_; }

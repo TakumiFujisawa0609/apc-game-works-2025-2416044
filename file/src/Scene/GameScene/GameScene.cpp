@@ -44,7 +44,7 @@ void GameScene::Update() {
 	auto& ins = InputManager::GetInstance();
 
 	if (!stage_->IsClear()) {
-		if (ins.DownMap("ポーズ"))
+		if (->ins.DownMap("ポーズ"))
 			if (player_->GetState() != Player::STATE::OVER)
 				nextScene_ = SceneBase::SCENE::PAUSE;
 			else

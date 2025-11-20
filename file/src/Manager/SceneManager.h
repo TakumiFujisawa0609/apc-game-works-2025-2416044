@@ -19,6 +19,7 @@ public:
 	void ReleaseScene();
 
 	std::list<SceneBase*> GetSceneList();
+	Fader* GetFaderPtr();
 	float GetDeltaTime() const;
 
 	bool IsPause() const;
