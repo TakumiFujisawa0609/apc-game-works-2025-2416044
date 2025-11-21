@@ -23,6 +23,7 @@ public:
 	void Draw();
 
 	FADE_MODE GetFadeMode() const;
+	void ForceSetMode(FADE_MODE);
 	PROC GetNowProc() const;
 	bool IsFadeEnd() const;
 

@@ -178,8 +178,10 @@ void Stage::DrawUI() {
 	int x, y;
 	GetWindowSize(&x, &y);
 
+#ifdef _DEBUG
 	// ‰ñ“]
 	if (isSpinning_) DrawFormatStringToHandle(32, y - 64, FONT_COLOR_NORMAL, f.handle, "_");
+#endif
 
 	// •à”
 	int count = stepQuota_.size() > 0 && gameStart_ ?

@@ -1,4 +1,5 @@
 #include <DxLib.h>
+#include "../App.h"
 #include "../Common/Fader.h"
 #include "../Scene/TitleScene/TitleScene.h"
 #include "../Scene/GameScene/GameScene.h"
@@ -14,9 +15,6 @@ bool SceneManager::Init() {
 }
 
 void SceneManager::Update() {
-	// 中身が無い状態で動かすと色々危ないので
-	if (sceneList_.size() <= 0) return;
-
 	// デルタタイム更新
 	auto nowTime = std::chrono::system_clock::now();
 	deltaTime_ = static_cast<float>(
@@ -25,6 +23,9 @@ void SceneManager::Update() {
 
 	fader_->Update();
 	if (!Fade()) {
+		// 中身が無い状態で動かすと色々危ないので
+		if (sceneList_.empty()) return;
+
 		// 配列末尾のポインタを取る
 		auto back = sceneList_.back();
 
@@ -118,18 +119,28 @@ void SceneManager::ParamInit() {
 	// デルタタイム
 	preTime_ = std::chrono::system_clock::now();
 
-	DoChangeScene(SceneBase::SCENE::TITLE);
+	// 最初はタイトル画面から
+	ChangeScene(SceneBase::SCENE::TITLE);
 }
 
 void SceneManager::ChangeScene(SceneBase::SCENE scene) {
-	if (scene == SceneBase::SCENE::PAUSE ||
-		sceneList_.back()->GetMyScene() == SceneBase::SCENE::PAUSE && scene == SceneBase::SCENE::GAME) {
-
-		DoChangeScene(scene);
-		return;
-	}
-
 	waitSceneId_ = scene;
+
+	if (sceneList_.empty()) {
+		fader_->ForceSetMode(Fader::FADE_MODE::FADE_OUT);
+		fader_->SetFadeMode(Fader::FADE_MODE::FADE_IN, 60U);
+	}
+	else {
+		if (waitSceneId_ == SceneBase::SCENE::NONE) {
+			fader_->SetFadeMode(Fader::FADE_MODE::FADE_OUT, 60U);
+		}
+		if (waitSceneId_ == SceneBase::SCENE::PAUSE ||
+			sceneList_.back()->GetMyScene() == SceneBase::SCENE::PAUSE && waitSceneId_ == SceneBase::SCENE::GAME) {
+
+			DoChangeScene(waitSceneId_);
+			return;
+		}
+	}
 
 	fader_->SetFadeMode(Fader::FADE_MODE::FADE_OUT, 60U, 0U, 60U);
 }
@@ -145,8 +156,14 @@ bool SceneManager::Fade() {
 			// シーンを切り替える
 			DoChangeScene(waitSceneId_);
 
-			// フェードモードをフェードインに
-			fader_->SetFadeMode(Fader::FADE_MODE::FADE_IN, 60U, 120U);
+			if (waitSceneId_ != SceneBase::SCENE::NONE) {
+				// フェードモードをフェードインに
+				fader_->SetFadeMode(Fader::FADE_MODE::FADE_IN, 60U, 120U);
+			}
+			else {
+				App::GetInstance().Quit();
+				return true;
+			}
 		}
 		break;
 	case Fader::FADE_MODE::FADE_IN:
@@ -165,10 +182,12 @@ bool SceneManager::Fade() {
 	// 例外的な処理は、ここで記述する
 	
 	// 特定のシーンにおいて、フェード中や待機中でも処理が流れるように変更
-	if (sceneList_.back()->GetMyScene() == SceneBase::SCENE::GAME &&
-		fader_->GetFadeMode() == Fader::FADE_MODE::FADE_IN &&
-		(fader_->GetNowProc() == Fader::PROC::FADE || fader_->GetNowProc() == Fader::PROC::WAIT)) {
-		return false;
+	if (!sceneList_.empty()) {
+		if (sceneList_.back()->GetMyScene() == SceneBase::SCENE::GAME &&
+			fader_->GetFadeMode() == Fader::FADE_MODE::FADE_IN &&
+			(fader_->GetNowProc() == Fader::PROC::FADE || fader_->GetNowProc() == Fader::PROC::WAIT)) {
+			return false;
+		}
 	}
 
 	return true;
@@ -178,7 +197,7 @@ void SceneManager::DoChangeScene(SceneBase::SCENE scene) {
 	SceneBase* ret = nullptr;
 
 	if (scene != SceneBase::SCENE::PAUSE) {
-		while (sceneList_.size() > 0) {
+		while (!sceneList_.empty()) {
 			// 現在アクティブなシーンが目標のシーンなら、関数から抜ける
 			if (sceneList_.back()->GetMyScene() == scene) {
 				sceneList_.back()->SetScene(scene);

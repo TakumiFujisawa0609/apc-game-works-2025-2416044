@@ -63,8 +63,10 @@ void TitleScene::UpdateTitle() {
 
 	if (ins.DownMap("åàíË") || ins.DownMap("ÉèÉi"))
 		subScene_ = MENU;
-	if (ins.DownMap("ñﬂÇÈ"))
-		App::GetInstance().Quit();
+	if (ins.DownMap("ñﬂÇÈ")) {
+		//App::GetInstance().Quit();
+		nextScene_ = SceneBase::SCENE::NONE;
+	}
 }
 
 void TitleScene::UpdateMenu() {
@@ -87,7 +89,8 @@ void TitleScene::UpdateMenu() {
 			tempSpinTimerIndex_ = Stage::GetSpinFrameIndex();
 			break;
 		case 3:
-			App::GetInstance().Quit();
+			//App::GetInstance().Quit();
+			nextScene_ = SceneBase::SCENE::NONE;
 			break;
 		}
 

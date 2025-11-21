@@ -3,7 +3,8 @@
 class SceneBase {
 public:
 	enum class SCENE {
-		PAUSE = 0,
+		NONE,
+		PAUSE,
 
 		TITLE,
 		GAME,

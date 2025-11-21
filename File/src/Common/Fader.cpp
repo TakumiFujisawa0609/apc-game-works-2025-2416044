@@ -108,6 +108,22 @@ void Fader::Draw() {
 
 Fader::FADE_MODE Fader::GetFadeMode() const { return mode_; }
 
+void Fader::ForceSetMode(FADE_MODE fmode) {
+	switch (fmode) {
+	default:
+	case FADE_MODE::NONE:
+		return;
+	case FADE_MODE::FADE_OUT:
+		alpha_ = MAX_ALPHA;
+		break;
+	case FADE_MODE::FADE_IN:
+		alpha_ = 0.0F;
+		break;
+	}
+
+	SetFadeMode(FADE_MODE::NONE, 0U);
+}
+
 Fader::PROC Fader::GetNowProc() const {
 	// ˆ—‚ªŠ®—¹‚µ‚Ä‚¢‚éê‡‚ÍA’¼‘O‚Ìˆ—‚à–³‚µ‚Å•Ô‚·
 	if (mode_ == FADE_MODE::NONE) return PROC::NONE;

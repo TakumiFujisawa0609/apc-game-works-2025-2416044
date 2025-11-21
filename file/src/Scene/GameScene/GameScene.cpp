@@ -1,7 +1,9 @@
+#include "../../Common/Fader.h"
 #include "../../Common/GeometryDxLib.h"
 #include "../../Common/MathUtil.h"
 #include "../../Manager/FontManager.h"
 #include "../../Manager/InputManager.h"
+#include "../../Manager/SceneManager.h"
 #include "../../Object/Camera/Camera.h"
 #include "../../Object/Player/Player.h"
 #include "../../Object/Stage/Block.h"
@@ -44,7 +46,7 @@ void GameScene::Update() {
 	auto& ins = InputManager::GetInstance();
 
 	if (!stage_->IsClear()) {
-		if (->ins.DownMap("ポーズ"))
+		if (SceneManager::GetInstance().GetFaderPtr()->IsFadeEnd() && ins.DownMap("ポーズ"))
 			if (player_->GetState() != Player::STATE::OVER)
 				nextScene_ = SceneBase::SCENE::PAUSE;
 			else
@@ -65,7 +67,7 @@ void GameScene::Update() {
 	if (player_->GetPos().y > Player::FALL_FINISH_Y) {
 		stage_->Update();
 
-		if (!stage_->IsClear()) {
+		if (SceneManager::GetInstance().GetFaderPtr()->IsFadeEnd() && !stage_->IsClear()) {
 			player_->Update();
 
 			// マーク更新
@@ -78,9 +80,9 @@ void GameScene::Update() {
 			trap_->Reset();
 		}
 	}
-	if (stage_->IsEnd()) {
-		if (ins.DownMap("決定") || ins.DownMap("ワナ") || ins.DownMap("ポーズ"))
-			nextScene_ = SceneBase::SCENE::TITLE;
+
+	if (stage_->IsEnd() > 300) {
+		nextScene_ = SceneBase::SCENE::TITLE;
 	}
 
 	if (stage_->IsClear()) {
@@ -129,19 +131,20 @@ void GameScene::DrawUI() {
 
 	// フォント取得
 	auto f = FontManager::GetInstance().GetFontData("汎用");
+	auto fs = FontManager::GetInstance().GetFontData("汎用（小）");
 	auto fl = FontManager::GetInstance().GetFontData("汎用（大）");
 
 	if (player_->GetState() != Player::STATE::OVER) {
 		stage_->DrawUI();
-
-		DrawFormatStringToHandle(48, 48, 0xFFFFFFU, f.handle, "%09u", score_ * 100u);
 
 		std::string waveStr = "";
 		for (int i = 1; i <= Stage::WAVE_MAX; i++) {
 			if (i <= stage_->GetPhase()) waveStr += "■";
 			else waveStr += "□";
 		}
-		DrawFormatStringToHandle(48, 120, 0xFFFFFFU, f.handle, "[1] %s", waveStr.c_str());
+		DrawFormatStringToHandle(48, 48, 0xFFFFFFU, f.handle, "[１]%s", waveStr.c_str());
+
+		DrawFormatStringToHandle(48, 120, 0xFFFFFFU, f.handle, "%09u", score_ * 100u);
 	}
 
 	if (player_->GetPos().y == Player::FALL_FINISH_Y) {
