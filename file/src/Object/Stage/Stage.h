@@ -33,7 +33,7 @@ public:
 	static constexpr int CLEAR_PLATFORM_MOVE_TIMER = 20;	// 
 	static constexpr int CLEAR_AFTER_WAIT_TIMER = 300;		// クリア演出後の待機時間
 
-	static constexpr int WAVE_MAX = 4;
+	static constexpr int PHASE_MAX = 4;
 
 	Stage(GameScene*);
 	~Stage() {}
@@ -66,6 +66,8 @@ public:
 	bool IsVanishing() const;
 	int IsClear() const;
 	int IsEnd() const;
+	bool IsMissed() const;
+	bool IsExistNextWave() const;
 
 private:
 	/// 定数
@@ -85,6 +87,21 @@ private:
 	static constexpr int EXTRA_TIMER_NEW_PHASE = 240;	// フェーズ2以降の開始前の追加タイマー
 	static constexpr int EXTRA_TIMER_PERFECT = 120;		// パーフェクト時の追加タイマー
 	static constexpr int PERFECT_CAM_TIMER = 75;		// カメラ用パーフェクト演出時間
+
+	static constexpr int CUBE_DEPTH_PRESETS[][PHASE_MAX] = {
+		{ 3, 3, 4, 4 },
+		{ 4, 4, 4, 5 },
+	};
+
+	static constexpr int CUBE_WAVE_PRESETS[][PHASE_MAX] = {
+		{ 3, 3, 2, 2 },
+		{ 2, 3, 3, 2 },
+	};
+
+	static constexpr int CUBE_WIDTH_PRESETS[][PHASE_MAX] = {
+		{ 3, 3, 4, 4 },
+		{ 4, 4, 4, 4 },
+	};
 
 	/// 変数
 	// 外部クラスポインタ
@@ -113,6 +130,7 @@ private:
 	bool startwave_;			// ウェーブ開始フラグ
 	bool nextwave_;				// 次のウェーブへの移行フラグ
 	std::list<int> stepQuota_;	// 歩数ノルマ
+	int stepQuota2_;
 	int stepCount_;				// 歩数カウント
 	int waveFallCount_;			// ウェーブ内での落下カウント
 
@@ -130,9 +148,17 @@ private:
 	int isClear_;			//
 	int isClearEnd_;		//
 
+	bool missed_;
+	std::list<std::string> cubePresets_;
+
 	/// 関数
 	void SetUpCube();	// キューブの準備
 	void LoadPattern();	// キューブパターン読み込み
+
+	void SetUpCube2();			// キューブの準備
+	void LoadPattern2(int num);	// キューブパターン読み込み
+	void SetCubeList();			//
+	void MissProc();			//
 
 	void UpdateStop();	// 停止中の更新処理
 	void UpdateSpin();	// 回転中の更新処理

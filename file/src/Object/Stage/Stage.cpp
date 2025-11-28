@@ -54,7 +54,9 @@ bool Stage::GameInit() {
 	}
 
 	// キューブ
-	SetUpCube();
+	//SetUpCube();
+	SetUpCube2();
+	LoadPattern2(wave_);
 
 	spinTimer_ = 0;
 	waveEndDelay_ = -1;
@@ -74,6 +76,7 @@ bool Stage::GameInit() {
 	advVanishCount_ = 0;
 
 	perfectCamTimer_ = 0;
+	missed_ = false;
 
 	return true;
 }
@@ -106,6 +109,11 @@ void Stage::Update() {
 				break;
 			}
 		}
+	}
+
+	if (gameScene_->GetPlayerPtr()->GetState() == Player::STATE::STOMP) {
+		missed_ = true;
+		MissProc();
 	}
 
 	int count = 0;
@@ -257,6 +265,10 @@ bool Stage::ReleaseWave() {
 
 	stepCount_ = 0;
 
+	if (cubePresets_.size() > 0) {
+		cubePresets_.pop_back();
+	}
+
 	return true;
 }
 
@@ -366,17 +378,23 @@ int Stage::IsClear() const { return isClear_; }
 
 int Stage::IsEnd() const { return isClearEnd_; }
 
+bool Stage::IsMissed() const { return missed_; }
+
+bool Stage::IsExistNextWave() const {
+	return cubeList_.size() > 1;
+}
+
 void Stage::SetUpCube() {
 	gameStart_ = false;
 
 	// nフェーズ目にクリア
-	int clrNum = 4;
+	int clrNum = PHASE_MAX;
 
 #ifdef _DEBUG
 	clrNum = 1;
 #endif
 
-	if (phase_ == clrNum) {
+	if (phase_ == PHASE_MAX) {
 		isClear_++;
 		return;
 	}
@@ -478,6 +496,152 @@ void Stage::LoadPattern() {
 	Utility::LoadCSV(name.c_str(), cubePattern_);
 }
 
+void Stage::SetUpCube2() {
+	gameStart_ = false;
+
+	// nフェーズ目にクリア
+	int clrNum = PHASE_MAX;
+
+#ifdef _DEBUG
+	clrNum = 1;
+#endif
+
+	if (phase_ == PHASE_MAX) {
+		isClear_++;
+		return;
+	}
+
+	phase_++;
+	gameScene_->GetTrapPtr()->Reset();
+
+	if (phase_ == 1) {
+		extraTimer_ = EXTRA_TIMER_FIRST_PHASE;
+	}
+	else {
+		extraTimer_ = EXTRA_TIMER_NEW_PHASE;
+	}
+
+	if (phase_ == 3) cubeDepth_++;
+
+	unsigned int add = 0;
+
+	for (int cp = 0; cp < wave_; ++cp) {
+
+		auto& waveList = cubeList_.emplace_back();
+
+		for (int cd = 0; cd < cubeDepth_; ++cd) {
+			auto& subList = waveList.emplace_back();
+
+			for (int cw = 0; cw < blockWidth_; ++cw) {
+				auto& ptr = subList.emplace_back();
+
+				ptr = new Block();
+				// タイプ
+				ptr->SetType(Block::TYPE::NORMAL);
+				// モデルハンドル
+				// 最初は外見で判別ができないよう、統一して隠しておく
+				ptr->SetModelHandle(blockModels_[0]);
+				// ステージ座標
+				ptr->SetStageIndex(cw, cp * cubeDepth_ + cd);
+				// 実座標
+				ptr->SetPosition(
+					{ cw * Block::BLOCK_SIZE + Block::HALF_BLOCK_SIZE, Block::HALF_BLOCK_SIZE, (cp * cubeDepth_ + cd) * (-Block::BLOCK_SIZE) - Block::HALF_BLOCK_SIZE });
+				// 状態
+				ptr->ChangeState(Block::STATE::RISING, Block::RISING_FRAME + add);
+			}
+			add += 5u;
+		}
+	}
+}
+
+void Stage::LoadPattern2(int num) {
+	cubePresets_.clear();
+
+	for (int i = 0; i < num; i++) {
+		// 例: "4x2"
+		std::string size = std::to_string(blockWidth_) + "x" + std::to_string(cubeDepth_);
+
+		// ファイルの番号
+		int n = 0;
+		while (true) { // 永久ループ
+			std::string num = "";
+
+			// ファイルの番号をインクリメント
+			n++;
+
+			// 例: "01", "10"
+			if (n < 10)
+				// 桁が1つしかないので、先頭に"0"を足す
+				num = "0" + std::to_string(n);
+			else
+				num = std::to_string(n);
+
+			// 例: "Data/Pattern/4x2/01.csv"
+			std::string name = "Data/Pattern/" + size + "/" + num + ".csv";
+
+			// ファイルを確認
+			bool b = Utility::CheckFileExists(name.c_str());
+
+			// ファイルがなければループを離脱
+			if (!b) break;
+		}
+
+		int rand = GetRand(--n - 1) + 1;
+		std::string num = "";
+
+		// 例: "01", "10"
+		if (rand < 10)
+			// 桁が1つしかないので、先頭に"0"を足す
+			num = "0" + std::to_string(rand);
+		else
+			num = std::to_string(rand);
+
+		// 例: "Data/Pattern/4x2/01.csv"
+		std::string name = "Data/Pattern/" + size + "/" + num + ".csv";
+
+		cubePresets_.emplace_back(name);
+	}
+}
+
+void Stage::SetCubeList() {
+	std::vector<std::vector<std::string>> pat;
+
+	Utility::LoadCSV(cubePresets_.back().c_str(), pat);
+
+	int cp = 0;
+	for (auto& waveList : cubeList_) {
+
+		stepQuota2_ = std::stoi(pat[0][0]);
+
+		int cd = 0;
+		for (auto& subList : waveList) {
+
+			int cw = 0;
+			for (auto& cube : subList) {
+				int ty = std::stoi(pat[size_t(cd + 1)][cw]);
+
+				// タイプ
+				cube->SetType((Block::TYPE)ty);
+				// モデルハンドル
+				cube->SetModelHandle(blockModels_[ty]);
+
+				cw++;
+			}
+			cd++;
+		}
+		cp++;
+	}
+}
+
+void Stage::MissProc() {
+	if (!IsExistNextWave()) return;
+
+	auto rit = cubePresets_.rbegin();
+
+	auto& back = (*rit);
+	++rit;
+	(*rit) = back;
+}
 
 void Stage::UpdateStop() {
 	// 停止・落下処理
@@ -515,7 +679,9 @@ void Stage::UpdateStop() {
 		}
 		else {
 			// フェーズ進行処理
-			SetUpCube();
+			//SetUpCube();
+			SetUpCube2();
+			LoadPattern2(wave_);
 		}
 	}
 }
@@ -591,6 +757,7 @@ void Stage::StartWave() {
 	// 例外スローの防止
 	if (cubeList_.size() == 0) return;
 
+#if false
 	// 現在のウェーブのリスト
 	auto& waveList = cubeList_.back();
 
@@ -598,9 +765,13 @@ void Stage::StartWave() {
 		// モデルハンドルを、キューブに設定されているタイプに合わせたものに再設定
 		cube->SetModelHandle(blockModels_[(size_t)cube->GetType()]);
 	}
+#endif
+	SetCubeList();
 
 	// ウェーブ開始
 	startwave_ = true;
+
+	missed_ = false;
 
 	// ウェーブ終了遅延を初期化
 	waveEndDelay_ = -1;
@@ -622,9 +793,12 @@ void Stage::StopAndFall() {
 				cube->ChangeState(Block::STATE::FALL);
 
 				// フォービドゥンキューブ以外なら、落下カウントを増やす
-				// ただ、潰されている間は問答無用で落下カウントを増やす（原作準拠の）仕様にするかも
+				// ただ、潰されている間は問答無用で落下カウントを増やす
+#if false
 				if (cube->GetType() != Block::TYPE::FORBIDDEN ||
 					gameScene_->GetPlayerPtr()->GetState() == Player::STATE::STOMP) {
+#endif
+				if (cube->GetType() != Block::TYPE::FORBIDDEN || missed_) {
 					fallCount_++;
 					waveFallCount_++;
 				}

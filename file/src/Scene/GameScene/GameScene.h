@@ -30,6 +30,7 @@ public:
 	bool Release() override;
 
 	void Collision();
+	void Restart();
 
 	Player* GetPlayerPtr();
 	Camera* GetCameraPtr();
@@ -46,6 +47,12 @@ private:
 	Stage* stage_;
 	Trap* trap_;
 
+	static constexpr unsigned int STAGE_NUM_MAX = 3;
+	static constexpr const char* STAGE_WIDE_NUMBER[] = {
+		"‚P", "‚Q", "‚R", "‚S", "‚T", "‚U", "‚V", "‚W", "‚e"
+	};
+
+	unsigned int stageNum_;
 	unsigned int score_;
 	unsigned int iq_;
 

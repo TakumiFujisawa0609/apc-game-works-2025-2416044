@@ -23,8 +23,9 @@ bool GameScene::SystemInit() {
 
 	trap_ = new Trap(stage_);
 
-
 	camera_->SetFollowTarget(player_);
+
+	stageNum_ = 0;
 
 	return true;
 }
@@ -138,7 +139,7 @@ void GameScene::DrawUI() {
 		stage_->DrawUI();
 
 		std::string waveStr = "";
-		for (int i = 1; i <= Stage::WAVE_MAX; i++) {
+		for (int i = 1; i <= Stage::PHASE_MAX; i++) {
 			if (i <= stage_->GetPhase()) waveStr += "¡";
 			else waveStr += " ";
 		}
@@ -197,6 +198,15 @@ void GameScene::Collision() {
 	CollisionStomp();
 
 	return;
+}
+
+void GameScene::Restart() {
+	stageNum_++;
+
+	GameInit();
+
+	SceneManager::GetInstance().GetFaderPtr()->SetFadeMode(
+		Fader::FADE_MODE::FADE_OUT, 0U);
 }
 
 Player* GameScene::GetPlayerPtr() { return player_; }
