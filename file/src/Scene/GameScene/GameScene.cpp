@@ -47,11 +47,12 @@ void GameScene::Update() {
 	auto& ins = InputManager::GetInstance();
 
 	if (!stage_->IsClear()) {
-		if (SceneManager::GetInstance().GetFaderPtr()->IsFadeEnd() && ins.DownMap("ポーズ"))
+		if (SceneManager::GetInstance().GetFaderPtr()->IsFadeEnd() && ins.DownMap("ポーズ")) {
 			if (player_->GetState() != Player::STATE::OVER)
 				nextScene_ = SceneBase::SCENE::PAUSE;
 			else
 				nextScene_ = SceneBase::SCENE::TITLE;
+		}
 	}
 
 	if (!stage_->IsClear() &&
@@ -251,7 +252,8 @@ void GameScene::CollisionCube() {
 	for (auto& c2 : c1) for (auto& c3 : c2) for (auto& c4 : c3) {
 		// キューブが生存していなければ衝突しない、
 		// キューブが地面より下であれば衝突しない
-		if (!c4->IsAlive() && !c4->IsRising()) continue;
+		if (!c4->IsAlive() ||
+			c4->GetState() == Block::STATE::RISING && !c4->IsRising()) continue;
 
 		// プレイヤーが移動していなければ、判定できない
 		if (!GeometryDxLib::VEquals(plPos, plPrevPos)) {

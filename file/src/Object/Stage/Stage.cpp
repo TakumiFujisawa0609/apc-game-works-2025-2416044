@@ -192,8 +192,8 @@ void Stage::DrawUI() {
 #endif
 
 	// 歩数
-	int count = stepQuota_.size() > 0 && gameStart_ ?
-		stepQuota_.back() : 0;
+	//int count = stepQuota_.size() > 0 && gameStart_ ? stepQuota_.back() : 0;
+	int count = stepQuota2_;
 
 	unsigned int color = FONT_COLOR_NORMAL;
 	if (stepCount_ < count) color = FONT_COLOR_LESS_STEP;
@@ -604,32 +604,28 @@ void Stage::LoadPattern2(int num) {
 }
 
 void Stage::SetCubeList() {
-	std::vector<std::vector<std::string>> pat;
+	if (cubePresets_.empty()) return;
 
+	std::vector<std::vector<std::string>> pat;
 	Utility::LoadCSV(cubePresets_.back().c_str(), pat);
 
-	int cp = 0;
-	for (auto& waveList : cubeList_) {
+	stepQuota2_ = std::stoi(pat[0][0]);
 
-		stepQuota2_ = std::stoi(pat[0][0]);
+	int cd = 0;
+	for (auto& subList : cubeList_.back()) {
 
-		int cd = 0;
-		for (auto& subList : waveList) {
+		int cw = 0;
+		for (auto& cube : subList) {
+			int ty = std::stoi(pat[size_t(cd + 1)][cw]);
 
-			int cw = 0;
-			for (auto& cube : subList) {
-				int ty = std::stoi(pat[size_t(cd + 1)][cw]);
+			// タイプ
+			cube->SetType((Block::TYPE)ty);
+			// モデルハンドル
+			cube->SetModelHandle(blockModels_[ty]);
 
-				// タイプ
-				cube->SetType((Block::TYPE)ty);
-				// モデルハンドル
-				cube->SetModelHandle(blockModels_[ty]);
-
-				cw++;
-			}
-			cd++;
+			cw++;
 		}
-		cp++;
+		cd++;
 	}
 }
 
@@ -679,7 +675,9 @@ void Stage::UpdateStop() {
 		}
 		else {
 			// フェーズ進行処理
-			//SetUpCube();
+#if false
+			SetUpCube();
+#endif
 			SetUpCube2();
 			LoadPattern2(wave_);
 		}
@@ -690,7 +688,7 @@ void Stage::UpdateSpin() {
 	if (!gameStart_) gameStart_ = true;
 
 	// 例外スローの防止＋α
-	if (cubeList_.size() == 0) {
+	if (cubeList_.empty()) {
 		isSpinning_ = false;
 		return;
 	}
@@ -727,7 +725,7 @@ void Stage::UpdateSpin() {
 		if (cubeRot.x + nextRot < -DX_PI_F / 2.f)
 			nextRot = -DX_PI_F / 2.f - cubeRot.x;
 
-		// 行列計算（座標への平行移動×回転×原点への平行移動）
+		// 行列計算（座標への平行移動 × 回転 × 原点への平行移動）
 		Matrix4x4 mat = TranslationMatrix(cube->GetMatrixPosition()) * RotationMatrixX(nextRot) * TranslationMatrix(-cube->GetMatrixPosition());
 
 		// キューブの座標を更新
@@ -825,7 +823,7 @@ void Stage::StopAndFall() {
 
 bool Stage::KeepStop() {
 	// 例外スローの防止
-	if (cubeList_.size() == 0) return false;
+	if (cubeList_.empty()) return false;
 
 	// 現在のウェーブのみで判定
 	auto& waveList = cubeList_.back();
@@ -847,7 +845,7 @@ bool Stage::KeepStop() {
 void Stage::NextWave() {
 	if (waveEndDelay_ == -1) {
 		// 例外スローの防止
-		if (cubeList_.size() == 0) return;
+		if (cubeList_.empty()) return;
 
 		// 現在のウェーブのみで判定
 		auto& waveList = cubeList_.back();
@@ -899,7 +897,10 @@ void Stage::PerfectProc() {
 	);
 	ptr->ChangeState(Block::STATE::ADD);
 
+#if false
 	if (stepCount_ <= stepQuota_.back()) {
+#endif
+	if (stepCount_ <= stepQuota2_) {
 		gameScene_->AddScore(stage_ * phase_ * 10);
 		gameScene_->AddIQ(3);
 	}
