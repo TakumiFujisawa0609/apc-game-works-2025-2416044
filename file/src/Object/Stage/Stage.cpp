@@ -499,14 +499,11 @@ void Stage::LoadPattern() {
 void Stage::SetUpCube2() {
 	gameStart_ = false;
 
-	// nフェーズ目にクリア
-	int clrNum = PHASE_MAX;
-
 #ifdef _DEBUG
-	clrNum = 1;
-#endif
-
+	if (phase_ == 1) {
+#else
 	if (phase_ == PHASE_MAX) {
+#endif
 		isClear_++;
 		return;
 	}
@@ -738,7 +735,7 @@ void Stage::UpdateSpin() {
 		// キューブの回転量が-90度になったら回転処理を停止
 		if (cubeRot.x <= -DX_PI_F / 2.f) {
 			auto idx = cube->GetStageIndex();
-			cube->SetStageIndex({ idx.x, idx.y + 1 });
+			cube->SetStageIndex({ idx.x, ++idx.y });
 			if (isSpinning_) {
 				isSpinning_ = false;
 				AudioManager::GetInstance().PlaySE("回転");
@@ -795,8 +792,9 @@ void Stage::StopAndFall() {
 #if false
 				if (cube->GetType() != Block::TYPE::FORBIDDEN ||
 					gameScene_->GetPlayerPtr()->GetState() == Player::STATE::STOMP) {
-#endif
+#else
 				if (cube->GetType() != Block::TYPE::FORBIDDEN || missed_) {
+#endif
 					fallCount_++;
 					waveFallCount_++;
 				}

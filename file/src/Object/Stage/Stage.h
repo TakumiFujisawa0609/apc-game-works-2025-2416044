@@ -90,17 +90,17 @@ private:
 
 	static constexpr int CUBE_DEPTH_PRESETS[][PHASE_MAX] = {
 		{ 3, 3, 4, 4 },
-		{ 4, 4, 4, 5 },
+		{ 4, 4, 4, 4 },
+		{ 4, 4, 5, 5 },
 	};
 
 	static constexpr int CUBE_WAVE_PRESETS[][PHASE_MAX] = {
 		{ 3, 3, 2, 2 },
-		{ 2, 3, 3, 2 },
+		{ 2, 3, 3, 4 },
 	};
 
-	static constexpr int CUBE_WIDTH_PRESETS[][PHASE_MAX] = {
-		{ 3, 3, 4, 4 },
-		{ 4, 4, 4, 4 },
+	static constexpr int CUBE_WIDTH_PRESETS[] = {
+		4, 4, 5, 6, 6, 7
 	};
 
 	/// ïœêî
