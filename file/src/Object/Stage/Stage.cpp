@@ -32,19 +32,15 @@ bool Stage::SystemInit() {
 	return true;
 }
 
-bool Stage::GameInit() {
-	blockWidth_ = 4;
-
-	cubeDepth_ = 2;
-	wave_ = 3;
+bool Stage::GameInit(unsigned int num) {
+	stage_ = num;
 	phase_ = 0;
-	stage_ = 1;
 
-	platformDepth_ = MathUtil::RoundDown(cubeDepth_ * wave_ * PLATFORM_DEPTH_MULT);
+	platformDepth_ = MathUtil::RoundDown(CUBE_DEPTH_PRESETS[stage_][phase_] * CUBE_WAVE_PRESETS[stage_][phase_] * PLATFORM_DEPTH_MULT);
 
 	for (int pd = 0; pd < platformDepth_; ++pd) {
 		auto& ptr = platformList_.emplace_back();
-		ptr = new Block(blockWidth_);
+		ptr = new Block(CUBE_WIDTH_PRESETS[stage_]);
 		ptr->SetType(Block::TYPE::PLATFORM);
 		ptr->SetModelHandle(blockModels_[0]);
 		ptr->SetStageIndex(0, pd);
@@ -56,7 +52,7 @@ bool Stage::GameInit() {
 	// キューブ
 	//SetUpCube();
 	SetUpCube2();
-	LoadPattern2(wave_);
+	LoadPattern2(CUBE_WAVE_PRESETS[stage_][phase_ - 1]);
 
 	spinTimer_ = 0;
 	waveEndDelay_ = -1;
@@ -99,8 +95,8 @@ void Stage::Update() {
 		cube->Update();
 	}
 
-	if (fallCount_ >= blockWidth_) {
-		fallCount_ -= blockWidth_;
+	if (fallCount_ >= CUBE_WIDTH_PRESETS[stage_]) {
+		fallCount_ -= CUBE_WIDTH_PRESETS[stage_];
 
 		for (auto rit = platformList_.rbegin(); rit != platformList_.rend(); rit++) {
 			if ((*rit)->GetState() == Block::STATE::NONE) {
@@ -133,14 +129,11 @@ void Stage::Update() {
 	platformDepth_ = count;
 
 	if (trapVanish_) {
-		gameScene_->AddScore(SCORE_LIST[0]);
+		gameScene_->AddScore(SCORE_NORMAL);
 		trapVanish_ = false;
 	}
 	if (advVanishCount_ > 0) {
-		if (advVanishCount_ > SCORE_LIST_MAX) {
-			advVanishCount_ = SCORE_LIST_MAX;
-		}
-		gameScene_->AddScore(SCORE_LIST[advVanishCount_ - 1]);
+		gameScene_->AddScore(SCORE_ADVANTAGE * advVanishCount_);
 		advVanishCount_ = 0;
 	}
 
@@ -202,14 +195,14 @@ void Stage::DrawUI() {
 	DrawFormatStringToHandle(x - 48 - int(f.size * 2.5), 48, color, f.handle, "%2d/%2d", stepCount_, count);
 
 	// 落下数
-	std::string s = "";
-	for (int i = (blockWidth_ - 1) - fallCount_; i > 0; i--) {
-		s += "□";
+	for (int i = 0; i < CUBE_WIDTH_PRESETS[stage_] - 1; i++) {
+		const char* sq = "■";
+		unsigned int col;
+		if (i >= fallCount_) col = FONT_COLOR_NORMAL;
+		else col = FONT_COLOR_MORE_STEP;
+
+		DrawFormatStringToHandle(x - 48 - 52 * i - f.size, y - 48 - f.size, col, f.handle, sq);
 	}
-	for (int i = fallCount_; i > 0; i--) {
-		s += "■";
-	}
-	DrawFormatStringToHandle(x - 48 - int(f.size * (int)s.length() * 0.5), y - 48 - f.size, FONT_COLOR_NORMAL, f.handle, s.c_str());
 }
 
 bool Stage::Release() {
@@ -298,8 +291,8 @@ void Stage::VanishBlock(const Vector2& trap_stage_pos, Trap::TYPE type) {
 				gameScene_->GetTrapPtr()->SetTrap(GeometryDxLib::Vector3ToVECTOR(cube->GetPosition()), Trap::TYPE::ADVANCE);
 				break;
 			case Block::TYPE::FORBIDDEN:
-				fallCount_ += blockWidth_;
-				waveFallCount_ += blockWidth_;
+				fallCount_ += CUBE_WIDTH_PRESETS[stage_];
+				waveFallCount_ += CUBE_WIDTH_PRESETS[stage_];
 				break;
 			}
 
@@ -332,7 +325,7 @@ VECTOR Stage::ConvertWorldPos(int x, int z) {
 }
 
 void Stage::GetPlatformSize(int& x, int& z) const {
-	x = blockWidth_;
+	x = CUBE_WIDTH_PRESETS[stage_];
 	z = platformDepth_;
 }
 
@@ -384,118 +377,6 @@ bool Stage::IsExistNextWave() const {
 	return cubeList_.size() > 1;
 }
 
-void Stage::SetUpCube() {
-	gameStart_ = false;
-
-	// nフェーズ目にクリア
-	int clrNum = PHASE_MAX;
-
-#ifdef _DEBUG
-	clrNum = 1;
-#endif
-
-	if (phase_ == PHASE_MAX) {
-		isClear_++;
-		return;
-	}
-
-	phase_++;
-	gameScene_->GetTrapPtr()->Reset();
-
-	if (phase_ == 1) {
-		extraTimer_ = EXTRA_TIMER_FIRST_PHASE;
-	}
-	else {
-		extraTimer_ = EXTRA_TIMER_NEW_PHASE;
-	}
-
-	if (phase_ == 3) cubeDepth_++;
-
-	unsigned int add = 0;
-
-	for (int cp = 0; cp < wave_; ++cp) {
-
-		auto& waveList = cubeList_.emplace_back();
-
-		LoadPattern();
-		stepQuota_.emplace_back(std::stoi(cubePattern_[0][0]));
-
-		for (int cd = 0; cd < cubeDepth_; ++cd) {
-			auto& subList = waveList.emplace_back();
-
-			for (int cw = 0; cw < blockWidth_; ++cw) {
-				int pat = std::stoi(cubePattern_[size_t(cd + 1)][cw]);
-
-				auto& ptr = subList.emplace_back();
-
-				ptr = new Block();
-				// タイプ
-				ptr->SetType((Block::TYPE)pat);
-				// モデルハンドル
-				// 最初は外見で判別ができないよう、統一して隠しておく
-				ptr->SetModelHandle(blockModels_[0]);
-				// ステージ座標
-				ptr->SetStageIndex(cw, cp * cubeDepth_ + cd);
-				// 実座標
-				ptr->SetPosition(
-					{ cw * Block::BLOCK_SIZE + Block::HALF_BLOCK_SIZE, Block::HALF_BLOCK_SIZE, (cp * cubeDepth_ + cd) * (-Block::BLOCK_SIZE) - Block::HALF_BLOCK_SIZE });
-				// 状態
-				ptr->ChangeState(Block::STATE::RISING, Block::RISING_FRAME + add);
-			}
-			add += 5u;
-		}
-	}
-}
-
-void Stage::LoadPattern() {
-	for (auto& sub : cubePattern_)
-		sub.clear();
-	cubePattern_.clear();
-
-	// 例: "4x2"
-	std::string size = std::to_string(blockWidth_) + "x" + std::to_string(cubeDepth_);
-
-	// ファイルの番号
-	int n = 0;
-	while (true) { // 永久ループ
-		std::string num = "";
-
-		// ファイルの番号をインクリメント
-		n++;
-
-		// 例: "01", "10"
-		if (n < 10)
-			// 桁が1つしかないので、先頭に"0"を足す
-			num = "0" + std::to_string(n);
-		else
-			num = std::to_string(n);
-
-		// 例: "Data/Pattern/4x2/01.csv"
-		std::string name = "Data/Pattern/" + size + "/" + num + ".csv";
-
-		// ファイルを確認
-		bool b = Utility::CheckFileExists(name.c_str());
-
-		// ファイルがなければループを離脱
-		if (!b) break;
-	}
-
-	int rand = GetRand(--n - 1) + 1;
-	std::string num = "";
-
-	// 例: "01", "10"
-	if (rand < 10)
-		// 桁が1つしかないので、先頭に"0"を足す
-		num = "0" + std::to_string(rand);
-	else
-		num = std::to_string(rand);
-
-	// 例: "Data/Pattern/4x2/01.csv"
-	std::string name = "Data/Pattern/" + size + "/" + num + ".csv";
-
-	Utility::LoadCSV(name.c_str(), cubePattern_);
-}
-
 void Stage::SetUpCube2() {
 	gameStart_ = false;
 
@@ -518,18 +399,15 @@ void Stage::SetUpCube2() {
 		extraTimer_ = EXTRA_TIMER_NEW_PHASE;
 	}
 
-	if (phase_ == 3) cubeDepth_++;
-
 	unsigned int add = 0;
-
-	for (int cp = 0; cp < wave_; ++cp) {
+	for (int cp = 0; cp < CUBE_WAVE_PRESETS[stage_][phase_ - 1]; ++cp) {
 
 		auto& waveList = cubeList_.emplace_back();
 
-		for (int cd = 0; cd < cubeDepth_; ++cd) {
+		for (int cd = 0; cd < CUBE_DEPTH_PRESETS[stage_][phase_ - 1]; ++cd) {
 			auto& subList = waveList.emplace_back();
 
-			for (int cw = 0; cw < blockWidth_; ++cw) {
+			for (int cw = 0; cw < CUBE_WIDTH_PRESETS[stage_]; ++cw) {
 				auto& ptr = subList.emplace_back();
 
 				ptr = new Block();
@@ -539,10 +417,13 @@ void Stage::SetUpCube2() {
 				// 最初は外見で判別ができないよう、統一して隠しておく
 				ptr->SetModelHandle(blockModels_[0]);
 				// ステージ座標
-				ptr->SetStageIndex(cw, cp * cubeDepth_ + cd);
+				ptr->SetStageIndex(cw, cp * CUBE_DEPTH_PRESETS[stage_][phase_ - 1] + cd);
 				// 実座標
-				ptr->SetPosition(
-					{ cw * Block::BLOCK_SIZE + Block::HALF_BLOCK_SIZE, Block::HALF_BLOCK_SIZE, (cp * cubeDepth_ + cd) * (-Block::BLOCK_SIZE) - Block::HALF_BLOCK_SIZE });
+				ptr->SetPosition({
+					cw * Block::BLOCK_SIZE + Block::HALF_BLOCK_SIZE,
+					Block::HALF_BLOCK_SIZE,
+					(cp * CUBE_DEPTH_PRESETS[stage_][phase_ - 1] + cd) * (-Block::BLOCK_SIZE) - Block::HALF_BLOCK_SIZE
+					});
 				// 状態
 				ptr->ChangeState(Block::STATE::RISING, Block::RISING_FRAME + add);
 			}
@@ -556,7 +437,7 @@ void Stage::LoadPattern2(int num) {
 
 	for (int i = 0; i < num; i++) {
 		// 例: "4x2"
-		std::string size = std::to_string(blockWidth_) + "x" + std::to_string(cubeDepth_);
+		std::string size = std::to_string(CUBE_WIDTH_PRESETS[stage_]) + "x" + std::to_string(CUBE_DEPTH_PRESETS[stage_][phase_ - 1]);
 
 		// ファイルの番号
 		int n = 0;
@@ -676,7 +557,7 @@ void Stage::UpdateStop() {
 			SetUpCube();
 #endif
 			SetUpCube2();
-			LoadPattern2(wave_);
+			LoadPattern2(CUBE_WAVE_PRESETS[stage_][phase_ - 1]);
 		}
 	}
 }
@@ -886,7 +767,7 @@ void Stage::NextWave() {
 
 void Stage::PerfectProc() {
 	auto& ptr = platformList_.emplace_back();
-	ptr = new Block(blockWidth_);
+	ptr = new Block(CUBE_WIDTH_PRESETS[stage_]);
 	ptr->SetType(Block::TYPE::PLATFORM);
 	ptr->SetModelHandle(blockModels_[0]);
 	ptr->SetStageIndex(0, platformDepth_);
@@ -898,13 +779,14 @@ void Stage::PerfectProc() {
 #if false
 	if (stepCount_ <= stepQuota_.back()) {
 #endif
-	if (stepCount_ <= stepQuota2_) {
-		gameScene_->AddScore(stage_ * phase_ * 10);
-		gameScene_->AddIQ(3);
+	if (stepCount_ == stepQuota2_) { // 指定歩数と同じ
+		gameScene_->AddScore(SCORE_PERFECT);
 	}
-	else {
-		gameScene_->AddScore(stage_ * phase_ * 5);
-		gameScene_->AddIQ(1);
+	else if (stepCount_ < stepQuota2_) { // 指定歩数未満
+		gameScene_->AddScore(SCORE_EXCELLENT);
+	}
+	else { // 指定歩数超過
+		gameScene_->AddScore(SCORE_GREAT);
 	}
 
 	perfectCamTimer_ = PERFECT_CAM_TIMER;

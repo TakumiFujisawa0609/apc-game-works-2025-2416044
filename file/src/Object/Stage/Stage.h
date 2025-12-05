@@ -39,7 +39,7 @@ public:
 	~Stage() {}
 
 	bool SystemInit();
-	bool GameInit();
+	bool GameInit(unsigned int num = 0);
 	void Update();
 	void Draw();
 	void DrawUI();
@@ -71,6 +71,12 @@ public:
 
 private:
 	/// 定数
+	static constexpr int SCORE_NORMAL = 1;
+	static constexpr int SCORE_ADVANTAGE = 2;
+	static constexpr int SCORE_PERFECT = 50;
+	static constexpr int SCORE_GREAT = 20;
+	static constexpr int SCORE_EXCELLENT = 100;
+
 	static constexpr int SCORE_LIST[] = { // 消去時のスコア
 		2, 3, 5, 7, 10, 15, 20, 30, 50, 75, 100
 	};
@@ -89,18 +95,19 @@ private:
 	static constexpr int PERFECT_CAM_TIMER = 75;		// カメラ用パーフェクト演出時間
 
 	static constexpr int CUBE_DEPTH_PRESETS[][PHASE_MAX] = {
-		{ 3, 3, 4, 4 },
-		{ 4, 4, 4, 4 },
-		{ 4, 4, 5, 5 },
+		{ 2, 2, 3, 4 },
+		{ 5, 5, 6, 6 },
+		{ 4, 5, 6, 6 }
 	};
 
 	static constexpr int CUBE_WAVE_PRESETS[][PHASE_MAX] = {
-		{ 3, 3, 2, 2 },
-		{ 2, 3, 3, 4 },
+		{ 3, 3, 3, 3 },
+		{ 3, 3, 3, 3 },
+		{ 3, 3, 3, 3 }
 	};
 
 	static constexpr int CUBE_WIDTH_PRESETS[] = {
-		4, 4, 5, 6, 6, 7
+		4, 4, 5
 	};
 
 	/// 変数
@@ -152,9 +159,6 @@ private:
 	std::list<std::string> cubePresets_;
 
 	/// 関数
-	void SetUpCube();	// キューブの準備
-	void LoadPattern();	// キューブパターン読み込み
-
 	void SetUpCube2();			// キューブの準備
 	void LoadPattern2(int num);	// キューブパターン読み込み
 	void SetCubeList();			//

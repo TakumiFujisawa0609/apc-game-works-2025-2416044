@@ -31,7 +31,7 @@ bool GameScene::SystemInit() {
 }
 
 bool GameScene::GameInit() {
-	stage_->GameInit();
+	stage_->GameInit(stageNum_);
 
 	int px = 0, pz = 0;
 	stage_->GetPlatformSize(px, pz);
