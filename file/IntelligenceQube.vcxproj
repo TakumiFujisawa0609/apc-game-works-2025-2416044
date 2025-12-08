@@ -42,6 +42,7 @@
     <ClCompile Include="src\Utility\Utility.cpp" />
     <ClCompile Include="src\Scene\TitleScene\TitleScene.cpp" />
     <ClCompile Include="src\Common\Text.cpp" />
+    <ClCompile Include="src\Object\Common\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Common\Fader.h" />
@@ -66,6 +67,7 @@
     <ClInclude Include="src\Utility\Utility.h" />
     <ClInclude Include="src\Scene\TitleScene\TitleScene.h" />
     <ClInclude Include="src\Common\Text.h" />
+    <ClInclude Include="src\Object\Common\Transform.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

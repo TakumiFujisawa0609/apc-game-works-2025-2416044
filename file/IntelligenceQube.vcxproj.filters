@@ -24,6 +24,7 @@
     <ClCompile Include="src\Common\Text.cpp" />
     <ClCompile Include="src\Common\MathUtil.cpp" />
     <ClCompile Include="src\Common\Fader.cpp" />
+    <ClCompile Include="src\Object\Common\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\App.h" />
@@ -48,5 +49,6 @@
     <ClInclude Include="src\Common\Text.h" />
     <ClInclude Include="src\Common\MathUtil.h" />
     <ClInclude Include="src\Common\Fader.h" />
+    <ClInclude Include="src\Object\Common\Transform.h" />
   </ItemGroup>
 </Project>
