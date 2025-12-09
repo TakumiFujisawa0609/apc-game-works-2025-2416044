@@ -36,4 +36,10 @@ public:
 	static float Lerp(float start, float end, float lerp = 0.2f);
 	// 線形補間（ラジアン）
 	static float LerpRad(float start, float end, float lerp = 0.2f);
+
+	// 数値が範囲に含まれるか
+	static bool IsInRange(double start, double end, double value)
+	{
+		return start <= end && start <= value && value <= end;
+	}
 };
