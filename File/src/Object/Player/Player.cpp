@@ -143,9 +143,9 @@ void Player::Draw() {
 	footPos.y += 2.f;
 	GeometryDxLib::DrawShadow3D(footPos, 30.0f, 24);
 
-	if (invincible_ % 2 == 1) return;
-
-	MV1DrawModel(modelId_);
+	if (invincible_ % 4 < 4 / 2) {
+		MV1DrawModel(modelId_);
+	}
 
 #ifdef _DEBUG
 	DrawFormatString(10, 10, 0xFFFFFFU, "プレイヤー座標: (%.2f, %.2f, %.2f)", pos_.x, pos_.y, pos_.z);

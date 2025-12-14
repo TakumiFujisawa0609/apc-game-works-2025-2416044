@@ -37,9 +37,6 @@ void TitleScene::Draw() {
 	auto fl = fIns.GetFontData("ÉçÉS").handle;
 	auto fg = fIns.GetFontData("îƒóp").handle;
 
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 0x80);
-	DrawStringToHandle(LOGO_X, LOGO_Y, "Intelligent Qube", 0x404040U, fl);
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0x00);
 	DrawStringToHandle(LOGO_X, LOGO_Y, "ím ê´ ÇÃ óß ï˚ ëÃ", 0xFFFFFFU, fl);
 
 	switch (subScene_) {

@@ -19,6 +19,11 @@ void Trap::Update() {
 	for (auto it = traps_.begin(); it != traps_.end();) {
 		auto& t = (*it);
 
+		if (t.stagePos.y >= stage_->GetPlatformSize().z) {
+			it = traps_.erase(it);
+			continue;
+		}
+
 		if (t.depWait > 0) t.depWait--;
 
 		if (t.exeWait > 0) t.exeWait--;

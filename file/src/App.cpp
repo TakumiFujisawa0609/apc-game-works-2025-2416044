@@ -35,7 +35,6 @@ void App::GameLoop() {
 }
 
 bool App::Release() {
-	AudioManager::GetInstance().Release();
 	AudioManager::DeleteInstance();
 
 	FontManager::GetInstance().Release();
@@ -95,7 +94,6 @@ bool App::SystemInit() {
 bool App::ClassInit() {
 	// AudioManager
 	AudioManager::CreateInstance();
-	AudioManager::GetInstance().Init();
 
 	AudioManager::GetInstance().LoadSE("回転", "Data/Sound/rollrock.wav");
 	AudioManager::GetInstance().LoadSE("トラップ設置", "Data/Sound/AS_817822_ポン（デジタル・ボタン・決定・クリック）.wav");
@@ -109,10 +107,10 @@ bool App::ClassInit() {
 	FontManager::CreateInstance();
 	FontManager::GetInstance().Init();
 
-	FontManager::GetInstance().AddFont("ロゴ", "HG明朝E", 80, 4, DX_FONTTYPE_ANTIALIASING_EDGE);
-	FontManager::GetInstance().AddFont("汎用", "HGｺﾞｼｯｸE", 48, 5, DX_FONTTYPE_ANTIALIASING_EDGE);
-	FontManager::GetInstance().AddFont("汎用（小）", "HGｺﾞｼｯｸE", 24, 5, DX_FONTTYPE_ANTIALIASING_EDGE);
-	FontManager::GetInstance().AddFont("汎用（大）", "HGｺﾞｼｯｸE", 64, 5, DX_FONTTYPE_ANTIALIASING_EDGE);
+	FontManager::GetInstance().AddFont("ロゴ", "ＭＳ 明朝", 80, 6, DX_FONTTYPE_ANTIALIASING_EDGE);
+	FontManager::GetInstance().AddFont("汎用", "ＭＳ ゴシック", 48, 5, DX_FONTTYPE_ANTIALIASING_EDGE);
+	FontManager::GetInstance().AddFont("汎用（小）", "ＭＳ ゴシック", 24, 5, DX_FONTTYPE_ANTIALIASING_EDGE);
+	FontManager::GetInstance().AddFont("汎用（大）", "ＭＳ ゴシック", 64, 5, DX_FONTTYPE_ANTIALIASING_EDGE);
 
 	// FPSManager
 	FPSManager::CreateInstance();

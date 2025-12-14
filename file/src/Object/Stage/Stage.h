@@ -53,6 +53,7 @@ public:
 	VECTOR ConvertWorldPos(int x, int z);
 
 	void GetPlatformSize(int& x, int& z) const;
+	VECTOR GetPlatformSize() const;
 	int GetPrevPlatformSizeZ() const;
 	std::list<std::list<std::list<Block*>>> GetCubeList() const;
 	int GetPhase() const;

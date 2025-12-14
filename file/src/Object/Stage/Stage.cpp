@@ -52,7 +52,7 @@ bool Stage::GameInit(unsigned int num) {
 	// ÉLÉÖÅ[Éu
 	//SetUpCube();
 	SetUpCube2();
-	LoadPattern2(CUBE_WAVE_PRESETS[stage_][phase_ - 1]);
+	LoadPattern2(CUBE_WAVE_PRESETS[stage_][(std::min)(phase_ - 1, 0)]);
 
 	spinTimer_ = 0;
 	waveEndDelay_ = -1;
@@ -327,6 +327,10 @@ VECTOR Stage::ConvertWorldPos(int x, int z) {
 void Stage::GetPlatformSize(int& x, int& z) const {
 	x = CUBE_WIDTH_PRESETS[stage_];
 	z = platformDepth_;
+}
+
+VECTOR Stage::GetPlatformSize() const {
+	return VECTOR(CUBE_WIDTH_PRESETS[stage_], 0.0f, platformDepth_);
 }
 
 int Stage::GetPrevPlatformSizeZ() const { return prevPlatformDepth_; }
