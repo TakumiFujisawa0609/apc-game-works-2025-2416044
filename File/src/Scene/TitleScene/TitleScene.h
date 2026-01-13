@@ -6,8 +6,9 @@ class TitleScene : public SceneBase {
 public:
 	enum SUB_SCENE {
 		TITLE,
-		GUIDE,
 		MENU,
+		STAGE_SELECT,
+		GUIDE,
 		SETTING,
 	};
 
@@ -45,6 +46,13 @@ private:
 		MENU_Y + MENU_Y_ADD * 2,
 		MENU_Y + MENU_Y_ADD * 3,
 		MENU_Y + MENU_Y_ADD * 4
+	};
+
+	static constexpr size_t STAGE_SELECT_LENGTH = 3;
+	static constexpr const char* STAGE_SELECT_MAP[STAGE_SELECT_LENGTH] = {
+		"ステージ１",
+		"ステージ２",
+		"ステージ３",
 	};
 
 	static constexpr size_t GUIDE_LENGTH = 8;
@@ -108,10 +116,12 @@ private:
 
 	void UpdateTitle();
 	void UpdateMenu();
+	void UpdateStageSelect();
 	void UpdateGuide();
 	void UpdateSetting();
 
 	void DrawMenu();
+	void DrawStageSelect();
 	void DrawGuide();
 	void DrawSetting();
 

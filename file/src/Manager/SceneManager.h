@@ -7,6 +7,17 @@ class SceneBase;
 class Fader;
 
 class SceneManager {
+private:
+	static SceneManager* instance_;
+
+	SceneManager() {}
+	~SceneManager() {}
+
+	SceneManager(const SceneManager&) = delete;
+	SceneManager& operator=(const SceneManager&) = delete;
+	SceneManager(SceneManager&&) = delete;
+	SceneManager& operator=(SceneManager&&) = delete;
+
 public:
 	static void CreateInstance() { if (instance_ == nullptr) instance_ = new SceneManager; }
 	static SceneManager& GetInstance() { return *instance_; }
@@ -22,20 +33,11 @@ public:
 	Fader* GetFaderPtr();
 	float GetDeltaTime() const;
 
+	void SetNextStartStage(unsigned int);
 	bool IsPause() const;
 	bool PrevPause() const;
 
 private:
-	static SceneManager* instance_;
-
-	SceneManager() {}
-	~SceneManager() {}
-
-	SceneManager(const SceneManager&) = delete;
-	SceneManager& operator=(const SceneManager&) = delete;
-	SceneManager(SceneManager&&) = delete;
-	SceneManager& operator=(SceneManager&&) = delete;
-
 	std::list<SceneBase*> sceneList_;
 	Fader* fader_;
 
@@ -49,6 +51,7 @@ private:
 	bool Fade();
 	void DoChangeScene(SceneBase::SCENE);
 
+	unsigned int nextStartStage = 0u;
 	bool isPause_;
 	bool prevPause_;
 	SceneBase::SCENE waitSceneId_;

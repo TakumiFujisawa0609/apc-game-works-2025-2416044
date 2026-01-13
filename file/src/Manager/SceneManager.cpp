@@ -89,6 +89,8 @@ Fader* SceneManager::GetFaderPtr() { return fader_; }
 
 float SceneManager::GetDeltaTime() const { return deltaTime_; }
 
+void SceneManager::SetNextStartStage(unsigned int u) { nextStartStage = u; }
+
 bool SceneManager::IsPause() const { return isPause_; }
 
 bool SceneManager::PrevPause() const { return prevPause_; }
@@ -208,6 +210,8 @@ void SceneManager::DoChangeScene(SceneBase::SCENE scene) {
 			else ReleaseScene();
 		}
 
+		GameScene* game;
+
 		// ƒV[ƒ“‚ğØ‚è‘Ö‚¦‚é
 		switch (scene) {
 		case SceneBase::SCENE::TITLE:
@@ -215,6 +219,8 @@ void SceneManager::DoChangeScene(SceneBase::SCENE scene) {
 			break;
 		case SceneBase::SCENE::GAME:
 			ret = new GameScene();
+			game = dynamic_cast<GameScene*>(ret);
+			game->SetStageNumber(nextStartStage);
 			break;
 		case SceneBase::SCENE::SETTING:
 			//ret = new SettingScene();

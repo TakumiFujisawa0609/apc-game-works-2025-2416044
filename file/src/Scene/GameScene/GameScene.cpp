@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "../../Common/Fader.h"
 #include "../../Common/GeometryDxLib.h"
 #include "../../Common/MathUtil.h"
@@ -28,6 +29,10 @@ bool GameScene::SystemInit() {
 	stageNum_ = 0;
 
 	return true;
+}
+
+void GameScene::SetStageNumber(unsigned int stage_num) {
+	stageNum_ = std::clamp(stage_num, 0u, 2u);
 }
 
 bool GameScene::GameInit() {
@@ -84,7 +89,14 @@ void GameScene::Update() {
 	}
 
 	if (stage_->IsEnd() > 300) {
-		nextScene_ = SceneBase::SCENE::TITLE;
+		if (++stageNum_ < 3) {
+			SceneManager::GetInstance().GetFaderPtr()->ForceSetMode(Fader::FADE_MODE::FADE_OUT);
+			SceneManager::GetInstance().GetFaderPtr()->SetFadeMode(Fader::FADE_MODE::FADE_IN, 60U, 120U);
+			GameInit();
+		}
+		else {
+			nextScene_ = SceneBase::SCENE::TITLE;
+		}
 	}
 
 	if (stage_->IsClear()) {
@@ -144,7 +156,7 @@ void GameScene::DrawUI() {
 			if (i <= stage_->GetPhase()) waveStr += "¡";
 			else waveStr += " ";
 		}
-		DrawFormatStringToHandle(48, 48, 0xFFFFFFU, f.handle, "[‚P]%s", waveStr.c_str());
+		DrawFormatStringToHandle(48, 48, 0xFFFFFFU, f.handle, "%s%s", STAGE_WIDE_NUMBER[stageNum_], waveStr.c_str());
 
 		DrawFormatStringToHandle(48, 120, 0xFFFFFFU, f.handle, "%09u", score_ * 100u);
 	}
@@ -159,8 +171,14 @@ void GameScene::DrawUI() {
 			DrawFormatStringToHandle(385, 415, 0xFFFFFFU, fl.handle, "  CLEAR BONUS  ");
 			DrawFormatStringToHandle(385, 485, 0xFFFFFFU, fl.handle, "     %5d", counter / Stage::CLEAR_PLATFORM_MOVE_TIMER * 1000);
 		}
-		else
-			DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "   C L E A R   ");
+		else {
+			if (stageNum_ == 2) {
+				DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "A L L C L E A R");
+			}
+			else {
+				DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "   C L E A R   ");
+			}
+		}
 	}
 	else {
 		if (player_->IsInvincible()) {

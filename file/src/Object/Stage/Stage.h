@@ -29,9 +29,9 @@ public:
 
 	static constexpr float STOMP_DEGREE_THRESHOLD = -70.0f;
 
-	static constexpr int CLEAR_WAIT_TIMER = 300;			// クリア演出前の待機時間
+	static constexpr int CLEAR_WAIT_TIMER = 120;			// クリア演出前の待機時間
 	static constexpr int CLEAR_PLATFORM_MOVE_TIMER = 20;	// 
-	static constexpr int CLEAR_AFTER_WAIT_TIMER = 300;		// クリア演出後の待機時間
+	static constexpr int CLEAR_AFTER_WAIT_TIMER = 240;		// クリア演出後の待機時間
 
 	static constexpr int PHASE_MAX = 4;
 

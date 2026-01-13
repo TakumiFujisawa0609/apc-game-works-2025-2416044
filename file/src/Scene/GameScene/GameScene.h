@@ -23,6 +23,7 @@ public:
 	static constexpr unsigned int SCORE_MAX_DIGIT = 7;
 
 	bool SystemInit() override;
+	void SetStageNumber(unsigned int stage_num = 0);
 	bool GameInit() override;
 	void Update() override;
 	void Draw() override;

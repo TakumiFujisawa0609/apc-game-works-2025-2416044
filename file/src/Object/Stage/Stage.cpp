@@ -780,9 +780,6 @@ void Stage::PerfectProc() {
 	);
 	ptr->ChangeState(Block::STATE::ADD);
 
-#if false
-	if (stepCount_ <= stepQuota_.back()) {
-#endif
 	if (stepCount_ == stepQuota2_) { // Žw’è•à”‚Æ“¯‚¶
 		gameScene_->AddScore(SCORE_PERFECT);
 	}

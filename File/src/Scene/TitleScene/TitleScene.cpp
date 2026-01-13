@@ -3,6 +3,7 @@
 #include "../../Manager/AudioManager.h"
 #include "../../Manager/FontManager.h"
 #include "../../Manager/InputManager.h"
+#include "../../Manager/SceneManager.h"
 #include "../../Object/Stage/Stage.h"
 #include "../../Object/Trap/Trap.h"
 #include "TitleScene.h"
@@ -59,6 +60,7 @@ void TitleScene::UpdateTitle() {
 	auto& ins = InputManager::GetInstance();
 
 	if (ins.DownMap("決定") || ins.DownMap("ワナ"))
+		AudioManager::GetInstance().PlaySE("トラップ設置");
 		subScene_ = MENU;
 	if (ins.DownMap("戻る")) {
 		//App::GetInstance().Quit();
@@ -69,7 +71,8 @@ void TitleScene::UpdateTitle() {
 void TitleScene::UpdateMenu() {
 	auto& ins = InputManager::GetInstance();
 
-	if (ins.DownMap("決定") || ins.DownMap("ワナ"))
+	if (ins.DownMap("決定") || ins.DownMap("ワナ")) {
+		AudioManager::GetInstance().PlaySE("トラップ設置");
 		switch (cursorIndex_) {
 		case 0:
 			nextScene_ = SceneBase::SCENE::GAME;
@@ -85,13 +88,12 @@ void TitleScene::UpdateMenu() {
 			tempTriMarkFlag_ = Trap::GetTriMarkFlag();
 			tempSpinTimerIndex_ = Stage::GetSpinFrameIndex();
 			break;
-		case 3:
-			//App::GetInstance().Quit();
-			nextScene_ = SceneBase::SCENE::NONE;
-			break;
 		}
+		nextScene_ = SceneBase::SCENE::GAME;
+	}
 
 	if (ins.DownMap("戻る")) {
+		AudioManager::GetInstance().PlaySE("トラップ起動");
 		subScene_ = TITLE;
 		cursorIndex_ = 0;
 	}
@@ -106,9 +108,35 @@ void TitleScene::UpdateMenu() {
 	}
 }
 
+void TitleScene::UpdateStageSelect() {
+	auto& ins = InputManager::GetInstance();
+
+	if (ins.DownMap("決定") || ins.DownMap("ワナ")) {
+		AudioManager::GetInstance().PlaySE("トラップ設置");
+		SceneManager::GetInstance().SetNextStartStage((unsigned int)cursorIndex_);
+		nextScene_ = SceneBase::SCENE::GAME;
+	}
+
+	if (ins.DownMap("戻る")) {
+		AudioManager::GetInstance().PlaySE("トラップ起動");
+		subScene_ = MENU;
+		cursorIndex_ = 0;
+	}
+
+	if (ins.DownMap("移動下")) {
+		if (++cursorIndex_ >= STAGE_SELECT_LENGTH)
+			cursorIndex_ = 0;
+	}
+	if (ins.DownMap("移動上")) {
+		if (--cursorIndex_ < 0)
+			cursorIndex_ = STAGE_SELECT_LENGTH - 1;
+	}
+}
+
 void TitleScene::UpdateGuide() {
 	auto& ins = InputManager::GetInstance();
 	if (ins.DownMap("決定") || ins.DownMap("ワナ") || ins.DownMap("戻る")) {
+		AudioManager::GetInstance().PlaySE("トラップ起動");
 		subScene_ = MENU;
 	}
 }
@@ -117,6 +145,7 @@ void TitleScene::UpdateSetting() {
 	auto& ins = InputManager::GetInstance();
 
 	if (ins.DownMap("戻る")) {
+		AudioManager::GetInstance().PlaySE("トラップ起動");
 		SettingEnd();
 		return;
 	}
@@ -193,6 +222,19 @@ void TitleScene::DrawMenu() {
 
 	for (size_t i = 0; i < MENU_LENGTH; i++) {
 		DrawStringToHandle((int)MENU_X, (int)MENU_LAYOUT_Y[i], MENU_NAME[i], 0xFFFFFFU, fg);
+
+		if (cursorIndex_ == i) {
+			Rect box = { { MENU_X, MENU_LAYOUT_Y[i] }, { MENU_X + MENU_CURSORBOX_X, MENU_LAYOUT_Y[i] + MENU_CURSORBOX_Y } };
+			DrawBoxAA(box.start.x, box.start.y, box.end.x, box.end.y, 0xFF0000U, false);
+		}
+	}
+}
+
+void TitleScene::DrawStageSelect() {
+	auto fg = FontManager::GetInstance().GetFontData("汎用").handle;
+
+	for (size_t i = 0; i < STAGE_SELECT_LENGTH; i++) {
+		DrawStringToHandle((int)MENU_X, (int)MENU_LAYOUT_Y[i], STAGE_SELECT_MAP[i], 0xFFFFFFU, fg);
 
 		if (cursorIndex_ == i) {
 			Rect box = { { MENU_X, MENU_LAYOUT_Y[i] }, { MENU_X + MENU_CURSORBOX_X, MENU_LAYOUT_Y[i] + MENU_CURSORBOX_Y } };
