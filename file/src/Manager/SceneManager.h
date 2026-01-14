@@ -37,6 +37,9 @@ public:
 	bool IsPause() const;
 	bool PrevPause() const;
 
+	void SetLastScore(unsigned int);
+	unsigned int GetLastScore() const;
+
 private:
 	std::list<SceneBase*> sceneList_;
 	Fader* fader_;
@@ -51,9 +54,10 @@ private:
 	bool Fade();
 	void DoChangeScene(SceneBase::SCENE);
 
-	unsigned int nextStartStage = 0u;
+	unsigned int nextStartStage_;
 	bool isPause_;
 	bool prevPause_;
 	SceneBase::SCENE waitSceneId_;
+	unsigned int lastScore_;
 
 };

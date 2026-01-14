@@ -33,10 +33,14 @@ bool Stage::SystemInit() {
 }
 
 bool Stage::GameInit(unsigned int num) {
+	cubePattern_.clear();
+	cubeList_.clear();
+	stepQuota_.clear();
+
 	stage_ = num;
 	phase_ = 0;
 
-	platformDepth_ = MathUtil::RoundDown(CUBE_DEPTH_PRESETS[stage_][phase_] * CUBE_WAVE_PRESETS[stage_][phase_] * PLATFORM_DEPTH_MULT);
+	platformDepth_ = MathUtil::RoundDown(CUBE_DEPTH_PRESETS[stage_][phase_] * CUBE_WAVE_PRESETS[stage_][phase_] * PLATFORM_DEPTH_MULT) + PLATFORM_DEPTH_ADD;
 
 	for (int pd = 0; pd < platformDepth_; ++pd) {
 		auto& ptr = platformList_.emplace_back();
@@ -489,7 +493,7 @@ void Stage::SetCubeList() {
 	if (cubePresets_.empty()) return;
 
 	std::vector<std::vector<std::string>> pat;
-	Utility::LoadCSV(cubePresets_.back().c_str(), pat);
+	auto debug = Utility::LoadCSV(cubePresets_.back().c_str(), pat);
 
 	stepQuota2_ = std::stoi(pat[0][0]);
 
@@ -674,12 +678,8 @@ void Stage::StopAndFall() {
 
 				// フォービドゥンキューブ以外なら、落下カウントを増やす
 				// ただ、潰されている間は問答無用で落下カウントを増やす
-#if false
 				if (cube->GetType() != Block::TYPE::FORBIDDEN ||
 					gameScene_->GetPlayerPtr()->GetState() == Player::STATE::STOMP) {
-#else
-				if (cube->GetType() != Block::TYPE::FORBIDDEN || missed_) {
-#endif
 					fallCount_++;
 					waveFallCount_++;
 				}
@@ -828,6 +828,5 @@ void Stage::ClearProc() {
 	if (time2 == CLEAR_PLATFORM_MOVE_TIMER - 1) {
 		AudioManager::GetInstance().PlaySE("回転");
 		gameScene_->AddScore(10);
-		gameScene_->AddIQ(1);
 	}
 }

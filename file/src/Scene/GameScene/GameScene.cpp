@@ -26,8 +26,6 @@ bool GameScene::SystemInit() {
 
 	camera_->SetFollowTarget(player_);
 
-	stageNum_ = 0;
-
 	return true;
 }
 
@@ -156,7 +154,7 @@ void GameScene::DrawUI() {
 			if (i <= stage_->GetPhase()) waveStr += "¡";
 			else waveStr += " ";
 		}
-		DrawFormatStringToHandle(48, 48, 0xFFFFFFU, f.handle, "%s%s", STAGE_WIDE_NUMBER[stageNum_], waveStr.c_str());
+		DrawFormatStringToHandle(48, 48, 0xFFFFFFU, f.handle, "[%s]%s", STAGE_WIDE_NUMBER[stageNum_], waveStr.c_str());
 
 		DrawFormatStringToHandle(48, 120, 0xFFFFFFU, f.handle, "%09u", score_ * 100u);
 	}
@@ -203,6 +201,8 @@ bool GameScene::Release() {
 	trap_->Release();
 	delete trap_;
 
+	SceneManager::GetInstance().SetLastScore(score_);
+
 	return true;
 }
 
@@ -230,6 +230,8 @@ void GameScene::Restart() {
 
 Player* GameScene::GetPlayerPtr() { return player_; }
 
+Stage* GameScene::GetStagePtr() { return stage_; }
+
 Camera* GameScene::GetCameraPtr() { return camera_; }
 
 Trap* GameScene::GetTrapPtr() { return trap_; }
@@ -245,17 +247,6 @@ void GameScene::AddScore(int integer) {
 	}
 	else {
 		score_ += integer;
-	}
-}
-
-unsigned int GameScene::GetIQ() const { return iq_; }
-
-void GameScene::AddIQ(int integer) {
-	if ((long long)iq_ + integer < 0) {
-		iq_ = 0u;
-	}
-	else {
-		iq_ += integer;
 	}
 }
 

@@ -87,7 +87,8 @@ private:
 	static constexpr unsigned int FONT_COLOR_LESS_STEP = 0x8080ffu;	// 色：青
 	static constexpr unsigned int FONT_COLOR_MORE_STEP = 0xff8080u;	// 色：赤
 
-	static constexpr float PLATFORM_DEPTH_MULT = 2.7f;	// 初期配置のキューブの奥行きに対する、足場の奥行きの倍率
+	static constexpr float PLATFORM_DEPTH_MULT = 1.6f;	// 初期配置のキューブの奥行きに対する、足場の奥行きの倍率
+	static constexpr int PLATFORM_DEPTH_ADD = 8;
 
 	static constexpr int WAVE_END_DELAY = 45;			// ウェーブ終了時遅延
 	static constexpr int EXTRA_TIMER_FIRST_PHASE = 360;	// フェーズ1の開始前の追加タイマー

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Scene\ResultScene\ResultScene.cpp" />
     <ClCompile Include="src\Common\Fader.cpp" />
     <ClCompile Include="src\Common\MathUtil.cpp" />
     <ClCompile Include="src\Manager\FontManager.cpp" />
@@ -45,6 +46,7 @@
     <ClCompile Include="src\Object\Common\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Scene\ResultScene\ResultScene.h" />
     <ClInclude Include="src\Common\Fader.h" />
     <ClInclude Include="src\Common\MathUtil.h" />
     <ClInclude Include="src\Manager\FontManager.h" />

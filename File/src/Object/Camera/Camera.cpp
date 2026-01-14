@@ -165,7 +165,7 @@ void Camera::FixedClear(int platform_size_x, int platform_size_z, int timer) {
 	// ­‚µ‚¸‚ÂƒJƒƒ‰‚ğ‰ñ“]
 	angles_ = GeometryDxLib::VLerpRad(prevAngles_, newAngles, 0.18f);
 
-	if (timer < 300) {
+	if (timer < Stage::CLEAR_WAIT_TIMER) {
 		prevTargetPos_ = targetPos_;
 		// ’‹“_‚ÌˆÚ“®
 		VECTOR newTargetPos = { Block::BLOCK_SIZE * platform_size_x, 0.0f, -Block::BLOCK_SIZE * platform_size_z };
@@ -179,7 +179,7 @@ void Camera::FixedClear(int platform_size_x, int platform_size_z, int timer) {
 		pos_ = GeometryDxLib::VLerp(prevPos_, newPos, 0.12f);
 	}
 	else {
-		timer -= 300;
+		timer -= Stage::CLEAR_WAIT_TIMER;
 
 		prevTargetPos_ = targetPos_;
 		// ’‹“_‚ÌˆÚ“®

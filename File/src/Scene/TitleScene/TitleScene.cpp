@@ -18,6 +18,9 @@ void TitleScene::Update() {
 	case TITLE:
 		UpdateTitle();
 		break;
+	case STAGE_SELECT:
+		UpdateStageSelect();
+		break;
 	case GUIDE:
 		UpdateGuide();
 		break;
@@ -44,6 +47,9 @@ void TitleScene::Draw() {
 	case TITLE:
 		DrawStringToHandle((int)ENTER_X, (int)ENTER_Y, TITLE_START_NAME, 0xFFFFFFU, fg);
 		break;
+	case STAGE_SELECT:
+		DrawStageSelect();
+		break;
 	case GUIDE:
 		DrawGuide();
 		break;
@@ -59,9 +65,10 @@ void TitleScene::Draw() {
 void TitleScene::UpdateTitle() {
 	auto& ins = InputManager::GetInstance();
 
-	if (ins.DownMap("決定") || ins.DownMap("ワナ"))
+	if (ins.DownMap("決定") || ins.DownMap("ワナ")) {
 		AudioManager::GetInstance().PlaySE("トラップ設置");
 		subScene_ = MENU;
+	}
 	if (ins.DownMap("戻る")) {
 		//App::GetInstance().Quit();
 		nextScene_ = SceneBase::SCENE::NONE;
@@ -75,7 +82,7 @@ void TitleScene::UpdateMenu() {
 		AudioManager::GetInstance().PlaySE("トラップ設置");
 		switch (cursorIndex_) {
 		case 0:
-			nextScene_ = SceneBase::SCENE::GAME;
+			subScene_ = STAGE_SELECT;
 			break;
 		case 1:
 			subScene_ = GUIDE;
@@ -88,8 +95,9 @@ void TitleScene::UpdateMenu() {
 			tempTriMarkFlag_ = Trap::GetTriMarkFlag();
 			tempSpinTimerIndex_ = Stage::GetSpinFrameIndex();
 			break;
+		case 3:
+			nextScene_ = SceneBase::SCENE::NONE;
 		}
-		nextScene_ = SceneBase::SCENE::GAME;
 	}
 
 	if (ins.DownMap("戻る")) {

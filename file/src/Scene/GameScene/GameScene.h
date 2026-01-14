@@ -34,13 +34,12 @@ public:
 	void Restart();
 
 	Player* GetPlayerPtr();
+	Stage* GetStagePtr();
 	Camera* GetCameraPtr();
 	Trap* GetTrapPtr();
 
 	unsigned int GetScore() const;
 	void AddScore(int);
-	unsigned int GetIQ() const;
-	void AddIQ(int);
 
 private:
 	Camera* camera_;
@@ -53,9 +52,8 @@ private:
 		"‚P", "‚Q", "‚R", "‚S", "‚T", "‚U", "‚V", "‚W", "‚e"
 	};
 
-	unsigned int stageNum_;
+	unsigned int stageNum_ = 0u;
 	unsigned int score_;
-	unsigned int iq_;
 
 	void CollisionCube();
 	void CollisionPlatform();
