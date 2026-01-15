@@ -28,17 +28,17 @@ void ResultScene::Draw() {
 
 	if (timer_ >= 0) {
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, int(255 * std::clamp(timer_, 0, 60) / 60.0));
-		DrawFormatStringToHandle(340, 415, 0xFFFFFFU, fl.handle, "YOUR");
+		DrawFormatStringToHandle(360, 450, 0xFFFFFFU, fl.handle, "YOUR");
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 	if (timer_ >= 60) {
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, int(255 * std::clamp(timer_ - 60, 0, 60) / 60.0));
-		DrawFormatStringToHandle(420, 415, 0xFFFFFFU, fl.handle, "INT.");
+		DrawFormatStringToHandle(520, 450, 0xFFFFFFU, fl.handle, "INT.");
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 	if (timer_ >= 120) {
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, int(255 * std::clamp(timer_ - 120, 0, 60) / 60.0));
-		DrawFormatStringToHandle(500, 415, 0xFFFFFFU, fl.handle, "%d", int(SceneManager::GetInstance().GetLastScore() / 85.0));
+		DrawFormatStringToHandle(760, 450, 0xFFFFFFU, fl.handle, "%d", int(SceneManager::GetInstance().GetLastScore() / 65.0));
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 }

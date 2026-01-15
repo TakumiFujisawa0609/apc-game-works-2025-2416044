@@ -52,7 +52,7 @@ private:
 	// ローカル角度
 	static constexpr VECTOR LOCAL_ANGLES = { 0.0f, DX_PI_F, 0.0f };
 	// 移動速度
-	static constexpr float MOVE_SPEED = 8.0f;
+	static constexpr float MOVE_SPEED = 9.0f;
 	// ローリング速度
 	static constexpr float ROLLING_SPEED = 200.0f / 5;
 	// 踏み潰され状態の時間

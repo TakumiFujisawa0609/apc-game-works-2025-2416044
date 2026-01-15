@@ -163,6 +163,7 @@ void TitleScene::UpdateSetting() {
 		tempTriMarkFlag_ = !(tempTriMarkFlag_);
 		break;
 	case 4:
+		AudioManager::GetInstance().PlaySE("トラップ設置");
 		SettingEnd();
 		return;
 	}

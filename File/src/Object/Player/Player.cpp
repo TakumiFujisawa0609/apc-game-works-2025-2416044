@@ -1,6 +1,7 @@
 #include <algorithm>
 #include "../../Common/GeometryDxLib.h"
 #include "../../Common/MathUtil.h"
+#include "../../Manager/AudioManager.h"
 #include "../../Manager/InputManager.h"
 #include "../Common/AnimationController.h"
 #include "../Stage/Block.h"
@@ -132,6 +133,8 @@ void Player::UpdateClear() {
 	state_ = STATE::NORMAL;
 	invincible_ = 0;
 
+	AudioManager::GetInstance().StopSE("‘«‰¹");
+
 	animType_ = ANIM_TYPE::IDLE;
 	animControll_->Play(static_cast<int>(animType_));
 
@@ -214,8 +217,8 @@ void Player::Move() {
 	if (ins.NowMap("ˆÚ“®¶")) dir.x -= 1.0f;
 	if (ins.NowMap("ˆÚ“®‰E")) dir.x += 1.0f;
 
-	dir.x = (std::min)((std::max)(dir.x, -1.0f), 1.0f);
-	dir.z = (std::min)((std::max)(dir.z, -1.0f), 1.0f);
+	dir.x = std::clamp(dir.x, -1.0f, 1.0f);
+	dir.z = std::clamp(dir.z, -1.0f, 1.0f);
 
 	if (dir.x != 0.0f || dir.z != 0.0f) {
 		dir = VNorm(dir);
@@ -224,9 +227,13 @@ void Player::Move() {
 
 		worldAngles_.y = MathUtil::LerpRad(worldAngles_.y, tempAngle, 0.3f);
 
+		AudioManager::GetInstance().PlaySE("‘«‰¹", true);
+
 		animType_ = ANIM_TYPE::RUN;
 	}
 	else {
+		AudioManager::GetInstance().StopSE("‘«‰¹");
+
 		animType_ = ANIM_TYPE::IDLE;
 	}
 

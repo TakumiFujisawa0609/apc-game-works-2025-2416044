@@ -66,7 +66,7 @@ void GameScene::Update() {
 	}
 	else if (player_->GetPos().y == Player::FALL_FINISH_Y) {
 		if (ins.DownMap("決定") || ins.DownMap("ワナ") || ins.DownMap("ポーズ")) {
-			nextScene_ = SceneBase::SCENE::TITLE;
+			nextScene_ = SceneBase::SCENE::RESULT;
 		}
 	}
 
@@ -81,7 +81,7 @@ void GameScene::Update() {
 
 			Collision();
 		}
-		else {
+		else if (player_->GetState() != Player::STATE::OVER) {
 			player_->UpdateClear();
 			trap_->Reset();
 		}
@@ -99,11 +99,11 @@ void GameScene::Update() {
 		}
 	}
 
-	if (stage_->IsClear()) {
-		camera_->ChangeCameraMode(Camera::MODE::FIXED_CLEAR);
-	}
-	else if (player_->GetState() == Player::STATE::OVER) {
+	if (player_->GetState() == Player::STATE::OVER) {
 		camera_->ChangeCameraMode(Camera::MODE::FIXED_OVER);
+	}
+	else if (stage_->IsClear()) {
+		camera_->ChangeCameraMode(Camera::MODE::FIXED_CLEAR);
 	}
 	else if (camera_->GetCameraMode() != Camera::MODE::FIXED_PERFECT) {
 		// 高速進行＆視点
@@ -154,9 +154,9 @@ void GameScene::DrawUI() {
 		std::string waveStr = "";
 		for (int i = 1; i <= Stage::PHASE_MAX; i++) {
 			if (i <= stage_->GetPhase()) waveStr += "■";
-			else waveStr += "□";
 		}
-		DrawFormatStringToHandle(48, 48, 0xFFFFFFU, f.handle, "[%s]%s", STAGE_WIDE_NUMBER[stageNum_], waveStr.c_str());
+		DrawFormatStringToHandle(47, 48, Stage::FONT_COLOR_LESS_STEP, f.handle, "    %s", waveStr.c_str());
+		DrawFormatStringToHandle(48, 48, 0xFFFFFFU, f.handle, "[%s]□□□□", STAGE_WIDE_NUMBER[stageNum_]);
 
 		DrawFormatStringToHandle(48, 120, 0xFFFFFFU, f.handle, "%09u", score_ * 100u);
 	}

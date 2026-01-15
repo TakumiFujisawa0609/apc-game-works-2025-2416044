@@ -27,10 +27,12 @@ void AudioManager::PlayBGM(const char* name, bool loop)
 
 	if (it != bgmList_.end())
 	{
-		int ty = DX_PLAYTYPE_BACK;
-		if (loop) ty = DX_PLAYTYPE_LOOP;
+		if (!loop || !CheckSoundMem((*it).second.handle)) {
+			int ty = DX_PLAYTYPE_BACK;
+			if (loop) ty = DX_PLAYTYPE_LOOP;
 
-		PlaySoundMem((*it).second.handle, ty);
+			PlaySoundMem((*it).second.handle, ty);
+		}
 	}
 }
 
@@ -40,10 +42,12 @@ void AudioManager::PlaySE(const char* name, bool loop)
 
 	if (it != seList_.end())
 	{
-		int ty = DX_PLAYTYPE_BACK;
-		if (loop) ty = DX_PLAYTYPE_LOOP;
+		if (!loop || !CheckSoundMem((*it).second.handle)) {
+			int ty = DX_PLAYTYPE_BACK;
+			if (loop) ty = DX_PLAYTYPE_LOOP;
 
-		PlaySoundMem((*it).second.handle, ty);
+			PlaySoundMem((*it).second.handle, ty);
+		}
 	}
 }
 
@@ -73,6 +77,8 @@ void AudioManager::LoadBGM(const char* name, const char* file_path, float vol_mu
 
 	int handle = LoadSoundMem(file_path);
 
+	if (handle == -1) return;
+
 	bgmList_.emplace(name, AUDIO_DATA(handle, vol_mult));
 
 	SetVolumeSoundMem(VolumeMultiple(volumeBGM_ * vol_mult), handle);
@@ -83,6 +89,8 @@ void AudioManager::LoadSE(const char* name, const char* file_path, float vol_mul
 	if (seList_.count(name) > 0) return;
 
 	int handle = LoadSoundMem(file_path);
+
+	if (handle == -1) return;
 
 	seList_.emplace(name, AUDIO_DATA(handle, vol_mult));
 

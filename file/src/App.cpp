@@ -102,6 +102,7 @@ bool App::ClassInit() {
 	AudioManager::GetInstance().LoadSE("キューブ消滅", "Data/Sound/AS_251915_カットイン／バシュッ／場面転換.wav");
 	AudioManager::GetInstance().LoadSE("足場崩壊", "Data/Sound/AS_857401_ビル崩壊_崩れる音.wav", 1.15f);
 	AudioManager::GetInstance().LoadSE("パーフェクト", "Data/Sound/AS_1239388_perfect（低音）.wav");
+	AudioManager::GetInstance().LoadSE("足音", "Data/Sound/AS_369837_革靴足音：走り：リバーブ.wav");
 	
 	// FontManager
 	FontManager::CreateInstance();

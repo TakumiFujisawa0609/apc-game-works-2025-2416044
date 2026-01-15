@@ -41,7 +41,7 @@ bool Stage::GameInit(unsigned int num) {
 	stage_ = num;
 	phase_ = 0;
 
-	platformDepth_ = MathUtil::RoundDown(CUBE_DEPTH_PRESETS[stage_][phase_] * CUBE_WAVE_PRESETS[stage_][phase_] * PLATFORM_DEPTH_MULT) + PLATFORM_DEPTH_ADD;
+	platformDepth_ = INIT_PLATFORM_DEPTHS[stage_];
 
 	for (int pd = 0; pd < platformDepth_; ++pd) {
 		auto& ptr = platformList_.emplace_back();
@@ -394,7 +394,9 @@ void Stage::SetUpCube2() {
 #else
 	if (phase_ == PHASE_MAX) {
 #endif
-		isClear_++;
+		if (gameScene_->GetPlayerPtr()->GetState() != Player::STATE::OVER) {
+			isClear_++;
+		}
 		return;
 	}
 
@@ -643,7 +645,10 @@ void Stage::UpdateSpin() {
 
 void Stage::StartWave() {
 	// 例外スローの防止
-	if (cubeList_.size() == 0) return;
+	if (cubeList_.size() == 0) {
+		stepQuota2_ = 0;
+		return;
+	}
 
 #if false
 	// 現在のウェーブのリスト

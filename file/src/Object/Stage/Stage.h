@@ -33,6 +33,10 @@ public:
 	static constexpr int CLEAR_PLATFORM_MOVE_TIMER = 20;	// 
 	static constexpr int CLEAR_AFTER_WAIT_TIMER = 240;		// クリア演出後の待機時間
 
+	static constexpr unsigned int FONT_COLOR_NORMAL = 0xffffffu;	// 色：白
+	static constexpr unsigned int FONT_COLOR_LESS_STEP = 0x8080ffu;	// 色：青
+	static constexpr unsigned int FONT_COLOR_MORE_STEP = 0xff8080u;	// 色：赤
+
 	static constexpr int PHASE_MAX = 4;
 
 	Stage(GameScene*);
@@ -83,13 +87,6 @@ private:
 	};
 	static constexpr unsigned int SCORE_LIST_MAX = _countof(SCORE_LIST);
 
-	static constexpr unsigned int FONT_COLOR_NORMAL = 0xffffffu;	// 色：白
-	static constexpr unsigned int FONT_COLOR_LESS_STEP = 0x8080ffu;	// 色：青
-	static constexpr unsigned int FONT_COLOR_MORE_STEP = 0xff8080u;	// 色：赤
-
-	static constexpr float PLATFORM_DEPTH_MULT = 1.6f;	// 初期配置のキューブの奥行きに対する、足場の奥行きの倍率
-	static constexpr int PLATFORM_DEPTH_ADD = 8;
-
 	static constexpr int WAVE_END_DELAY = 45;			// ウェーブ終了時遅延
 	static constexpr int EXTRA_TIMER_FIRST_PHASE = 360;	// フェーズ1の開始前の追加タイマー
 	static constexpr int EXTRA_TIMER_NEW_PHASE = 240;	// フェーズ2以降の開始前の追加タイマー
@@ -110,6 +107,10 @@ private:
 
 	static constexpr int CUBE_WIDTH_PRESETS[] = {
 		4, 4, 5
+	};
+
+	static constexpr int INIT_PLATFORM_DEPTHS[] = {
+		6 + 10, 15 + 12, 12 + 16
 	};
 
 	/// 変数
