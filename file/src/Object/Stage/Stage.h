@@ -64,6 +64,7 @@ public:
 
 	static int GetSpinFrameIndex();
 	static void SetSpinFrameIndex(int);
+	int GetExtraTimer() const;
 
 	void SetFastForward(bool);
 

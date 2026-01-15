@@ -352,6 +352,10 @@ void Stage::SetSpinFrameIndex(int i) {
 	spinFrameIndex_ = std::clamp(i, 0, SPIN_FRAME_MAX - 1);
 }
 
+int Stage::GetExtraTimer() const {
+	return extraTimer_;
+}
+
 void Stage::SetFastForward(bool b) { fastForward_ = b; }
 
 bool Stage::IsSpinning() const { return isSpinning_; }

@@ -161,6 +161,22 @@ void GameScene::DrawUI() {
 		DrawFormatStringToHandle(48, 120, 0xFFFFFFU, f.handle, "%09u", score_ * 100u);
 	}
 
+	if (stage_->GetPhase() == 1 && stage_->GetExtraTimer() >= 180) {
+		const char* stText = "";
+		switch (stageNum_) {
+		case 0:
+			stText = "   1st STAGE   ";
+			break;
+		case 1:
+			stText = "   2nd STAGE   ";
+			break;
+		case 2:
+			stText = "   3rd STAGE   ";
+			break;
+		}
+		DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, stText);
+	}
+	
 	if (player_->GetPos().y == Player::FALL_FINISH_Y) {
 		DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "G A M E O V E R");
 	}
@@ -173,7 +189,7 @@ void GameScene::DrawUI() {
 		}
 		else {
 			if (stageNum_ == 2) {
-				DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "A L L C L E A R");
+				DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "   ALL CLEAR   ");
 			}
 			else {
 				DrawFormatStringToHandle(385, 450, 0xFFFFFFU, fl.handle, "   C L E A R   ");

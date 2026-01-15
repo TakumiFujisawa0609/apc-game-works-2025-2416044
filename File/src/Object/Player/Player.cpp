@@ -76,6 +76,7 @@ void Player::Update() {
 			// タイマーリセット
 			stateTimer_ = 0;
 		}
+		AudioManager::GetInstance().StopSE("足音");
 
 		animType_ = ANIM_TYPE::DEATH;
 		animControll_->Play(static_cast<int>(animType_), false);
@@ -91,6 +92,7 @@ void Player::Update() {
 			// タイマーリセット
 			stateTimer_ = 0;
 		}
+		AudioManager::GetInstance().StopSE("足音");
 
 		animType_ = ANIM_TYPE::DEATH;
 		animControll_->Play(static_cast<int>(animType_), false);
@@ -115,6 +117,7 @@ void Player::Update() {
 
 			pos_.y -= speed;
 		}
+		AudioManager::GetInstance().StopSE("足音");
 
 		animType_ = ANIM_TYPE::DEATH;
 		animControll_->Play(static_cast<int>(animType_), false);
