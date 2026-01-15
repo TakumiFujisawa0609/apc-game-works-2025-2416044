@@ -33,6 +33,7 @@ bool Stage::SystemInit() {
 }
 
 bool Stage::GameInit(unsigned int num) {
+	platformList_.clear();
 	cubePattern_.clear();
 	cubeList_.clear();
 	stepQuota_.clear();
@@ -565,7 +566,10 @@ void Stage::UpdateStop() {
 			SetUpCube();
 #endif
 			SetUpCube2();
-			LoadPattern2(CUBE_WAVE_PRESETS[stage_][phase_ - 1]);
+
+			if (!isClear_) {
+				LoadPattern2(CUBE_WAVE_PRESETS[stage_][phase_ - 1]);
+			}
 		}
 	}
 }

@@ -55,9 +55,10 @@ private:
 		"ステージ３",
 	};
 
-	static constexpr size_t GUIDE_LENGTH = 8;
+	static constexpr size_t GUIDE_LENGTH = 9;
 	static constexpr const char* GUIDE_NAME_MAP[GUIDE_LENGTH] = {
 		"  操作方法  ",
+		"",
 		"    移動    ",
 		" 決定／ワナ ",
 		"ｽｰﾊﾟｰﾜﾅ 起動",
@@ -68,6 +69,7 @@ private:
 	};
 	static constexpr const char* GUIDE_NAME_KEY[GUIDE_LENGTH] = {
 		" キーボード  ",
+		"",
 		"W/A/S/D, ｶｰｿﾙ",
 		"    J, C     ",
 		"    K, X     ",
@@ -78,13 +80,14 @@ private:
 	};
 	static constexpr const char* GUIDE_NAME_PAD[GUIDE_LENGTH] = {
 		" ゲームパッド  ",
+		"",
 		"左ｽﾃｨｯｸ, 十字ｷｰ",
-		"    Aボタン    ",
-		"    Xボタン    ",
-		"    Yボタン    ",
+		"       A       ",
+		"       X       ",
+		"       Y       ",
 		"  ｽﾀｰﾄ, ｾﾚｸﾄ   ",
 		"     ｽﾀｰﾄ      ",
-		"    Bボタン    "
+		"       B       "
 	};
 
 	static constexpr float MENU_X_GUIDE = 480;

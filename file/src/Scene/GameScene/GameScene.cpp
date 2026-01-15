@@ -49,17 +49,13 @@ bool GameScene::GameInit() {
 void GameScene::Update() {
 	auto& ins = InputManager::GetInstance();
 
-	if (!stage_->IsClear()) {
-		if (SceneManager::GetInstance().GetFaderPtr()->IsFadeEnd() && ins.DownMap("ポーズ")) {
-			if (player_->GetState() != Player::STATE::OVER)
-				nextScene_ = SceneBase::SCENE::PAUSE;
-			else
-				nextScene_ = SceneBase::SCENE::TITLE;
-		}
-	}
-
 	if (!stage_->IsClear() &&
 		player_->GetState() != Player::STATE::OVER) {
+
+		if (SceneManager::GetInstance().GetFaderPtr()->IsFadeEnd() && ins.DownMap("ポーズ")) {
+			nextScene_ = SceneBase::SCENE::PAUSE;
+		}
+
 		// マーキング＆マーク起動
 		if (ins.DownMap("ワナ"))
 			trap_->SetTrap(player_->GetPos());
@@ -67,6 +63,11 @@ void GameScene::Update() {
 		// アドバンスドマーク起動
 		if (ins.DownMap("スーパーワナ"))
 			trap_->ExecuteAdvTrap();
+	}
+	else if (player_->GetPos().y == Player::FALL_FINISH_Y) {
+		if (ins.DownMap("決定") || ins.DownMap("ワナ") || ins.DownMap("ポーズ")) {
+			nextScene_ = SceneBase::SCENE::TITLE;
+		}
 	}
 
 	if (player_->GetPos().y > Player::FALL_FINISH_Y) {
@@ -87,13 +88,14 @@ void GameScene::Update() {
 	}
 
 	if (stage_->IsEnd() > 300) {
-		if (++stageNum_ < 3) {
+		if (stageNum_ < 2) {
 			SceneManager::GetInstance().GetFaderPtr()->ForceSetMode(Fader::FADE_MODE::FADE_OUT);
 			SceneManager::GetInstance().GetFaderPtr()->SetFadeMode(Fader::FADE_MODE::FADE_IN, 60U, 120U);
+			stageNum_++;
 			GameInit();
 		}
 		else {
-			nextScene_ = SceneBase::SCENE::TITLE;
+			nextScene_ = SceneBase::SCENE::RESULT;
 		}
 	}
 

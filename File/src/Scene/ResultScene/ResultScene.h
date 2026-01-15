@@ -12,9 +12,6 @@ public:
 
 	};
 
-	static constexpr unsigned int SCORE_MAX = 9999999;
-	static constexpr unsigned int SCORE_MAX_DIGIT = 7;
-
 	bool SystemInit() override;
 	bool GameInit() override;
 	void Update() override;

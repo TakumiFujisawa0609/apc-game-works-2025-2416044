@@ -3,6 +3,7 @@
 #include "../Common/Fader.h"
 #include "../Scene/TitleScene/TitleScene.h"
 #include "../Scene/GameScene/GameScene.h"
+#include "../Scene/ResultScene/ResultScene.h"
 #include "../Scene/Pause/Pause.h"
 #include "SceneManager.h"
 
@@ -229,8 +230,8 @@ void SceneManager::DoChangeScene(SceneBase::SCENE scene) {
 			game->SetStageNumber(nextStartStage_);
 			ret = dynamic_cast<SceneBase*>(game);
 			break;
-		case SceneBase::SCENE::SETTING:
-			//ret = new SettingScene();
+		case SceneBase::SCENE::RESULT:
+			ret = new ResultScene();
 			break;
 		}
 	}

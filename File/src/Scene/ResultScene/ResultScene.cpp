@@ -9,6 +9,7 @@ bool ResultScene::SystemInit() {
 }
 
 bool ResultScene::GameInit() {
+	timer_ = 0;
 	return true;
 }
 
@@ -23,26 +24,26 @@ void ResultScene::Update() {
 }
 
 void ResultScene::Draw() {
-}
-
-void ResultScene::DrawUI() {
 	auto fl = FontManager::GetInstance().GetFontData("”Ä—pi‘åj");
 
 	if (timer_ >= 0) {
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, int(255 * std::clamp(timer_, 0, 60) / 60.0));
-		DrawFormatStringToHandle(330, 415, 0xFFFFFFU, fl.handle, "YOUR");
+		DrawFormatStringToHandle(340, 415, 0xFFFFFFU, fl.handle, "YOUR");
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 	if (timer_ >= 60) {
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, int(255 * std::clamp(timer_ - 60, 0, 60) / 60.0));
-		DrawFormatStringToHandle(385, 415, 0xFFFFFFU, fl.handle, "INT.");
+		DrawFormatStringToHandle(420, 415, 0xFFFFFFU, fl.handle, "INT.");
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 	if (timer_ >= 120) {
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, int(255 * std::clamp(timer_ - 120, 0, 60) / 60.0));
-		DrawFormatStringToHandle(450, 415, 0xFFFFFFU, fl.handle, "%d", int(SceneManager::GetInstance().GetLastScore() / 85.0));
+		DrawFormatStringToHandle(500, 415, 0xFFFFFFU, fl.handle, "%d", int(SceneManager::GetInstance().GetLastScore() / 85.0));
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
+}
+
+void ResultScene::DrawUI() {
 }
 
 bool ResultScene::Release() {

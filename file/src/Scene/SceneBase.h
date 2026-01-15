@@ -8,7 +8,7 @@ public:
 
 		TITLE,
 		GAME,
-		SETTING,
+		RESULT,
 
 	};
 
