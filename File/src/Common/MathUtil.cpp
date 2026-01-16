@@ -87,6 +87,13 @@ float MathUtil::Lerp(float start, float end, float lerp)
 	return start + (end - start) * lerp;
 }
 
+double MathUtil::Lerp(double start, double end, double lerp)
+{
+	lerp = std::clamp(lerp, 0.0, 1.0);
+
+	return start + (end - start) * lerp;
+}
+
 float MathUtil::LerpRad(float start, float end, float lerp)
 {
 	lerp = std::clamp(lerp, 0.0f, 1.0f);
@@ -105,6 +112,32 @@ float MathUtil::LerpRad(float start, float end, float lerp)
 		end -= (float)std::numbers::pi * 2.0f;
 		ret = Lerp(start, end, lerp);
 		while (ret < 0.0f) ret += (float)std::numbers::pi * 2.0f;
+	}
+	else {
+		ret = Lerp(start, end, lerp);
+	}
+
+	return ret;
+}
+
+double MathUtil::LerpRad(double start, double end, double lerp)
+{
+	lerp = std::clamp(lerp, 0.0, 1.0);
+
+	double ret = 0.0;
+	double diff = end - start;
+
+	if (diff < -std::numbers::pi)
+	{
+		end += std::numbers::pi * 2.0;
+		ret = Lerp(start, end, lerp);
+		while (ret >= std::numbers::pi * 2.0) ret -= std::numbers::pi * 2.0;
+	}
+	else if (diff > std::numbers::pi)
+	{
+		end -= std::numbers::pi * 2.0;
+		ret = Lerp(start, end, lerp);
+		while (ret < 0.0) ret += std::numbers::pi * 2.0;
 	}
 	else {
 		ret = Lerp(start, end, lerp);
