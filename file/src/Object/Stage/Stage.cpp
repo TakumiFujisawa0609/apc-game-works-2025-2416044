@@ -36,7 +36,7 @@ bool Stage::GameInit(unsigned int num) {
 	platformList_.clear();
 	cubePattern_.clear();
 	cubeList_.clear();
-	stepQuota_.clear();
+	stepQuota2_ = 0;
 
 	stage_ = num;
 	phase_ = 0;
@@ -650,7 +650,6 @@ void Stage::UpdateSpin() {
 void Stage::StartWave() {
 	// ó·äOÉXÉçÅ[ÇÃñhé~
 	if (cubeList_.size() == 0) {
-		stepQuota2_ = 0;
 		return;
 	}
 
