@@ -80,23 +80,23 @@ double MathUtil::RadIn2PI(double radian)
 	return radian;
 }
 
-float MathUtil::Lerp(float start, float end, float lerp)
+float MathUtil::Lerp(float start, float end, float rate)
 {
-	lerp = std::clamp(lerp, 0.0f, 1.0f);
+	rate = std::clamp(rate, 0.0f, 1.0f);
 
-	return start + (end - start) * lerp;
+	return start + (end - start) * rate;
 }
 
-double MathUtil::Lerp(double start, double end, double lerp)
+double MathUtil::Lerp(double start, double end, double rate)
 {
-	lerp = std::clamp(lerp, 0.0, 1.0);
+	rate = std::clamp(rate, 0.0, 1.0);
 
-	return start + (end - start) * lerp;
+	return start + (end - start) * rate;
 }
 
-float MathUtil::LerpRad(float start, float end, float lerp)
+float MathUtil::LerpRad(float start, float end, float rate)
 {
-	lerp = std::clamp(lerp, 0.0f, 1.0f);
+	rate = std::clamp(rate, 0.0f, 1.0f);
 
 	float ret = 0.0f;
 	float diff = end - start;
@@ -104,25 +104,25 @@ float MathUtil::LerpRad(float start, float end, float lerp)
 	if (diff < -(float)std::numbers::pi)
 	{
 		end += (float)std::numbers::pi * 2.0f;
-		ret = Lerp(start, end, lerp);
+		ret = Lerp(start, end, rate);
 		while (ret >= (float)std::numbers::pi * 2.0f) ret -= (float)std::numbers::pi * 2.0f;
 	}
 	else if (diff > (float)std::numbers::pi)
 	{
 		end -= (float)std::numbers::pi * 2.0f;
-		ret = Lerp(start, end, lerp);
+		ret = Lerp(start, end, rate);
 		while (ret < 0.0f) ret += (float)std::numbers::pi * 2.0f;
 	}
 	else {
-		ret = Lerp(start, end, lerp);
+		ret = Lerp(start, end, rate);
 	}
 
 	return ret;
 }
 
-double MathUtil::LerpRad(double start, double end, double lerp)
+double MathUtil::LerpRad(double start, double end, double rate)
 {
-	lerp = std::clamp(lerp, 0.0, 1.0);
+	rate = std::clamp(rate, 0.0, 1.0);
 
 	double ret = 0.0;
 	double diff = end - start;
@@ -130,18 +130,30 @@ double MathUtil::LerpRad(double start, double end, double lerp)
 	if (diff < -std::numbers::pi)
 	{
 		end += std::numbers::pi * 2.0;
-		ret = Lerp(start, end, lerp);
+		ret = Lerp(start, end, rate);
 		while (ret >= std::numbers::pi * 2.0) ret -= std::numbers::pi * 2.0;
 	}
 	else if (diff > std::numbers::pi)
 	{
 		end -= std::numbers::pi * 2.0;
-		ret = Lerp(start, end, lerp);
+		ret = Lerp(start, end, rate);
 		while (ret < 0.0) ret += std::numbers::pi * 2.0;
 	}
 	else {
-		ret = Lerp(start, end, lerp);
+		ret = Lerp(start, end, rate);
 	}
 
 	return ret;
+}
+
+unsigned int MathUtil::LerpColor(unsigned int start, unsigned int end, float rate)
+{
+	rate = std::clamp(rate, 0.0f, 1.0f);
+
+	int ret_r = start >> 16 & 0xff, ret_g = start >> 8 & 0xff, ret_b = start & 0xff;
+	ret_r += Round(rate * ((end >> 16 & 0xff) - (start >> 16 & 0xff)));
+	ret_g += Round(rate * ((end >> 8 & 0xff) - (start >> 8 & 0xff)));
+	ret_b += Round(rate * ((end & 0xff) - (start & 0xff)));
+	
+	return unsigned int(ret_r + ret_g + ret_b);
 }

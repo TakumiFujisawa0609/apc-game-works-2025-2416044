@@ -7,18 +7,22 @@
 
 // 注意: 全ての関数を正常にコンパイル・動作させるには、C++20以上が必要です
 
-#pragma region 汎用
-#pragma endregion
-
 #pragma region 色
-Color Color::Add(const Color& c, bool limit) const {
+Color Color::operator/(float f)
+{
+	return { r / f, g / f, b / f };
+}
+
+Color Color::Add(const Color& c, bool limit) const
+{
 	Color ret = {};
 
 	ret.r = r + c.r;
 	ret.g = g + c.g;
 	ret.b = b + c.b;
 
-	if (limit) {
+	if (limit)
+	{
 		ret.r = std::clamp(ret.r, 0.0f, 255.0f);
 		ret.g = std::clamp(ret.g, 0.0f, 255.0f);
 		ret.b = std::clamp(ret.b, 0.0f, 255.0f);
@@ -27,187 +31,255 @@ Color Color::Add(const Color& c, bool limit) const {
 	return ret;
 }
 
-Color Color::operator/(float f) {
-	return { r / f, g / f, b / f };
-}
-
-unsigned int Color::GetColorHex() const {
+unsigned int Color::GetColorHex() const
+{
 	unsigned int ret = 0u;
 	ret += (unsigned int)r * 0x10000u;
 	ret += (unsigned int)g * 0x100u;
 	ret += (unsigned int)b;
 	return ret;
 }
+
+Color LerpColor(const Color& start, const Color& end, float rate)
+{
+	rate = std::clamp(rate, 0.0f, 1.0f);
+
+	Color ret = start;
+	ret.r += rate * (end.r - start.r);
+	ret.g += rate * (end.g - start.g);
+	ret.b += rate * (end.b - start.b);
+
+	return ret;
+}
 #pragma endregion
 
 #pragma region ２次元ベクトル
-const float Vector2::Magnitude() const {
+const float Vector2::Magnitude() const
+{
 	return hypot(x, y);
 }
 
-void Vector2::Normalize() {
+void Vector2::Normalize()
+{
 	float mag = Magnitude();
 	x /= mag;
 	y /= mag;
 }
 
-Vector2 Vector2::Normalized() const {
+Vector2 Vector2::Normalized() const
+{
 	float mag = Magnitude();
 	return { x / mag, y / mag };
 }
 
-float Vector2::Angle() const {
+float Vector2::Angle() const
+{
 	return atan2f(y, x);
 }
 
-float Vector2::AngleDegree() const {
+float Vector2::AngleDegree() const
+{
 	return Angle() / (float)std::numbers::pi * 180.0f;
 }
 
-void Vector2::operator+=(const Vector2& v) {
+void Vector2::operator+=(const Vector2& v)
+{
 	x += v.x;
 	y += v.y;
 }
 
-void Vector2::operator-=(const Vector2& v) {
+void Vector2::operator-=(const Vector2& v)
+{
 	x -= v.x;
 	y -= v.y;
 }
 
-void Vector2::operator*=(float scale) {
+void Vector2::operator*=(float scale)
+{
 	x *= scale;
 	y *= scale;
 }
 
-Vector2 Vector2::operator*(float scale) const {
+Vector2 Vector2::operator*(float scale) const
+{
 	return { x * scale, y * scale };
 }
 
-Vector2 Vector2::operator-() const {
+Vector2 Vector2::operator-() const
+{
 	return { -x, -y };
 }
 
-Vector2 operator+(const Vector2& va, const Vector2& vb) {
+Vector2 operator+(const Vector2& va, const Vector2& vb)
+{
 	return { va.x + vb.x, va.y + vb.y };
 }
 
-Vector2 operator-(const Vector2& va, const Vector2& vb) {
+Vector2 operator-(const Vector2& va, const Vector2& vb)
+{
 	return { va.x - vb.x, va.y - vb.y };
 }
 
-bool operator==(const Vector2& va, const Vector2& vb) {
+bool operator==(const Vector2& va, const Vector2& vb)
+{
 	return va.x == vb.x && va.y == vb.y;
 }
 
-float Dot(const Vector2& va, const Vector2& vb) {
+float Dot(const Vector2& va, const Vector2& vb)
+{
 	return va.x * vb.x + va.y * vb.y;
 }
 
-float Cross(const Vector2& va, const Vector2& vb) {
+float Cross(const Vector2& va, const Vector2& vb)
+{
 	return va.x * vb.y - vb.x * va.y;
 }
 
-float operator*(const Vector2& va, const Vector2& vb) {
+float operator*(const Vector2& va, const Vector2& vb)
+{
 	return Dot(va, vb);
 }
 
-float operator%(const Vector2& va, const Vector2& vb) {
+float operator%(const Vector2& va, const Vector2& vb)
+{
 	return Cross(va, vb);
 }
 
-Vector2 GetVector2FromAngle(float angle, float length) {
+Vector2 Lerp(const Vector2& start, const Vector2& end, float rate)
+{
+	rate = std::clamp(rate, 0.0f, 1.0f);
+
+	Vector2 ret = start;
+	ret.x += rate * (end.x - start.x);
+	ret.y += rate * (end.y - start.y);
+
+	return ret;
+}
+
+Vector2 GetVector2FromAngle(float angle, float length)
+{
 	return { cosf(angle) * length, sinf(angle) * length };
 }
 #pragma endregion
 
 #pragma region 長方形
-void Rect::Expand(float add_size) {
+void Rect::Expand(float add_size)
+{
 	start.x -= add_size;
 	start.y -= add_size;
 	end.x += add_size;
 	end.y += add_size;
 }
 
-Rect Rect::Expanded(float add_size) const {
+Rect Rect::Expanded(float add_size) const
+{
 	return { { start.x - add_size, start.y - add_size }, { end.x + add_size, end.y + add_size } };
 }
 #pragma endregion
 
 #pragma region ３次元ベクトル
-float Vector3::Magnitude() const {
+float Vector3::Magnitude() const
+{
 	return sqrt(SquareMagnitude());
 }
 
-float Vector3::SquareMagnitude() const {
+float Vector3::SquareMagnitude() const
+{
 	return x * x + y * y + z * z;
 }
 
-void Vector3::Normalize() {
+void Vector3::Normalize()
+{
 	float mag = Magnitude();
 	x /= mag;
 	y /= mag;
 	z /= mag;
 }
 
-Vector3 Vector3::Normalized() const {
+Vector3 Vector3::Normalized() const
+{
 	float mag = Magnitude();
 	return Vector3(x / mag, y / mag, z / mag);
 }
 
-void Vector3::operator+=(const Vector3& v) {
+void Vector3::operator+=(const Vector3& v)
+{
 	x += v.x;
 	y += v.y;
 	z += v.z;
 }
 
-void Vector3::operator-=(const Vector3& v) {
+void Vector3::operator-=(const Vector3& v)
+{
 	x -= v.x;
 	y -= v.y;
 	z -= v.z;
 }
 
-void Vector3::operator*=(float scale) {
+void Vector3::operator*=(float scale)
+{
 	x *= scale;
 	y *= scale;
 	z *= scale;
 }
 
-Vector3 Vector3::operator*(float scale) const {
+Vector3 Vector3::operator*(float scale) const
+{
 	return { x * scale, y * scale, z * scale };
 }
 
-Vector3 Vector3::operator-() const {
+Vector3 Vector3::operator-() const
+{
 	return { -x, -y, -z };
 }
 
-Vector3 operator+(const Vector3& va, const Vector3& vb) {
+Vector3 operator+(const Vector3& va, const Vector3& vb)
+{
 	return { va.x + vb.x, va.y + vb.y, va.z + vb.z };
 }
 
-Vector3 operator-(const Vector3& va, const Vector3& vb) {
+Vector3 operator-(const Vector3& va, const Vector3& vb)
+{
 	return { va.x - vb.x, va.y - vb.y, va.z - vb.z };
 }
 
-bool operator==(const Vector3& va, const Vector3& vb) {
+bool operator==(const Vector3& va, const Vector3& vb)
+{
 	return va.x == vb.x && va.y == vb.y && va.z == vb.z;
 }
 
-float Dot(const Vector3& va, const Vector3& vb) {
+float Dot(const Vector3& va, const Vector3& vb)
+{
 	return va.x * vb.x + va.y * vb.y + va.z * vb.z;
 }
 
-Vector3 Cross(const Vector3& va, const Vector3& vb) {
+Vector3 Cross(const Vector3& va, const Vector3& vb)
+{
 	return { va.y * vb.z - va.z * vb.y,
 	         va.z * vb.x - va.x * vb.z,
 	         va.x * vb.y - vb.y * va.x };
 }
 
-float operator*(const Vector3& va, const Vector3& vb) {
+float operator*(const Vector3& va, const Vector3& vb)
+{
 	return Dot(va, vb);
 }
 
-Vector3 operator%(const Vector3& va, const Vector3& vb) {
+Vector3 operator%(const Vector3& va, const Vector3& vb)
+{
 	return Cross(va, vb);
+}
+
+Vector3 Lerp(const Vector3& start, const Vector3& end, float rate)
+{
+	rate = std::clamp(rate, 0.0f, 1.0f);
+
+	Vector3 ret = start;
+	ret.x += rate * (end.x - start.x);
+	ret.y += rate * (end.y - start.y);
+	ret.z += rate * (end.z - start.z);
+
+	return ret;
 }
 #pragma endregion
 
@@ -291,11 +363,13 @@ Matrix4x4 TranslationMatrix(float x, float y, float z) {
 #pragma endregion
 
 #pragma region クォータニオン
-Quaternion Quaternion::Euler(const Vector3& rad) {
+Quaternion Quaternion::Euler(const Vector3& rad)
+{
 	return Euler(rad.x, rad.y, rad.z);
 }
 
-Quaternion Quaternion::Euler(double rad_x, double rad_y, double rad_z) {
+Quaternion Quaternion::Euler(double rad_x, double rad_y, double rad_z)
+{
 	Quaternion ret = {};
 
 	rad_x = MathUtil::RadIn2PI(rad_x);
@@ -317,15 +391,18 @@ Quaternion Quaternion::Euler(double rad_x, double rad_y, double rad_z) {
 	return ret;
 }
 
-double Quaternion::Magnitude() const {
+double Quaternion::Magnitude() const
+{
 	return sqrt(SquareMagnitude());
 }
 
-double Quaternion::SquareMagnitude() const {
+double Quaternion::SquareMagnitude() const
+{
 	return x * x + y * y + z * z + w * w;
 }
 
-Vector3 Quaternion::ToEuler() const {
+Vector3 Quaternion::ToEuler() const
+{
 	Vector3 ret;
 
 	double r11 = 2 * (x * z + w * y);
@@ -341,7 +418,8 @@ Vector3 Quaternion::ToEuler() const {
 	return ret;
 }
 
-Matrix4x4 Quaternion::ToMatrix() const {
+Matrix4x4 Quaternion::ToMatrix() const
+{
 	Matrix4x4 mat = {};
 
 	struct XYZW { float x, y, z, w; };
@@ -366,11 +444,13 @@ Matrix4x4 Quaternion::ToMatrix() const {
 	return mat;
 }
 
-Vector3 Quaternion::XYZ() const {
+Vector3 Quaternion::XYZ() const
+{
 	return { (float)x, (float)y, (float)z };
 }
 
-void Quaternion::Normalize() {
+void Quaternion::Normalize()
+{
 	double mag = Magnitude();
 	w /= mag;
 	x /= mag;
@@ -378,33 +458,39 @@ void Quaternion::Normalize() {
 	z /= mag;
 }
 
-Quaternion Quaternion::Normalized() const {
+Quaternion Quaternion::Normalized() const
+{
 	double mag = Magnitude();
 	return { w / mag, x / mag, y / mag, z / mag };
 }
 
-Quaternion Quaternion::Inversed() const {
+Quaternion Quaternion::Inversed() const
+{
 	double n = 1.0f / SquareMagnitude();
 	Quaternion tmp = { w, -x, -y, -z };
 	return { tmp.w * n, tmp.x * n, tmp.y * n, tmp.z * n };
 }
 
-void Quaternion::operator*=(float f) {
+void Quaternion::operator*=(float f)
+{
 	w *= f;
 	x *= f;
 	y *= f;
 	z *= f;
 }
 
-Quaternion Quaternion::operator*(float f) const {
+Quaternion Quaternion::operator*(float f) const
+{
 	return { w * f, x * f, y * f, z * f };
 }
 
-Quaternion Quaternion::operator+(const Quaternion& q) const {
+Quaternion Quaternion::operator+(const Quaternion& q) const
+{
 	return { w + q.w, x + q.x, y + q.y, z + q.z };
 }
 
-Quaternion Quaternion::Multiplication(const Quaternion& q) const {
+Quaternion Quaternion::Multiplication(const Quaternion& q) const
+{
 	Quaternion ret = {};
 	double d1, d2, d3, d4;
 
@@ -439,15 +525,18 @@ Quaternion Quaternion::Multiplication(const Quaternion& q) const {
 	return ret;
 }
 
-Quaternion Quaternion::operator*(const Quaternion& q) const {
+Quaternion Quaternion::operator*(const Quaternion& q) const
+{
 	return Multiplication(q);
 }
 
-double Dot(const Quaternion& qa, const Quaternion& qb) {
+double Dot(const Quaternion& qa, const Quaternion& qb)
+{
 	return (qa.w * qb.w + qa.x * qb.x + qa.y * qb.y + qa.z * qb.z);
 }
 
-Quaternion AngleAxis(Vector3 axis, double rad) {
+Quaternion AngleAxis(Vector3 axis, double rad)
+{
 	Quaternion ret = {};
 
 	double norm;
@@ -475,12 +564,14 @@ Quaternion AngleAxis(Vector3 axis, double rad) {
 	return ret;
 }
 
-Quaternion LookRotation(Vector3 dir) {
+Quaternion LookRotation(Vector3 dir)
+{
 	Vector3 up = { 0.0f, 1.0f, 0.0f };
 	return LookRotation(dir, up);
 }
 
-Quaternion LookRotation(Vector3 dir, Vector3 up) {
+Quaternion LookRotation(Vector3 dir, Vector3 up)
+{
 	dir.Normalize();
 	Vector3 right = Cross(up, dir).Normalized();
 	up = Cross(dir, right);
@@ -536,7 +627,8 @@ Quaternion LookRotation(Vector3 dir, Vector3 up) {
 	return quaternion.Normalized();
 }
 
-Quaternion GetRotation(Matrix4x4 mat) {
+Quaternion GetRotation(Matrix4x4 mat)
+{
 	Quaternion ret;
 
 	float s;

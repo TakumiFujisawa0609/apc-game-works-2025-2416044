@@ -23,9 +23,9 @@ public:
 	static VECTOR VGetIdentZ();
 
 	// 線形補間
-	static VECTOR VLerp(const VECTOR& In1, const VECTOR& In2, float lerp = 0.2f);
+	static VECTOR VLerp(const VECTOR& In1, const VECTOR& In2, float lerp);
 	// 線形補間（ラジアン）
-	static VECTOR VLerpRad(const VECTOR& In1, const VECTOR& In2, float lerp = 0.2f);
+	static VECTOR VLerpRad(const VECTOR& In1, const VECTOR& In2, float lerp);
 
 	// VECTOR 型の単項マイナス演算
 	static VECTOR VMinus(const VECTOR& In);

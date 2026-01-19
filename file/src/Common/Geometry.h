@@ -6,8 +6,9 @@
 struct Color {
 	float r, g, b;
 
-	Color() : r(0), g(0), b(0) {}
-	Color(float r, float g, float b) : r(r), g(g), b(b) {}
+	inline Color() : r(0), g(0), b(0) {}
+	inline Color(float r, float g, float b) : r(r), g(g), b(b) {}
+	inline Color(unsigned int c) : r(float(c >> 16 & 0xffu)), g(float(c >> 8 & 0xffu)), b(float(c & 0xffu)) {}
 
 	Color operator/(float f);
 
@@ -16,6 +17,9 @@ struct Color {
 	// unsigned int型を返す
 	unsigned int GetColorHex() const;
 };
+
+// 線形補間（色）
+Color LerpColor(const Color& start, const Color& end, float rate);
 #pragma endregion
 
 #pragma region ２次元ベクトル
@@ -23,8 +27,8 @@ struct Color {
 struct Vector2 {
 	float x, y;
 
-	Vector2() : x(0), y(0) {}
-	Vector2(float x, float y) : x(x), y(y) {}
+	inline Vector2() : x(0), y(0) {}
+	inline Vector2(float x, float y) : x(x), y(y) {}
 
 	// 平方和（各要素の２乗の和）の平方根
 	const float Magnitude() const;
@@ -51,7 +55,7 @@ struct Vector2 {
 	Vector2 operator-() const;
 };
 
-using Float2 = Vector2;
+using Position2 = Vector2;
 
 // ベクトル同士の加算
 Vector2 operator+(const Vector2& va, const Vector2& vb);
@@ -70,6 +74,8 @@ float operator*(const Vector2& va, const Vector2& vb);
 // 外積（クロス積）
 float operator%(const Vector2& va, const Vector2& vb);
 
+// 線形補間
+Vector2 Lerp(const Vector2& start, const Vector2& end, float rate);
 // 角度からベクトルを取得
 Vector2 GetVector2FromAngle(float angle, float length);
 #pragma endregion
@@ -79,8 +85,8 @@ Vector2 GetVector2FromAngle(float angle, float length);
 struct Rect {
 	Vector2 start, end;
 
-	Rect() : start(0, 0), end(0, 0) {}
-	Rect(Vector2 start, Vector2 end) : start(start), end(end) {}
+	inline Rect() : start(0, 0), end(0, 0) {}
+	inline Rect(Vector2 start, Vector2 end) : start(start), end(end) {}
 
 	void Expand(float add_size);
 	Rect Expanded(float add_size) const;
@@ -92,8 +98,8 @@ struct Rect {
 struct Vector3 {
 	float x, y, z;
 
-	Vector3() : x(0), y(0), z(0) {}
-	Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
+	inline Vector3() : x(0), y(0), z(0) {}
+	inline Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 
 	// 平方和（各要素の２乗の和）の平方根
 	float Magnitude() const;
@@ -117,7 +123,7 @@ struct Vector3 {
 	Vector3 operator-() const;
 };
 
-using Float3 = Vector3;
+using Position3 = Vector3;
 
 // ベクトル同士の加算
 Vector3 operator+(const Vector3& va, const Vector3& vb);
@@ -135,6 +141,9 @@ Vector3 Cross(const Vector3& va, const Vector3& vb);
 float operator*(const Vector3& va, const Vector3& vb);
 // 外積（クロス積）
 Vector3 operator%(const Vector3& va, const Vector3& vb);
+
+// 線形補間
+Vector3 Lerp(const Vector3& start, const Vector3& end, float rate);
 #pragma endregion
 
 #pragma region ４x４行列
@@ -174,9 +183,9 @@ struct Quaternion {
 	double w, x, y, z;
 
 	// デフォルトコンストラクタ
-	Quaternion() : w(1), x(0), y(0), z(0) {};
+	inline Quaternion() : w(1), x(0), y(0), z(0) {};
 	// 関数用コンストラクタ
-	Quaternion(double w, double x, double y, double z) : w(w), x(x), y(y), z(z) {};
+	inline Quaternion(double w, double x, double y, double z) : w(w), x(x), y(y), z(z) {};
 
 	// オイラー角（３次元ベクトル）から、Quaternionに変換
 	Quaternion Euler(const Vector3& rad);

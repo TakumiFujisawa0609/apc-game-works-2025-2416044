@@ -34,13 +34,15 @@ public:
 	static double RadIn2PI(double radian);
 	
 	// 線形補間
-	static float Lerp(float start, float end, float lerp = 0.2f);
+	static float Lerp(float start, float end, float rate);
 	// 線形補間
-	static double Lerp(double start, double end, double lerp = 0.2);
+	static double Lerp(double start, double end, double rate);
 	// 線形補間（ラジアン）
-	static float LerpRad(float start, float end, float lerp = 0.2f);
+	static float LerpRad(float start, float end, float rate);
 	// 線形補間（ラジアン）
-	static double LerpRad(double start, double end, double lerp = 0.2);
+	static double LerpRad(double start, double end, double rate);
+	// 線形補間（色）
+	static unsigned int LerpColor(unsigned int start, unsigned int end, float rate);
 
 	// 配列内の平均値
 	template <class Number>

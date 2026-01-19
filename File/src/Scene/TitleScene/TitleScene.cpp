@@ -41,7 +41,7 @@ void TitleScene::Draw() {
 	auto fl = fIns.GetFontData("ƒƒS").handle;
 	auto fg = fIns.GetFontData("”Ä—p").handle;
 
-	DrawStringToHandle(LOGO_X, LOGO_Y, "’m « ‚Ì —§ •û ‘Ì", 0xFFFFFFU, fl);
+	DrawStringToHandle(int(LOGO_X), int(LOGO_Y), "’m « ‚Ì —§ •û ‘Ì", 0xFFFFFFU, fl);
 
 	switch (subScene_) {
 	case TITLE:

@@ -335,7 +335,7 @@ void Stage::GetPlatformSize(int& x, int& z) const {
 }
 
 VECTOR Stage::GetPlatformSize() const {
-	return VECTOR(CUBE_WIDTH_PRESETS[stage_], 0.0f, platformDepth_);
+	return VECTOR(float(CUBE_WIDTH_PRESETS[stage_]), 0.0f, float(platformDepth_));
 }
 
 int Stage::GetPrevPlatformSizeZ() const { return prevPlatformDepth_; }
