@@ -133,6 +133,8 @@ bool Trap::CheckTrapReady() const { return setTrap_ && readyTrap_; }
 Vector2 Trap::GetStagePos() const { return stagePos_; }
 
 void Trap::SetNormalTrap(const VECTOR& pos) {
+	if (!stage_->IsGameStart()) return;
+
 	auto nt = traps_.begin();
 	bool flag = true;
 	for (; nt != traps_.end(); nt++) {

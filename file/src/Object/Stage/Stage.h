@@ -68,6 +68,7 @@ public:
 
 	void SetFastForward(bool);
 
+	bool IsGameStart() const;
 	bool IsSpinning() const;
 	bool IsVanishing() const;
 	int IsClear() const;

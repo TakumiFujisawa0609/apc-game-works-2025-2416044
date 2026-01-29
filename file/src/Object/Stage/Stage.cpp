@@ -17,7 +17,8 @@ int Stage::spinFrameIndex_ = 0;
 Stage::Stage(GameScene* ptr) :
 	SPIN_DEGREE(90.0f / SPIN_FRAME[spinFrameIndex_]),
 	SPIN_DELAY_FRAME(int(SPIN_FRAME[0] + SPIN_FRAME[spinFrameIndex_] * 1.5f)),
-	gameScene_(ptr) {}
+	gameScene_(ptr) {
+}
 
 bool Stage::SystemInit() {
 	blockModels_[(size_t)Block::TYPE::NORMAL] = MV1LoadModel("Data/Model/Blocks/Block_Stone.mv1");
@@ -36,7 +37,6 @@ bool Stage::GameInit(unsigned int num) {
 	platformList_.clear();
 	cubePattern_.clear();
 	cubeList_.clear();
-	stepQuota2_ = 0;
 
 	stage_ = num;
 	phase_ = 0;
@@ -190,7 +190,6 @@ void Stage::DrawUI() {
 #endif
 
 	// •à”
-	//int count = stepQuota_.size() > 0 && gameStart_ ? stepQuota_.back() : 0;
 	int count = stepQuota2_;
 
 	unsigned int color = FONT_COLOR_NORMAL;
@@ -358,6 +357,8 @@ int Stage::GetExtraTimer() const {
 
 void Stage::SetFastForward(bool b) { fastForward_ = b; }
 
+bool Stage::IsGameStart() const { return gameStart_; }
+
 bool Stage::IsSpinning() const { return isSpinning_; }
 
 bool Stage::IsVanishing() const {
@@ -392,6 +393,7 @@ bool Stage::IsExistNextWave() const {
 
 void Stage::SetUpCube2() {
 	gameStart_ = false;
+	stepQuota2_ = 0;
 
 #ifdef _DEBUG
 	if (phase_ == 1) {
