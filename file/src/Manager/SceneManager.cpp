@@ -2,6 +2,7 @@
 #include "../App.h"
 #include "../Common/Fader.h"
 #include "../Scene/TitleScene/TitleScene.h"
+#include "../Scene/DemoScene/DemoScene.h"
 #include "../Scene/GameScene/GameScene.h"
 #include "../Scene/ResultScene/ResultScene.h"
 #include "../Scene/Pause/Pause.h"
@@ -224,6 +225,9 @@ void SceneManager::DoChangeScene(SceneBase::SCENE scene) {
 		switch (scene) {
 		case SceneBase::SCENE::TITLE:
 			ret = new TitleScene();
+			break;
+		case SceneBase::SCENE::DEMO:
+			ret = new DemoScene();
 			break;
 		case SceneBase::SCENE::GAME:
 			game = new GameScene();

@@ -7,6 +7,7 @@ public:
 		PAUSE,
 
 		TITLE,
+		DEMO,
 		GAME,
 		RESULT,
 

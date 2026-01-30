@@ -15,6 +15,7 @@ public:
 	bool SystemInit() override;
 	void Update() override;
 	void Draw() override;
+	bool Release() override;
 
 private:
 	static constexpr float LOGO_X = 290;
@@ -31,7 +32,7 @@ private:
 
 	static constexpr const char* MENU_NAME[MENU_LENGTH] = {
 		"ゲーム開始",
-		"操作方法",
+		"説明書",
 		"設定",
 		"ゲーム終了"
 	};
@@ -55,40 +56,8 @@ private:
 		"ステージ３",
 	};
 
-	static constexpr size_t GUIDE_LENGTH = 9;
-	static constexpr const char* GUIDE_NAME_MAP[GUIDE_LENGTH] = {
-		"  操作方法  ",
-		"",
-		"    移動    ",
-		" 決定／ワナ ",
-		"ｽｰﾊﾟｰﾜﾅ 起動",
-		"   早送り   ",
-		"   ポーズ   ",
-		"    決定    ",
-		"    戻る    "
-	};
-	static constexpr const char* GUIDE_NAME_KEY[GUIDE_LENGTH] = {
-		" キーボード  ",
-		"",
-		"W/A/S/D, ｶｰｿﾙ",
-		"    J, C     ",
-		"    K, X     ",
-		"    L, Z     ",
-		"  ESC, BACK  ",
-		"    ENTER    ",
-		"  ESC, BACK  "
-	};
-	static constexpr const char* GUIDE_NAME_PAD[GUIDE_LENGTH] = {
-		" ゲームパッド  ",
-		"",
-		"左ｽﾃｨｯｸ, 十字ｷｰ",
-		"       A       ",
-		"       X       ",
-		"       Y       ",
-		"  ｽﾀｰﾄ, ｾﾚｸﾄ   ",
-		"     ｽﾀｰﾄ      ",
-		"       B       "
-	};
+	static constexpr size_t GUIDE_PAGE_COUNT = 9;
+	static constexpr const char* GUIDE_TEXT = "十字キー左右、またはA/Dキーで\nページを変えられます";
 
 	static constexpr float MENU_X_GUIDE = 480;
 	static constexpr float MENU_X_GUIDE_L = 10;
@@ -110,12 +79,17 @@ private:
 	static constexpr float MENU_CURSORBOX_X = 300.0f;
 	static constexpr float MENU_CURSORBOX_Y = 49.0f;
 
+	static constexpr int DEMO_SCREEN_TIMER = 10 * 60;
+
 	SUB_SCENE subScene_;
 	int cursorIndex_;
 	int tempVolumeBGM_;
 	int tempVolumeSE_;
 	bool tempTriMarkFlag_;
 	int tempSpinTimerIndex_;
+	int demoScreenTimer_;
+	int pageGraphID_[9];
+
 
 	void UpdateTitle();
 	void UpdateMenu();

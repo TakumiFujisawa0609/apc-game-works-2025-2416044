@@ -1,4 +1,5 @@
 #include <DxLib.h>
+#include <string>
 #include "../../App.h"
 #include "../../Manager/AudioManager.h"
 #include "../../Manager/FontManager.h"
@@ -10,6 +11,21 @@
 
 bool TitleScene::SystemInit() {
 	subScene_ = TITLE;
+	cursorIndex_ = 0;
+	tempVolumeBGM_ = 0;
+	tempVolumeSE_ = 0;
+	tempTriMarkFlag_ = 0;
+	tempSpinTimerIndex_ = 0;
+	demoScreenTimer_ = 0;
+
+	for (size_t idx = 0; idx < _countof(pageGraphID_); idx++) {
+		std::string name = "data/image/知性の立方体_企画書及び説明書_page-";
+		name += std::to_string(idx + 1);
+		name += ".jpg";
+		pageGraphID_[idx] = LoadGraph(name.c_str());
+		if (pageGraphID_[idx] == -1) return false;
+	}
+
 	return true;
 }
 
@@ -62,16 +78,30 @@ void TitleScene::Draw() {
 	}
 }
 
+bool TitleScene::Release() {
+	for (size_t idx = 0; idx < _countof(pageGraphID_); idx++) {
+		DeleteGraph(pageGraphID_[idx]);
+	}
+
+	return true;
+}
+
 void TitleScene::UpdateTitle() {
 	auto& ins = InputManager::GetInstance();
 
 	if (ins.DownMap("決定") || ins.DownMap("ワナ")) {
 		AudioManager::GetInstance().PlaySE("トラップ設置");
+		demoScreenTimer_ = 0;
 		subScene_ = MENU;
 	}
 	if (ins.DownMap("戻る")) {
 		//App::GetInstance().Quit();
 		nextScene_ = SceneBase::SCENE::NONE;
+		return;
+	}
+
+	if (++demoScreenTimer_ >= DEMO_SCREEN_TIMER) {
+		nextScene_ = SceneBase::SCENE::DEMO;
 	}
 }
 
@@ -83,9 +113,11 @@ void TitleScene::UpdateMenu() {
 		switch (cursorIndex_) {
 		case 0:
 			subScene_ = STAGE_SELECT;
+			cursorIndex_ = 0;
 			break;
 		case 1:
 			subScene_ = GUIDE;
+			cursorIndex_ = 0;
 			break;
 		case 2:
 			subScene_ = SETTING;
@@ -146,6 +178,17 @@ void TitleScene::UpdateGuide() {
 	if (ins.DownMap("決定") || ins.DownMap("ワナ") || ins.DownMap("戻る")) {
 		AudioManager::GetInstance().PlaySE("トラップ起動");
 		subScene_ = MENU;
+		cursorIndex_ = 1;
+	}
+
+	if (ins.DownMap("移動左")) {
+		if (cursorIndex_ > 0)
+			cursorIndex_--;
+	}
+
+	if (ins.DownMap("移動右")) {
+		if (cursorIndex_ < GUIDE_PAGE_COUNT - 1)
+			cursorIndex_++;
 	}
 }
 
@@ -255,11 +298,9 @@ void TitleScene::DrawStageSelect() {
 void TitleScene::DrawGuide() {
 	auto fg = FontManager::GetInstance().GetFontData("汎用").handle;
 
-	for (int i = 0; i < GUIDE_LENGTH; i++) {
-		DrawStringToHandle(int(MENU_X_GUIDE_L), int(MENU_Y_GUIDE + MENU_Y_GUIDE_ADD * i), GUIDE_NAME_KEY[i], 0xFFFFFFU, fg);
-		DrawStringToHandle(int(MENU_X_GUIDE), int(MENU_Y_GUIDE + MENU_Y_GUIDE_ADD * i), GUIDE_NAME_MAP[i], 0xFFFFFFU, fg);
-		DrawStringToHandle(int(MENU_X_GUIDE_R), int(MENU_Y_GUIDE + MENU_Y_GUIDE_ADD * i), GUIDE_NAME_PAD[i], 0xFFFFFFU, fg);
-	}
+	DrawRotaGraph(1280 / 2, 960 / 2, 0.32, 0.0, pageGraphID_[cursorIndex_], false);
+
+	DrawFormatStringToHandle(270, 850, 0xFFFFFFU, fg, GUIDE_TEXT);
 }
 
 void TitleScene::DrawSetting() {
@@ -292,7 +333,7 @@ void TitleScene::DrawSetting() {
 
 void TitleScene::SettingEnd() {
 	subScene_ = MENU;
-	cursorIndex_ = 0;
+	cursorIndex_ = 2;
 	Trap::SetTriMarkFlag(tempTriMarkFlag_);
 	Stage::SetSpinFrameIndex(tempSpinTimerIndex_);
 }
